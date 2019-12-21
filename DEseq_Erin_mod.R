@@ -17,36 +17,36 @@
 # ######### After use, comment this section ##############
 # 
 # # Intall required packages/libraries:
-# 
-# #Install Bioconductor R version 3.5 or less
-# #source("https://bioconductor.org/biocLite.R")
-# biocLite("DESeq2")
-# 
-# #OR 
-# 
-# # Install bioconductor R version 3.6 or greater
-# #if (!requireNamespace("BiocManager", quietly = TRUE))
-# #        install.packages("BiocManager")
-# #BiocManager::install(version = "3.10")
-# 
-# ## When prompted to install (a/s) all or some of the dependent packages, move your cursor down to the console and type "a" for all
-# 
-# # Install DESeq2:
-# if (!requireNamespace("BiocManager", quietly = TRUE))
-#         install.packages("BiocManager")
-# BiocManager::install("DESeq2")
-# 
-# # Install 'apeglm'
-# BiocManager::install("apeglm")
-# 
-# # install corrplot:
-# install.packages("corrplot")
-# 
-# #Install pretty heatmap - pheatmap: https://cran.r-project.org/web/packages/pheatmap/index.html
-# install.packages("pheatmap")
-# 
-# #Install RColorBrewer: https://cran.r-project.org/web/packages/RColorBrewer/index.html
-# install.packages("RColorBrewer")
+
+#Install Bioconductor R version 3.5 or less
+#source("https://bioconductor.org/biocLite.R")
+biocLite("DESeq2")
+
+#OR
+
+# Install bioconductor R version 3.6 or greater
+#if (!requireNamespace("BiocManager", quietly = TRUE))
+#        install.packages("BiocManager")
+#BiocManager::install(version = "3.10")
+
+## When prompted to install (a/s) all or some of the dependent packages, move your cursor down to the console and type "a" for all
+
+# Install DESeq2:
+if (!requireNamespace("BiocManager", quietly = TRUE))
+        install.packages("BiocManager")
+BiocManager::install("DESeq2")
+
+# Install 'apeglm'
+BiocManager::install("apeglm")
+
+# install corrplot:
+install.packages("corrplot")
+
+#Install pretty heatmap - pheatmap: https://cran.r-project.org/web/packages/pheatmap/index.html
+install.packages("pheatmap")
+
+#Install RColorBrewer: https://cran.r-project.org/web/packages/RColorBrewer/index.html
+install.packages("RColorBrewer")
 # 
 # ######### DONE WITH: FIRST TIME USE ONLY SECTION ##############
 # ################################
@@ -72,15 +72,15 @@ library(pheatmap)
 getwd()
 
 #Set this to your working directory:
-setwd("/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/02_scripts")
+setwd("/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/02_scripts/DEseq2")
 getwd()
-countsData <- read.table(file = "../01_input/counts.txt", header = FALSE, row.names = 1, skip = 2) 
+countsData <- read.table(file = "../../01_input/counts.txt", header = FALSE, row.names = 1, skip = 2) 
 head(countsData)
 dim(countsData)
 class(countsData)
 
 # Read in the metadata
-metadata1 <- read.table(file = "../01_input/RR_ARPE_Deluca_Collab_manifest.txt", header = FALSE) # import the data
+metadata1 <- read.table(file = "../../01_input/RR_ARPE_Deluca_Collab_manifest.txt", header = FALSE) # import the data
 metadata1
 colnames(metadata1) <- c("fasta1", "fasta2", "names1", "rep","sample")
 metadata1
@@ -92,6 +92,7 @@ head(countsData)
 # Let's give countsData some columns names. The first names will be... chr', 'start', etc...
 # The last names will be names for each sample. We can pull those names from metadata1:
 as.vector(metadata1$names1)
+as.vector(metadata1$sample)
 
 # Name countsData columns headers:
 colnames(countsData) <- c("chr", "start", "stop", "strand", "length", as.vector(metadata1$names1))
@@ -119,10 +120,12 @@ metadata1
 rownames(metadata1)<- metadata1$names1
 metadata1
 
-coldata <- metadata1[,c("sample", "rep","names1")]
+coldata <- metadata1[,c("sample", "rep","names1", "fasta1")]
 coldata
 coldata$sample <- as.factor(coldata$sample)
 coldata$names1 <- as.factor(coldata$names1)
+coldata$rep <- as.factor(coldata$rep)
+coldata$fasta1 <- as.factor(coldata$fasta1)
 rownames(coldata) <- metadata1$names1
 coldata$sample
 coldata$names1 
@@ -132,15 +135,10 @@ colnames(cts)
 #Check that the names match  --> Should be TRUE
 all(rownames(coldata) == colnames(cts))
 
-# dds1<- DESeqDataSetFromMatrix(countData = cts,
-#                               colData = coldata,
-#                               design = ~ sample )
-
-dds2 <- DESeqDataSetFromMatrix(countData = cts,
+dds <- DESeqDataSetFromMatrix(countData = cts,
                               colData = coldata,
-                              design = ~ sample )
+                              design = ~ sample + rep)
 
-dds2
 
 ################# PRE-FILTERING -- FILTER FOR PRESENT GENES: ################# 
 # Not necessary, but helps keep things fast. 
@@ -149,72 +147,78 @@ dds2
 # keep <- rowSums(counts(dds1)) >= 1
 # dds1 <- dds1[keep,]
 
-keep <- rowSums(counts(dds2)) >= 1
-dds2 <- dds2[keep,]
+keep <- rowSums(counts(dds)) >= 1
+dds <- dds[keep,]
 
-# Exercise: How many did we exclude?
-# dim(dds1)
-dim(dds2)
-# str(dds1)
-str(dds2)
+# How many did we exclude?
+dim(dds)
+str(dds)
 coldata
 
 ################### NOTE ON FACTOR LEVELS ###################
 # Organize the categories based on what makes sense:
-# dds1$sample <- factor(dds1$sample)
-dds2$sample <- factor(dds2$sample)
-dds2
+dds2$sample <- factor(dds$sample)
+dds2$sample
 
 # PERFORM DESEQ2 analysis:
 ####### This is where the magic happens! ########### 
 # This will transform dds into a specialized object with many more fields filled in.
 # dds1<- DESeq(dds1)
-dds2<- DESeq(dds2)
-# class(dds1)
-class(dds2)
-# str(dds1)
-str(dds2)
-# dim(dds1)
-dim(dds2)
-# plotDispEsts(dds1)
-plotDispEsts(dds2)
-
-head(dds2)
+dds<- DESeq(dds)
+class(dds)
+str(dds)
+dim(dds)
+plotDispEsts(dds)
+head(dds)
 
 # Here is a demonstration of the size Factor scaling that was calculated (sizeFactor):
 # dds1$sizeFactor
 # head(counts(dds, normalized = TRUE))
 # head(counts(dds, normalized = FALSE))
 dds2$sizeFactor
-head(counts(dds2, normalized = TRUE))
-head(counts(dds2, normalized = FALSE))
+head(counts(dds, normalized = TRUE))
+head(counts(dds, normalized = FALSE))
 
 ############## PERFORM LOG FOLD CHANGE SHRINKAGE FOR VISUALIZATION #####################
 
 # An input requirement of the lfcShrink function is a coef term. This is pulled from the resultsNames of dds:
 # resultsNames(dds1)
-resultsNames(dds2)
+resultsNames(dds)
 
 
 ############## DIFFERENTIAL EXPRESSION ANALYSIS #####################
 
 # calculate the statistically significant differences between ARPE19 vs Aktmyr
-res_ARPE19_vs_Aktmyr <- results(dds2,
+#ARPE19 vs Aktmyr
+res_ARPE19_vs_Aktmyr <- results(dds,
                                 lfc = 0.5,
                                 contrast=c("sample","ARPE19","Aktmyr"))
 
-summary(res_ARPE19_vs_RasV12 )
+summary(res_ARPE19_vs_Aktmyr)
 
-#ARPE19 vs Aktmyr
-resLFC_ARPE19_vs_Aktmyr <- lfcShrink(dds2,
+resLFC_ARPE19_vs_Aktmyr <- lfcShrink(dds,
                                      coef="sample_ARPE19_vs_Aktmyr", type='apeglm')
 
 summary(resLFC_ARPE19_vs_Aktmyr)
 
-##################  Exploring and exporting results ##################  
+#RasV12 vs Aktmyr
+res_RasV12_vs_Aktmyr <- results(dds,
+                                lfc = 0.5,
+                                contrast=c("sample","RasV12","Aktmyr"))
 
+summary(res_RasV12_vs_Aktmyr)
+
+resLFC_RasV12_vs_Aktmyr <- lfcShrink(dds,
+                                     coef="sample_RasV12_vs_Aktmyr", type='apeglm')
+
+summary(resLFC_RasV12_vs_Aktmyr)
+
+
+
+##################  Exploring and exporting results ##################  
+#ARPE19 vs Aktmyr
 par(mfrow=c(1,1))
-plotMA(resLFC_ARPE19_vs_Aktmyr, main="ARPE19 vs neg Aktmyr\nunshrunken", ylim = c(-7,7),
+plotMA(res_ARPE19_vs_Aktmyr, main="ARPE19 vs neg Aktmyr\nunshrunken", ylim = c(-7,7),
        ylab = "log fold change (ratio of normalized ARPE19 / Aktmyr)",
        xlab = "means of normalized counts")
 
@@ -222,7 +226,7 @@ plotMA(resLFC_ARPE19_vs_Aktmyr, main="ARPE19 vs Aktmyr\nshrunken", ylim = c(-7,7
        ylab = "log fold change (ratio of normalized ARPE19 / Aktmyr)",
        xlab = "means of normalized counts")
 
-#Identify genes on the plot rep 1 vs rep 2
+#Identify genes on the plot ARPE19 vs Aktmyr
 #  Step1 -> execute idx code line below. 
 #  Step2 -> Click on a dot in the plot. 
 #  Step3 -> To finish, click on "finish" in the upper right hand corner of the plot
@@ -230,8 +234,26 @@ idx <- identify(resLFC_ARPE19_vs_Aktmyr$baseMean,resLFC_ARPE19_vs_Aktmyr$log2Fol
 #  Step4 -> click here to see what you got!
 rownames(resLFC_ARPE19_vs_Aktmyr)[idx]
 
+#RasV12 vs Aktmyr
+par(mfrow=c(1,1))
+plotMA(res_RasV12_vs_Aktmyr, main="RasV12 vs Aktmyr\nunshrunken", ylim = c(-7,7),
+       ylab = "log fold change (ratio of normalized RasV12 / Aktmyr)",
+       xlab = "means of normalized counts")
+
+plotMA(resLFC_RasV12_vs_Aktmyr, main="RasV12 vs Aktmyr\nshrunken", ylim = c(-7,7),
+       ylab = "log fold change (ratio of normalized RasV12 / Aktmyr)",
+       xlab = "means of normalized counts")
+
+#Identify genes on the plot ARPE19 vs Aktmyr
+#  Step1 -> execute idx code line below. 
+#  Step2 -> Click on a dot in the plot. 
+#  Step3 -> To finish, click on "finish" in the upper right hand corner of the plot
+idx <- identify(resLFC_RasV12_vs_Aktmyr$baseMean,resLFC_RasV12_vs_Aktmyr$log2FoldChange)
+#  Step4 -> click here to see what you got!
+rownames(resLFC_RasV12_vs_Aktmyr)[idx]
+
 #Take r-stabilized log transformations of all the normalized count data. This will help with the problem that the data is noisy and it will help with the problem that the data is spread across a wide range of values.
-rld <- rlog(dds2, blind=FALSE)  #Take the r-stabilized log transformed data:
+rld <- rlog(dds, blind=FALSE)  #Take the r-stabilized log transformed data:
 
 # Calculate the distances between each sample
 sampleDists <- dist(t(assay(rld))) # calculate distance matrices:
