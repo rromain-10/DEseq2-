@@ -503,20 +503,88 @@ dim(Down_in_ARPE19vsAktmyr)
 # write(rownames(resLFC_ARPE19_vs_Aktmyr), file = "../03_output/all_present_genes.txt", sep = "\n") # sometimes you need a control/background set of genes, too.
 
 # Select the significant subset of genes MekDD vs Aktmyr
-Up_in_Aktmyr <- subset(resLFC_MekDD_vs_Aktmyr, padj < 0.05 & log2FoldChange > 0.5)
-Up_in_Aktmyr  <- Up_in_Aktmyr [order(Up_in_Aktmyr$padj),] #order them
-head(Up_in_Aktmyr) # Check them
-dim(Up_in_Aktmyr)
+Up_in_MekDDvsAktmyr <- subset(resLFC_MekDD_vs_Aktmyr, padj < 0.05 & log2FoldChange > 0.5)
+Up_in_MekDDvsAktmyr  <- Up_in_Aktmyr [order(Up_in_Aktmyr$padj),] #order them
+head(Up_in_MekDDvsAktmyr) # Check them
+dim(Up_in_MekDDvsAktmyr)
 # Select the significant subset of genes that are down-regulated in acetic acid
-Down_in_Aktmyr<- subset(resLFC_ARPE19_vs_Aktmyr, padj < 0.05 & log2FoldChange < -0.5)
-Down_in_Aktmyr <- Down_in_Aktmyr[order(Down_in_Aktmyr$padj),]
-head(Down_in_Aktmyr)
-dim(Down_in_Aktmyr)
+Down_in_MekDDvsAktmyr<- subset(resLFC_MekDD_vs_Aktmyr, padj < 0.05 & log2FoldChange < -0.5)
+Down_in_MekDDvsAktmyr <- Down_in_MekDDvsAktmyr[order(Down_in_MekDDvsAktmyr$padj),]
+head(Down_in_MekDDvsAktmyr)
+dim(Down_in_MekDDvsAktmyr)
 
 # Save these lists to output files:
 # write(rownames(Up_in_Aktmyr), file = "../03_output/Genes Up in Aktmyr.txt", sep = "\n")
 # write(rownames(Down_in_Aktmyr), file = "../03_output/Genes Down Aktmyr.txt", sep = "\n")
 # write(rownames(resLFC_ARPE19_vs_Aktmyr), file = "../03_output/all_present_genes.txt", sep = "\n") # sometimes you need a control/background set of genes, too.
+
+# Select the significant subset of genes in RasV12 vs Aktmyr
+Up_in_RasV12vsAktmyr <- subset(resLFC_RasV12_vs_Aktmyr, padj < 0.05 & log2FoldChange > 0.5)
+Up_in_RasV12vsAktmyr  <- Up_in_RasV12vsAktmyr [order(Up_in_RasV12vsAktmyr$padj),] #order them
+head(Up_in_RasV12vsAktmyr) # Check them
+dim(Up_in_RasV12vsAktmyr)
+# Select the significant subset of genes that are down-regulated in acetic acid
+Down_in_RasV12vsAktmyr<- subset(resLFC_RasV12_vs_Aktmyr, padj < 0.05 & log2FoldChange < -0.5)
+Down_in_RasV12vsAktmyr <- Down_in_RasV12vsAktmyr[order(Down_in_RasV12vsAktmyr$padj),]
+head(Down_in_RasV12vsAktmyr)
+dim(Down_in_RasV12vsAktmyr)
+
+# Save these lists to output files:
+# write(rownames(Up_in_Aktmyr), file = "../03_output/Genes Up in Aktmyr.txt", sep = "\n")
+# write(rownames(Down_in_Aktmyr), file = "../03_output/Genes Down Aktmyr.txt", sep = "\n")
+# write(rownames(resLFC_ARPE19_vs_Aktmyr), file = "../03_output/all_present_genes.txt", sep = "\n") # sometimes you need a control/background set of genes, too.
+
+# Select the significant subset of genes MekDD vs Aktmyr
+Up_in_MekDDvsAktmyr <- subset(resLFC_MekDD_vs_Aktmyr, padj < 0.05 & log2FoldChange > 0.5)
+Up_in_MekDDvsAktmyr  <- Up_in_MekDDvsAktmyr [order(Up_in_MekkDDvsAktmyr$padj),] #order them
+head(Up_in_MekDDvsAktmyr) # Check them
+dim(Up_in_MekDDvsAktmyr)
+# Select the significant subset of genes that are down-regulated in acetic acid
+Down_in_MekDDvsAktmyr<- subset(resLFC_MekDD_vs_Aktmyr, padj < 0.05 & log2FoldChange < -0.5)
+Down_in_MekDDvsAktmyr <- Down_in_MekDDvsAktmyr[order(Down_in_MekDDvsAktmyr$padj),]
+head(Down_in_MekDDvsAktmyr)
+dim(Down_in_MekDDvsAktmyr)
+
+# Save these lists to output files:
+# write(rownames(Up_in_Aktmyr), file = "../03_output/Genes Up in Aktmyr.txt", sep = "\n")
+# write(rownames(Down_in_Aktmyr), file = "../03_output/Genes Down Aktmyr.txt", sep = "\n")
+# write(rownames(resLFC_ARPE19_vs_Aktmyr), file = "../03_output/all_present_genes.txt", sep = "\n") # sometimes you need a control/background set of genes, too.
+############## MAKE HIERARCHICALLY CLUSTERED HEATMAPS OF ALL CHANGING GENES #####################
+
+
+# Select the significant subset of genes T53D4 vs Aktmyr
+Up_in_T53D4vsAktmyr <- subset(resLFC_T53D4_vs_Aktmyr, padj < 0.05 & log2FoldChange > 0.5)
+Up_in_T53D4vsAktmyr  <- Up_in_T53D4vsAktmyr [order(Up_in_T53D4vsAktmyr$padj),] #order them
+head(Up_in_T53D4sAktmyr) # Check them
+dim(Up_in_T53D4vsAktmyr)
+# Select the significant subset of genes that are down-regulated in acetic acid
+Down_in_T53D4vsAktmyr<- subset(resLFC_T53D4_vs_Aktmyr, padj < 0.05 & log2FoldChange < -0.5)
+Down_in_T53D4vsAktmyr <- Down_in_T53D4vsAktmyr[order(Down_in_T53D4vsAktmyr$padj),]
+head(Down_in_T53D4vsAktmyr)
+dim(Down_in_T53D4vsAktmyr)
+
+# Save these lists to output files:
+# write(rownames(Up_in_Aktmyr), file = "../03_output/Genes Up in Aktmyr.txt", sep = "\n")
+# write(rownames(Down_in_Aktmyr), file = "../03_output/Genes Down Aktmyr.txt", sep = "\n")
+# write(rownames(resLFC_ARPE19_vs_Aktmyr), file = "../03_output/all_present_genes.txt", sep = "\n") # sometimes you need a control/background set of genes, too.
+
+# Select the significant subset of genes Water vs Aktmyr
+Up_in_WatervsAktmyr <- subset(resLFC_Water_vs_Aktmyr, padj < 0.05 & log2FoldChange > 0.5)
+Up_in_WatervsAktmyr  <- Up_in_WatervsAktmyr [order(Up_in_WatervsAktmyr$padj),] #order them
+head(Up_in_WatervsAktmyr) # Check them
+dim(Up_in_WatervsAktmyr)
+# Select the significant subset of genes that are down-regulated in acetic acid
+Down_in_WatervsAktmyr<- subset(resLFC_Water_vs_Aktmyr, padj < 0.05 & log2FoldChange < -0.5)
+Down_in_WatervsAktmyr <- Down_in_WatervsAktmyr[order(Down_in_WatervsAktmyr$padj),]
+head(Down_in_WatervsAktmyr)
+dim(Down_in_WatervsAktmyr)
+
+# Save these lists to output files:
+# write(rownames(Up_in_Aktmyr), file = "../03_output/Genes Up in Aktmyr.txt", sep = "\n")
+# write(rownames(Down_in_Aktmyr), file = "../03_output/Genes Down Aktmyr.txt", sep = "\n")
+# write(rownames(resLFC_ARPE19_vs_Aktmyr), file = "../03_output/all_present_genes.txt", sep = "\n") # sometimes you need a control/background set of genes, too.
+############## MAKE HIERARCHICALLY CLUSTERED HEATMAPS OF ALL CHANGING GENES #####################
+
 ############## MAKE HIERARCHICALLY CLUSTERED HEATMAPS OF ALL CHANGING GENES #####################
 
 # Let's loosen our restrictions on significance to all genes with any log fold change and adjusted p-values less than 0.1 (both are default)
