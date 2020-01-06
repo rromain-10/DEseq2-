@@ -579,6 +579,7 @@ Down_in_WatervsAktmyr <- Down_in_WatervsAktmyr[order(Down_in_WatervsAktmyr$padj)
 head(Down_in_WatervsAktmyr)
 dim(Down_in_WatervsAktmyr)
 
+
 # Save these lists to output files:
 # write(rownames(Up_in_Aktmyr), file = "../03_output/Genes Up in Aktmyr.txt", sep = "\n")
 # write(rownames(Down_in_Aktmyr), file = "../03_output/Genes Down Aktmyr.txt", sep = "\n")
