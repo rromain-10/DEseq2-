@@ -129,13 +129,30 @@ coldata$sample
 coldata$names
 colnames(cts)
 
+
 # One thing we need to explicitly check. The rownames of coldata need to exactly match the colnames of cts.
 #Check that the names match  --> Should be TRUE
 all(rownames(coldata) == colnames(cts))
 
+library(ensembldb)
+library(biomaRt)
+ensembl = useDataset("hsapiens_gene_ensembl",mart=useMart("ENSEMBL_MART_ENSEMBL"))
+ctsnames = rownames(cts)
+ctsname_factor = factor(ctsnames, levels=ctsnames)
+# figure out filter,values,and attributes at http://www.ensembl.org/biomart/
+gene_names = getBM(mart = ensembl, filter='ensembl_gene_id', value=ctsnames, attributes=c('external_gene_name', 'ensembl_gene_id'))
+dim(gene_names) # 20002     2
+length(ctsnames) # 20003
+ctsnames = ctsnames[ ctsnames %in%  gene_names$ensembl_gene_id] # only one gene not found- ENSG00000254462, and it's all 0s
+length(ctsnames) # 20002
+gene_names = gene_names[ctsnames,]
+cts=cts[rownames(cts) != 'ENSG00000254462',]# take out the 0 count gene
+rownames(cts) <- gene_names$external_gene_name
+head(cts)
 dds <- DESeqDataSetFromMatrix(countData = cts,
                               colData = coldata,
                               design = ~ sample + rep)
+
                               
 
 
