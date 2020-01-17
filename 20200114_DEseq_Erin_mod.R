@@ -74,13 +74,13 @@ getwd()
 #Set this to your working directory:
 setwd("/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2")
 getwd()
-countsData <- read.table(file = "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2/20200116_all_counts.text", header = TRUE, row.names = 1, skip = 2) 
+countsData <- read.table(file = "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2/20200116_robs_counts.txt", header = TRUE, row.names = 1, skip = 2) 
 head(countsData)
 dim(countsData)
 class(countsData)
 
 # Read in the metadata
-metadata <- read.table(file = "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2/RR_ARPE_Deluca_Collab_manifest_2reps.txt", header = FALSE) # import the data
+metadata <- read.table(file = "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2/RR_ARPE_Deluca_Collab_manifest.txt", header = FALSE) # import the data
 metadata
 colnames(metadata) <- c("fasta1", "fasta2", "names", "rep","sample")
 metadata
@@ -106,9 +106,9 @@ head(countsData)
 # Subset the countsData 
 head(countsData)
 dim(countsData)
-head(countsData[,6:16])
+head(countsData[,6:22])
 # Save just the subset as an object called cts:
-cts <- as.matrix(countsData[,6:16])
+cts <- as.matrix(countsData[,6:22])
 head(cts)
 
 # Next we need to make an information called coltable. We can make this out of the metadata table.
@@ -119,8 +119,8 @@ rownames(metadata)<- metadata$names
 metadata
 
 coldata <- metadata[,c("sample", "rep", "names")]
-coldata = coldata[order(coldata$names),]
-#coldata= coldata$names
+#coldata = coldata[order(coldata$names),]
+coldata
 coldata$sample <- as.factor(coldata$sample)
 coldata$names <- as.factor(coldata$names)
 coldata$rep <- as.factor(coldata$rep)
@@ -135,7 +135,7 @@ all(rownames(coldata) == colnames(cts))
 
 dds <- DESeqDataSetFromMatrix(countData = cts,
                               colData = coldata,
-                              design = ~ sample)
+                              design = ~ sample + rep)
                               
 
 
