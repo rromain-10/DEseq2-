@@ -151,6 +151,9 @@ cts=cts[rownames(cts) != 'ENSG00000254462',]# take out the 0 count gene
 rownames(cts) <- gene_names$external_gene_name
 head(cts)
 
+#save cts file to directory
+write.csv(cts, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\2020017_genenames_cts.csv")
+
 dds <- DESeqDataSetFromMatrix(countData = cts,
                               colData = coldata,
                               design = ~ sample + rep,
@@ -377,20 +380,6 @@ idx <- identify(resLFC_Water_vs_Aktmyr$baseMean,resLFC_Water_vs_Aktmyr$log2FoldC
 #  Step4 -> click here to see what you got!
 rownames(resLFC_Water_vs_Aktmyr)[idx]
 
-# Calculate the distances between each sample
-sampleDists <- dist(t(assay(rld))) # calculate distance matrices:
-sampleDistMatrix <- as.matrix(sampleDists) #convert from data.frame -> matrix
-rownames(sampleDistMatrix) <- colnames(rld) # Add some labels
-colnames(sampleDistMatrix) <- NULL
-colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255) #Pick some pretty colors
-
-# Draw the heatmap
-par(mfrow=c(1,1))
-pheatmap(sampleDistMatrix,
-         clustering_distance_rows=sampleDists,
-         clustering_distance_cols=sampleDists,
-         col=colors, width = 4, height = 4,
-         cluster_rows= TRUE) # Plot the heatmap
 
 ##### VOLCANO PLOTS:###################
 # Volcano plots are nice ways of displaying the fold change against the p-value.
@@ -398,10 +387,10 @@ resultsNames(dds)
 
 #ARPE19 vs Aktmyr
 res_volcano_plot_ARPE19vsAktmyr <- lfcShrink(dds,coef="sample_ARPE19_vs_Aktmyr", type='apeglm') # Calculate padj without a lower lfc limit
-significantLFC_ARPE19vsAktmyr <- subset(resLFC_ARPE19_vs_Aktmyr, padj < 0.05) # Identify significantly changing genes
-significant_points_to_plot_ARPE19vsAktmyr <-res_volcano_plot_ARPE19vsAktmyr [which(rownames(res_volcano_plot_ARPE19vsAktmyr ) %in% rownames(significantLFC)),] 
+significantLFC_volcano_plot_ARPE19vsAktmyr <- subset(res_volcano_plot_ARPE19vsAktmyr, padj < 0.05) # Identify significantly changing genes
+significant_points_to_plot_ARPE19vsAktmyr <-res_volcano_plot_ARPE19vsAktmyr [which(rownames(res_volcano_plot_ARPE19vsAktmyr ) %in% rownames(significantLFC_volcano_plot_ARPE19vsAktmyr)),] 
 # We will set the top limit of the plot as 100. I'll need to find all the points that exceed that measure:
-maxedout_ARPEvsAktmyr <- subset(res_volcano_plot_ARPE19vsAktmyr , padj < 10e-100)
+maxedout_ARPE19vsAktmyr <- subset(res_volcano_plot_ARPE19vsAktmyr , padj < 10e-100)
 
 #Draw volcano plot for ARPE19 vs Aktmyr
 par(mfrow=c(1,1)) # one plot only 
@@ -422,8 +411,8 @@ abline(h=-log10(0.005), col = "blue", lty = "dashed")
 
 #RasV12 vs Aktmyr
 res_volcano_plot_RasV12vsAktmyr <- lfcShrink(dds,coef="sample_RasV12_vs_Aktmyr", type='apeglm') # Calculate padj without a lower lfc limit
-significantLFC_RasV12vsAktmyr <- subset(resLFC_RasV12_vs_Aktmyr, padj < 0.05) # Identify significantly changing genes
-significant_points_to_plot_RasV12vsAktmyr <-res_volcano_plot_RasV12vsAktmyr [which(rownames(res_volcano_plot_RasV12vsAktmyr ) %in% rownames(significantLFC)),] 
+significantLFC_volcano_plot_RasV12vsAktmyr <- subset(resLFC_RasV12_vs_Aktmyr, padj < 0.05) # Identify significantly changing genes
+significant_points_to_plot_RasV12vsAktmyr <-res_volcano_plot_RasV12vsAktmyr [which(rownames(res_volcano_plot_RasV12vsAktmyr ) %in% rownames(significantLFC_volcano_plot_RasV12vsAktmyr)),] 
 # We will set the top limit of the plot as 100. I'll need to find all the points that exceed that measure:
 maxedout_RasV12vsAktmyr <- subset(res_volcano_plot_RasV12vsAktmyr , padj < 10e-100)
 
@@ -446,8 +435,8 @@ abline(h=-log10(0.005), col = "blue", lty = "dashed")
 
 #MekDD vs Aktmyr
 res_volcano_plot_MekDDvsAktmyr <- lfcShrink(dds,coef="sample_MekDD_vs_Aktmyr", type='apeglm') # Calculate padj without a lower lfc limit
-significantLFC_MekDDvsAktmyr <- subset(resLFC_MekDD_vs_Aktmyr, padj < 0.05) # Identify significantly changing genes
-significant_points_to_plot_MekDDvsAktmyr <-res_volcano_plot_MekDDvsAktmyr [which(rownames(res_volcano_plot_MekDDvsAktmyr ) %in% rownames(significantLFC)),] 
+significantLFC_volcano_plot_MekDDvsAktmyr <- subset(resLFC_MekDD_vs_Aktmyr, padj < 0.05) # Identify significantly changing genes
+significant_points_to_plot_MekDDvsAktmyr <-res_volcano_plot_MekDDvsAktmyr [which(rownames(res_volcano_plot_MekDDvsAktmyr ) %in% rownames(significantLFC_volcano_plot_MekDDvsAktmyr)),] 
 # We will set the top limit of the plot as 100. I'll need to find all the points that exceed that measure:
 maxedout_MekDDvsAktmyr <- subset(res_volcano_plot_MekDDvsAktmyr , padj < 10e-100)
 
@@ -469,8 +458,8 @@ abline(h=-log10(0.005), col = "blue", lty = "dashed")
 
 #T53D4 vs Aktmyr
 res_volcano_plot_T53D4vsAktmyr <- lfcShrink(dds,coef="sample_T53D4_vs_Aktmyr", type='apeglm') # Calculate padj without a lower lfc limit
-significantLFC_T53D4vsAktmyr <- subset(resLFC_T53D4_vs_Aktmyr, padj < 0.05) # Identify significantly changing genes
-significant_points_to_plot_T53D4vsAktmyr <-res_volcano_plot_T53D4vsAktmyr [which(rownames(res_volcano_plot_T53D4vsAktmyr ) %in% rownames(significantLFC)),] 
+significantLFC_volcano_plot_T53D4vsAktmyr <- subset(resLFC_T53D4_vs_Aktmyr, padj < 0.05) # Identify significantly changing genes
+significant_points_to_plot_T53D4vsAktmyr <-res_volcano_plot_T53D4vsAktmyr [which(rownames(res_volcano_plot_T53D4vsAktmyr ) %in% rownames(significantLFC_volcano_plot_T53D4vsAktmyr)),] 
 # We will set the top limit of the plot as 100. I'll need to find all the points that exceed that measure:
 maxedout_T53D4vsAktmyr <- subset(res_volcano_plot_T53D4vsAktmyr , padj < 10e-100)
 
@@ -491,9 +480,9 @@ abline(v=-0.5, col = "blue", lty = "dashed")
 abline(h=-log10(0.005), col = "blue", lty = "dashed")
 
 #Water vs Aktmyr
-res_volcano_plot_WatervsAktmyr <- lfcShrink(dds,coef="sample_Water_vs_Aktmyr", type='apeglm') # Calculate padj without a lower lfc limit
-significantLFC_WatervsAktmyr <- subset(resLFC_Water_vs_Aktmyr, padj < 0.05) # Identify significantly changing genes
-significant_points_to_plot_WatervsAktmyr <-res_volcano_plot_WatervsAktmyr [which(rownames(res_volcano_plot_WatervsAktmyr ) %in% rownames(significantLFC)),] 
+res_volcano_plot_WatervsAktmyr <- lfcShrink(dds,coef="sample_negclt_vs_Aktmyr", type='apeglm') # Calculate padj without a lower lfc limit
+significantLFC_volcano_plot_WatervsAktmyr <- subset(resLFC_Water_vs_Aktmyr, padj < 0.05) # Identify significantly changing genes
+significant_points_to_plot_WatervsAktmyr <-res_volcano_plot_WatervsAktmyr [which(rownames(res_volcano_plot_WatervsAktmyr ) %in% rownames(significantLFC_volcano_plot_T53D4vsAktmyr)),] 
 # We will set the top limit of the plot as 100. I'll need to find all the points that exceed that measure:
 maxedout_WatervsAktmyr <- subset(res_volcano_plot_WatervsAktmyr , padj < 10e-100)
 
@@ -628,7 +617,7 @@ WatervsAktmyr<- subset(res_Water_vs_Aktmyr , padj < 0.05)
 dim(subset(res_Water_vs_Aktmyr , padj < 0.05))
 
 #Determine how many genes were captured and merge them:
-changing_genes<- rbind(ARPE19vsAktmyr, MekDDvsAktmyr, RasV12vsAktmyr, T53D4vsAktmyr, WatervsAktmyr  )
+changing_genes<- c("ARPE19vsAktmyr, MekDDvsAktmyr, RasV12vsAktmyr, T53D4vsAktmyr, WatervsAktmyr")  
 dim(changing_genes)
 length(unique(rownames(changing_genes)))
 
@@ -652,7 +641,7 @@ p <- pheatmap(changing_lrt_rdl,
               cluster_cols=TRUE, 
               clustering_distance_rows = "euclidean", 
               clustering_method = "complete",
-              show_rownames = FALSE)
+              show_rownames = TRUE)
 # p
 # help(pheatmap)
 # pdf("../03_output/clustered_genes.pdf", width = 10, height = 12)
