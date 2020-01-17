@@ -150,9 +150,11 @@ gene_names = gene_names[ctsnames,]
 cts=cts[rownames(cts) != 'ENSG00000254462',]# take out the 0 count gene
 rownames(cts) <- gene_names$external_gene_name
 head(cts)
+
 dds <- DESeqDataSetFromMatrix(countData = cts,
                               colData = coldata,
-                              design = ~ sample + rep)
+                              design = ~ sample + rep,
+                              ignoreRank = TRUE)
 
                               
 
@@ -250,7 +252,7 @@ plotMA(resLFC_ARPE19_vs_Aktmyr, main="ARPE19 vs Aktmyr\nshrunken", ylim = c(-7,7
 #  Step1 -> execute idx code line below. 
 #  Step2 -> Click on a dot in the plot. 
 #  Step3 -> To finish, click on "finish" in the upper right hand corner of the plot
-idx <- identify(resLFC_ARPE19_vs_Aktmyr$baseMean,resLFC_ARPE19_vs_Aktmyr$log2FoldChange)
+idx <- identify(resLFC_ARPE19_vs_Aktmyr$baseMean,resLFC_ARPE19_vs_Aktmyr$log2FoldChange, labels = gene_names$external_gene_name)
 #  Step4 -> click here to see what you got!
 rownames(resLFC_ARPE19_vs_Aktmyr)[idx]
 
@@ -280,7 +282,7 @@ plotMA(resLFC_RasV12_vs_Aktmyr, main="RasV12 vs Aktmyr\nshrunken", ylim = c(-7,7
 #  Step1 -> execute idx code line below. 
 #  Step2 -> Click on a dot in the plot. 
 #  Step3 -> To finish, click on "finish" in the upper right hand corner of the plot
-idx <- identify(resLFC_RasV12_vs_Aktmyr$baseMean,resLFC_RasV12_vs_Aktmyr$log2FoldChange)
+idx <- identify(resLFC_RasV12_vs_Aktmyr$baseMean,resLFC_RasV12_vs_Aktmyr$log2FoldChange, labels = gene_names$external_gene_name)
 #  Step4 -> click here to see what you got!
 rownames(resLFC_RasV12_vs_Aktmyr)[idx]
 
@@ -310,7 +312,7 @@ plotMA(resLFC_MekDD_vs_Aktmyr, main="MekDD vs Aktmyr\nshrunken", ylim = c(-7,7),
 #  Step1 -> execute idx code line below. 
 #  Step2 -> Click on a dot in the plot. 
 #  Step3 -> To finish, click on "finish" in the upper right hand corner of the plot
-idx <- identify(resLFC_MekDD_vs_Aktmyr$baseMean,resLFC_MekDD_vs_Aktmyr$log2FoldChange)
+idx <- identify(resLFC_MekDD_vs_Aktmyr$baseMean,resLFC_MekDD_vs_Aktmyr$log2FoldChange, labels = gene_names$external_gene_name)
 #  Step4 -> click here to see what you got!
 rownames(resLFC_MekDD_vs_Aktmyr)[idx]
 
@@ -341,7 +343,7 @@ plotMA(resLFC_T53D4_vs_Aktmyr, main="T53D4 vs Aktmyr\nshrunken", ylim = c(-7,7),
 #  Step1 -> execute idx code line below. 
 #  Step2 -> Click on a dot in the plot. 
 #  Step3 -> To finish, click on "finish" in the upper right hand corner of the plot
-idx <- identify(resLFC_T53D4_vs_Aktmyr$baseMean,resLFC_T53D4_vs_Aktmyr$log2FoldChange)
+idx <- identify(resLFC_T53D4_vs_Aktmyr$baseMean,resLFC_T53D4_vs_Aktmyr$log2FoldChange, labels = gene_names$external_gene_name)
 #  Step4 -> click here to see what you got!
 rownames(resLFC_T53D4_vs_Aktmyr)[idx]
 
@@ -371,7 +373,7 @@ plotMA(resLFC_Water_vs_Aktmyr, main="Water vs Aktmyr\nshrunken", ylim = c(-7,7),
 #  Step1 -> execute idx code line below. 
 #  Step2 -> Click on a dot in the plot. 
 #  Step3 -> To finish, click on "finish" in the upper right hand corner of the plot
-idx <- identify(resLFC_Water_vs_Aktmyr$baseMean,resLFC_Water_vs_Aktmyr$log2FoldChange)
+idx <- identify(resLFC_Water_vs_Aktmyr$baseMean,resLFC_Water_vs_Aktmyr$log2FoldChange, labels = gene_names$external_gene_name)
 #  Step4 -> click here to see what you got!
 rownames(resLFC_Water_vs_Aktmyr)[idx]
 
