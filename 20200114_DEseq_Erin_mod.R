@@ -32,8 +32,8 @@ biocLite("DESeq2")
 ## When prompted to install (a/s) all or some of the dependent packages, move your cursor down to the console and type "a" for all
 
 # Install DESeq2:
-#if (!requireNamespace("BiocManager", quietly = TRUE))
-#        install.packages("BiocManager")
+if (!requireNamespace("BiocManager", quietly = TRUE))
+       install.packages("BiocManager")
 #BiocManager::install("DESeq2")
 
 # Install 'apeglm'
@@ -134,6 +134,9 @@ colnames(cts)
 #Check that the names match  --> Should be TRUE
 all(rownames(coldata) == colnames(cts))
 
+#BiocManager::install("ensembldb")
+#BiocManager::install("GenomicFeatures")
+library(GenomicFeatures)
 library(ensembldb)
 library(biomaRt)
 ensembl = useDataset("hsapiens_gene_ensembl",mart=useMart("ENSEMBL_MART_ENSEMBL"))
@@ -151,17 +154,11 @@ cts=cts[rownames(cts) != 'ENSG00000254462',]# take out the 0 count gene
 rownames(cts) <- gene_names$external_gene_name
 head(cts)
 
-#save cts file to directory
-write.csv(cts, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\2020017_genenames_cts.csv")
-
+########## dds ################
 dds <- DESeqDataSetFromMatrix(countData = cts,
                               colData = coldata,
-                              design = ~ sample + rep,
-                              ignoreRank = TRUE)
-
-                              
-
-
+                              design = ~ sample + rep)
+                             
 ################# PRE-FILTERING -- FILTER FOR PRESENT GENES: ################# 
 # Not necessary, but helps keep things fast. 
 # Exclude all samples that have 0 reads:
@@ -200,6 +197,9 @@ head(dds)
 dds$sizeFactor
 head(counts(dds, normalized = TRUE))
 head(counts(dds, normalized = FALSE))
+normalized_genecounts <-counts(dds, normalized = TRUE)
+#save normalized cts file to directory
+write.csv(normalized_genecounts, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\2020021_normalized_genecounts.csv")
 
 #Take r-stabilized log transformations of all the normalized count data. This will help with the problem that the data is noisy and it will help with the problem that the data is spread across a wide range of values.
 rld <- rlog(dds, blind=FALSE)  #Take the r-stabilized log transformed data:
@@ -250,6 +250,9 @@ plotMA(res_ARPE19_vs_Aktmyr, main="ARPE19 vs neg Aktmyr\nunshrunken", ylim = c(-
 plotMA(resLFC_ARPE19_vs_Aktmyr, main="ARPE19 vs Aktmyr\nshrunken", ylim = c(-7,7),
        ylab = "log fold change (ratio of normalized ARPE19 / Aktmyr)",
        xlab = "means of normalized counts")
+
+#check known genes
+plotCounts(dds, gene=which(rownames(resLFC_ARPE19_vs_Aktmyr)=="BUB1"),intgroup = c("rep","sample"))
 
 #Identify genes on the plot ARPE19 vs Aktmyr
 #  Step1 -> execute idx code line below. 
