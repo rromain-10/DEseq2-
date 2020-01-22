@@ -609,7 +609,7 @@ dim(Down_in_WatervsAktmyr)
 
 # Get ARPE19 vs RasV12 differentially expressed genes:
 res_ARPE19_vs_Aktmyr <- results(dds,
-                                lfc = 0.5,
+                                lfc = 0.05,
                                 contrast=c("sample","ARPE19","Aktmyr"))
 
 #Subset each results table for just the differentially expressed genes:
@@ -676,7 +676,3 @@ p <- pheatmap(changing_lrt_rdl,
 # help(pheatmap)
 # pdf("../03_output/clustered_genes.pdf", width = 10, height = 12)
 
-###########TOP Go################################
-BiocManager::install("topGO")
-library(topGO)
-data(cts)
