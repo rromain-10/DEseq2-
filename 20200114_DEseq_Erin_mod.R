@@ -199,7 +199,7 @@ head(counts(dds, normalized = TRUE))
 head(counts(dds, normalized = FALSE))
 normalized_genecounts <-counts(dds, normalized = TRUE)
 #save normalized cts file to directory
-write.csv(normalized_genecounts, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\2020021_normalized_genecounts.csv")
+#write.csv(normalized_genecounts, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\2020021_normalized_genecounts.csv")
 
 #Take r-stabilized log transformations of all the normalized count data. This will help with the problem that the data is noisy and it will help with the problem that the data is spread across a wide range of values.
 rld <- rlog(dds, blind=FALSE)  #Take the r-stabilized log transformed data:
@@ -251,8 +251,9 @@ plotMA(resLFC_ARPE19_vs_Aktmyr, main="ARPE19 vs Aktmyr\nshrunken", ylim = c(-7,7
        ylab = "log fold change (ratio of normalized ARPE19 / Aktmyr)",
        xlab = "means of normalized counts")
 
-#check known genes
-plotCounts(dds, gene=which(rownames(resLFC_ARPE19_vs_Aktmyr)=="BUB1"),intgroup = c("rep","sample"))
+#check known genes (enter gene names where after the ..=="xxx")
+plotCounts(dds, gene=which(rownames(resLFC_ARPE19_vs_Aktmyr)=="BUB1"),intgroup = c("sample"))
+plotCounts(dds, gene=which(rownames(resLFC_ARPE19_vs_Aktmyr)=="PPP2R5C"),intgroup = c("sample"))
 
 #Identify genes on the plot ARPE19 vs Aktmyr
 #  Step1 -> execute idx code line below. 
@@ -283,6 +284,10 @@ plotMA(res_RasV12_vs_Aktmyr, main="RasV12 vs Aktmyr\nunshrunken", ylim = c(-7,7)
 plotMA(resLFC_RasV12_vs_Aktmyr, main="RasV12 vs Aktmyr\nshrunken", ylim = c(-7,7),
        ylab = "log fold change (ratio of normalized RasV12 / Aktmyr)",
        xlab = "means of normalized counts")
+
+#check known genes (enter gene names where after the ..=="xxx")
+plotCounts(dds, gene=which(rownames(resLFC_RasV12_vs_Aktmyr)=="BUB1"),intgroup = c("rep","sample"))
+plotCounts(dds, gene=which(rownames(resLFC_RasV12_vs_Aktmyr)=="BUB1"),intgroup = c("sample"))
 
 #Identify genes on the plot ARPE19 vs Aktmyr
 #  Step1 -> execute idx code line below. 
@@ -345,6 +350,8 @@ plotMA(resLFC_T53D4_vs_Aktmyr, main="T53D4 vs Aktmyr\nshrunken", ylim = c(-7,7),
        ylab = "log fold change (ratio of normalized T53D4 / Aktmyr)",
        xlab = "means of normalized counts")
 
+plotCounts(dds, gene=which(rownames(resLFC_T53D4_vs_Aktmyr)=="BUB1"),intgroup = c("sample"))
+
 #Identify genes on the plot ARPE19 vs Aktmyr
 #  Step1 -> execute idx code line below. 
 #  Step2 -> Click on a dot in the plot. 
@@ -374,6 +381,8 @@ plotMA(res_Water_vs_Aktmyr, main="Water vs Aktmyr\nunshrunken", ylim = c(-7,7),
 plotMA(resLFC_Water_vs_Aktmyr, main="Water vs Aktmyr\nshrunken", ylim = c(-7,7),
        ylab = "log fold change (ratio of normalized Water / Aktmyr)",
        xlab = "means of normalized counts")
+
+plotCounts(dds, gene=which(rownames(resLFC_Water_vs_Aktmyr)=="BUB1"),intgroup = c("sample"))
 
 #Identify genes on the plot ARPE19 vs Aktmyr
 #  Step1 -> execute idx code line below. 
@@ -599,7 +608,7 @@ dim(Down_in_WatervsAktmyr)
 # Let's loosen our restrictions on significance to all genes with any log fold change and adjusted p-values less than 0.1 (both are default)
 
 # Get ARPE19 vs RasV12 differentially expressed genes:
-res_ARPE19_vs_Akymyr <- results(dds,
+res_ARPE19_vs_Aktmyr <- results(dds,
                                 lfc = 0.5,
                                 contrast=c("sample","ARPE19","Aktmyr"))
 
@@ -607,25 +616,43 @@ res_ARPE19_vs_Akymyr <- results(dds,
 ARPE19vsAktmyr<- subset(res_ARPE19_vs_Akymyr , padj < 0.05)
 dim(subset(res_ARPE19_vs_Aktmyr , padj < 0.05))
 
+res_MekDD_vs_Aktmyr <- results(dds,
+                                lfc = 0.5,
+                                contrast=c("sample","MekDD","Aktmyr"))
+
 MekDDvsAktmyr<- subset(res_MekDD_vs_Aktmyr , padj < 0.05)
 dim(subset(res_MekDD_vs_Aktmyr , padj < 0.05))
+
+res_RasV12_vs_Aktmyr <- results(dds,
+                               lfc = 0.5,
+                               contrast=c("sample","RasV12","Aktmyr"))
 
 RasV12vsAktmyr <- subset(res_RasV12_vs_Aktmyr , padj < 0.05)
 dim(subset(res_RasV12_vs_Aktmyr , padj < 0.05))
 
+res_T53D4_vs_Aktmyr <- results(dds,
+                                lfc = 0.5,
+                                contrast=c("sample","T53D4","Aktmyr"))
+
 T53D4vsAktmyr<- subset(res_T53D4_vs_Aktmyr , padj < 0.05)
 dim(subset(res_T53D4_vs_Aktmyr , padj < 0.05))
 
-WatervsAktmyr<- subset(res_Water_vs_Aktmyr , padj < 0.05)
-dim(subset(res_Water_vs_Aktmyr , padj < 0.05))
+
+res_negclt_vs_Aktmyr <- results(dds,
+                               lfc = 0.5,
+                               contrast=c("sample","negclt","Aktmyr"))
+
+
+negcltvsAktmyr<- subset(res_negclt_vs_Aktmyr , padj < 0.05)
+dim(subset(res_negclt_vs_Aktmyr , padj < 0.05))
 
 #Determine how many genes were captured and merge them:
-changing_genes<- c("ARPE19vsAktmyr, MekDDvsAktmyr, RasV12vsAktmyr, T53D4vsAktmyr, WatervsAktmyr")  
+changing_genes<- c("ARPE19vsAktmyr", "MekDDvsAktmyr", "RasV12vsAktmyr", "T53D4vsAktmyr", "negcltvsAktmyr")  
 dim(changing_genes)
 length(unique(rownames(changing_genes)))
 
 # Get all r-stabilized log values of all the data:
-rdl_all <- assay(rlog(dds, blind=FALSE))
+rdl_all <- assay(rlog(dds, blind=TRUE))
 
 #Subset just the changing genes:
 changing_lrt_rdl <- subset(rdl_all, rownames(rdl_all) %in% rownames(changing_genes))
