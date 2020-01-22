@@ -32,9 +32,9 @@ biocLite("DESeq2")
 ## When prompted to install (a/s) all or some of the dependent packages, move your cursor down to the console and type "a" for all
 
 # Install DESeq2:
-if (!requireNamespace("BiocManager", quietly = TRUE))
-       install.packages("BiocManager")
-#BiocManager::install("DESeq2")
+# if (!requireNamespace("BiocManager", quietly = TRUE))
+#        install.packages("BiocManager")
+# #BiocManager::install("DESeq2")
 
 # Install 'apeglm'
 #BiocManager::install("apeglm")
@@ -217,7 +217,7 @@ pheatmap(sampleDistMatrix,
          clustering_distance_rows=sampleDists,
          clustering_distance_cols=sampleDists,
          col=colors, width = 4, height = 4,
-         cluster_rows = ) # Plot the heatmap
+         cluster_rows = TRUE) # Plot the heatmap
 
 ############## PERFORM LOG FOLD CHANGE SHRINKAGE FOR VISUALIZATION #####################
 
@@ -613,7 +613,7 @@ res_ARPE19_vs_Aktmyr <- results(dds,
                                 contrast=c("sample","ARPE19","Aktmyr"))
 
 #Subset each results table for just the differentially expressed genes:
-ARPE19vsAktmyr<- subset(res_ARPE19_vs_Akymyr , padj < 0.05)
+ARPE19vsAktmyr<- subset(res_ARPE19_vs_Aktmyr , padj < 0.05)
 dim(subset(res_ARPE19_vs_Aktmyr , padj < 0.05))
 
 res_MekDD_vs_Aktmyr <- results(dds,
@@ -647,12 +647,12 @@ negcltvsAktmyr<- subset(res_negclt_vs_Aktmyr , padj < 0.05)
 dim(subset(res_negclt_vs_Aktmyr , padj < 0.05))
 
 #Determine how many genes were captured and merge them:
-changing_genes<- c("ARPE19vsAktmyr", "MekDDvsAktmyr", "RasV12vsAktmyr", "T53D4vsAktmyr", "negcltvsAktmyr")  
+changing_genes<- rbind(ARPE19vsAktmyr, MekDDvsAktmyr, RasV12vsAktmyr, T53D4vsAktmyr, negcltvsAktmyr)  
 dim(changing_genes)
 length(unique(rownames(changing_genes)))
 
 # Get all r-stabilized log values of all the data:
-rdl_all <- assay(rlog(dds, blind=TRUE))
+rdl_all <- assay(rlog(dds, blind=FALSE))
 
 #Subset just the changing genes:
 changing_lrt_rdl <- subset(rdl_all, rownames(rdl_all) %in% rownames(changing_genes))
@@ -671,7 +671,7 @@ p <- pheatmap(changing_lrt_rdl,
               cluster_cols=TRUE, 
               clustering_distance_rows = "euclidean", 
               clustering_method = "complete",
-              show_rownames = TRUE)
+              show_rownames = FALSE)
 # p
 # help(pheatmap)
 # pdf("../03_output/clustered_genes.pdf", width = 10, height = 12)

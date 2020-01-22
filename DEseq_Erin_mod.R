@@ -74,7 +74,7 @@ getwd()
 #Set this to your working directory:
 setwd("/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2")
 getwd()
-countsData <- read.table(file = "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2/all_counts2.text", header = TRUE, row.names = 1, skip = 2) 
+countsData <- read.table(file = "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2/20200114_all_counts.text", header = TRUE, row.names = 1, skip = 2) 
 head(countsData)
 dim(countsData)
 class(countsData)
@@ -136,8 +136,7 @@ all(rownames(coldata) == colnames(cts))
 
 dds <- DESeqDataSetFromMatrix(countData = cts,
                               colData = coldata,
-                              design = ~ sample,
-                              ignoreRank = TRUE)
+                              design = ~ sample)
 
 
 ################# PRE-FILTERING -- FILTER FOR PRESENT GENES: ################# 
