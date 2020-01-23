@@ -231,7 +231,7 @@ resultsNames(dds)
 
 ######ARPE19 vs Aktmyr#########
 res_ARPE19_vs_Aktmyr <- results(dds,
-                                lfc = 0.5,
+                                lfc = 1.2,
                                 contrast=c("sample","ARPE19","Aktmyr"))
 
 summary(res_ARPE19_vs_Aktmyr)
@@ -265,7 +265,7 @@ rownames(resLFC_ARPE19_vs_Aktmyr)[idx]
 
 #########RasV12 vs Aktmyr#############
 res_RasV12_vs_Aktmyr <- results(dds,
-                                lfc = 0.5,
+                                lfc = 1.2,
                                 contrast=c("sample","RasV12","Aktmyr"))
 
 summary(res_RasV12_vs_Aktmyr)
@@ -299,7 +299,7 @@ rownames(resLFC_RasV12_vs_Aktmyr)[idx]
 
 #MekDD vs Aktmyr
 res_MekDD_vs_Aktmyr <- results(dds,
-                                lfc = 0.5,
+                                lfc = 1.2,
                                 contrast=c("sample","MekDD","Aktmyr"))
 
 summary(res_MekDD_vs_Aktmyr)
@@ -330,7 +330,7 @@ rownames(resLFC_MekDD_vs_Aktmyr)[idx]
 
 #T53D4 vs Aktmyr
 res_T53D4_vs_Aktmyr <- results(dds,
-                               lfc = 0.5,
+                               lfc = 1.2,
                                contrast=c("sample","T53D4","Aktmyr"))
 
 summary(res_T53D4_vs_Aktmyr)
@@ -362,7 +362,7 @@ rownames(resLFC_T53D4_vs_Aktmyr)[idx]
 
 #negclt(water) vs Aktmyr
 res_Water_vs_Aktmyr <- results(dds,
-                               lfc = 0.5,
+                               lfc = 1.2,
                                contrast=c("sample","negclt","Aktmyr"))
 
 summary(res_Water_vs_Aktmyr)
@@ -609,7 +609,7 @@ dim(Down_in_WatervsAktmyr)
 
 # Get ARPE19 vs RasV12 differentially expressed genes:
 res_ARPE19_vs_Aktmyr <- results(dds,
-                                lfc = 0.05,
+                                lfc = 1.2,
                                 contrast=c("sample","ARPE19","Aktmyr"))
 
 #Subset each results table for just the differentially expressed genes:
@@ -617,37 +617,37 @@ ARPE19vsAktmyr<- subset(res_ARPE19_vs_Aktmyr , padj < 0.05)
 dim(subset(res_ARPE19_vs_Aktmyr , padj < 0.05))
 
 res_MekDD_vs_Aktmyr <- results(dds,
-                                lfc = 0.5,
+                                lfc = 1.2,
                                 contrast=c("sample","MekDD","Aktmyr"))
 
 MekDDvsAktmyr<- subset(res_MekDD_vs_Aktmyr , padj < 0.05)
 dim(subset(res_MekDD_vs_Aktmyr , padj < 0.05))
 
 res_RasV12_vs_Aktmyr <- results(dds,
-                               lfc = 0.5,
+                               lfc = 1.2,
                                contrast=c("sample","RasV12","Aktmyr"))
 
 RasV12vsAktmyr <- subset(res_RasV12_vs_Aktmyr , padj < 0.05)
 dim(subset(res_RasV12_vs_Aktmyr , padj < 0.05))
 
 res_T53D4_vs_Aktmyr <- results(dds,
-                                lfc = 0.5,
+                                lfc = 1.2,
                                 contrast=c("sample","T53D4","Aktmyr"))
 
-T53D4vsAktmyr<- subset(res_T53D4_vs_Aktmyr , padj < 0.05)
+T53D4vsAktmyr<- subset(res_T53D4_vs_Aktmyr , padj < 0.01)
 dim(subset(res_T53D4_vs_Aktmyr , padj < 0.05))
 
 
-res_negclt_vs_Aktmyr <- results(dds,
-                               lfc = 0.5,
-                               contrast=c("sample","negclt","Aktmyr"))
-
-
-negcltvsAktmyr<- subset(res_negclt_vs_Aktmyr , padj < 0.05)
-dim(subset(res_negclt_vs_Aktmyr , padj < 0.05))
+# res_negclt_vs_Aktmyr <- results(dds,
+#                                lfc = 1.2,
+#                                contrast=c("sample","negclt","Aktmyr"))
+# 
+# 
+# negcltvsAktmyr<- subset(res_negclt_vs_Aktmyr , padj < 0.05)
+# dim(subset(res_negclt_vs_Aktmyr , padj < 0.05))
 
 #Determine how many genes were captured and merge them:
-changing_genes<- rbind(ARPE19vsAktmyr, MekDDvsAktmyr, RasV12vsAktmyr, T53D4vsAktmyr, negcltvsAktmyr)  
+changing_genes<- rbind(ARPE19vsAktmyr, MekDDvsAktmyr, RasV12vsAktmyr, T53D4vsAktmyr)  
 dim(changing_genes)
 length(unique(rownames(changing_genes)))
 
@@ -667,11 +667,50 @@ class(changing_lrt_rdl)
 p <- pheatmap(changing_lrt_rdl, 
               scale="row", 
               color = colorRampPalette(c("blue", "white", "red"), space = "Lab")(100),
+              border_color = TRUE,
               cluster_rows=TRUE, 
               cluster_cols=TRUE, 
+              cutree_rows = 3,
+              cutree_cols = 5,
+              treeheight_row = 100,
               clustering_distance_rows = "euclidean", 
               clustering_method = "complete",
-              show_rownames = FALSE)
+              show_rownames = FALSE) #,km= 10 ##kmeans
+
+plot(p$tree_row)
+plot(p$tree_col)
+plot(p$gtable)
+
+#identify clusters
+hc <-p$tree_col
+lbl <- cutree(hc, 5) # split gene dendrogram in 5 groups
+which(lbl==2) # grab genes of first group
+plot(which(lbl==2))
+
+#identify genes in clusters
+rownames(changing_lrt_rdl) 
+colnames(changing_lrt_rdl) 
+rownames(changing_lrt_rdl[p$tree_row[["order"]],])
+cutree(p$tree_row,k=3)
+sort(cutree(p$tree_row,k=3))
+plot(sort(cutree(p$tree_row,k=3)))
+cutree(p$tree_col,k=5)
+sort(cutree(p$tree_col,k=5))
+plot(sort(cutree(p$tree_col,k=5)))
+
+# install.packages("d3heatmap")
+library("d3heatmap")
+d3heatmap(changing_lrt_rdl,scale = "row", colors= scales::col_quantile("YlOrRd",NULL,5),
+          k_row =9,
+          k_col = 5, 
+          Rowv = T,
+          Colv = T,
+          symm = T,
+          distfun = dist
+           )
+
+
+
 # p
 # help(pheatmap)
 # pdf("../03_output/clustered_genes.pdf", width = 10, height = 12)
