@@ -117,9 +117,7 @@ class(metadata)
 metadata
 rownames(metadata)<- metadata$names
 metadata
-
 coldata <- metadata[,c("sample", "rep", "names")]
-#coldata = coldata[order(coldata$names),]
 coldata
 coldata$sample <- as.factor(coldata$sample)
 coldata$names <- as.factor(coldata$names)
@@ -161,11 +159,6 @@ dds <- DESeqDataSetFromMatrix(countData = cts,
                              
 ################# PRE-FILTERING -- FILTER FOR PRESENT GENES: ################# 
 # Not necessary, but helps keep things fast. 
-# Exclude all samples that have 0 reads:
-
-# keep <- rowSums(counts(dds1)) >= 1
-# dds1 <- dds1[keep,]
-
 keep <- rowSums(counts(dds)) >=1
 dds <- dds[keep,]
 
@@ -182,7 +175,6 @@ dds$names
 # PERFORM DESEQ2 analysis:
 ####### This is where the magic happens! ########### 
 # This will transform dds into a specialized object with many more fields filled in.
-# dds1<- DESeq(dds1)
 dds<- DESeq(dds)
 class(dds)
 str(dds)
@@ -190,15 +182,12 @@ dim(dds)
 plotDispEsts(dds)
 head(dds)
 
-# Here is a demonstration of the size Factor scaling that was calculated (sizeFactor):
-# dds1$sizeFactor
-# head(counts(dds, normalized = TRUE))
-# head(counts(dds, normalized = FALSE))
+########## size Factor scaling that was calculated (sizeFactor)########
 dds$sizeFactor
 head(counts(dds, normalized = TRUE))
 head(counts(dds, normalized = FALSE))
 normalized_genecounts <-counts(dds, normalized = TRUE)
-#save normalized cts file to directory
+####### save normalized nomralized counts file to working directory for excel browsing ######
 #write.csv(normalized_genecounts, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\2020021_normalized_genecounts.csv")
 
 #Take r-stabilized log transformations of all the normalized count data. This will help with the problem that the data is noisy and it will help with the problem that the data is spread across a wide range of values.
@@ -319,6 +308,10 @@ plotMA(resLFC_MekDD_vs_Aktmyr, main="MekDD vs Aktmyr\nshrunken", ylim = c(-7,7),
        ylab = "log fold change (ratio of normalized MekDD / Aktmyr)",
        xlab = "means of normalized counts")
 
+#check known genes (enter gene names where after the ..=="xxx")
+plotCounts(dds, gene=which(rownames(resLFC_MekDD_vs_Aktmyr)=="BUB1"),intgroup = c("rep","sample"))
+plotCounts(dds, gene=which(rownames(resLFC_MekDD_vs_Aktmyr)=="BUB1"),intgroup = c("sample"))
+
 #Identify genes on the plot ARPE19 vs Aktmyr
 #  Step1 -> execute idx code line below. 
 #  Step2 -> Click on a dot in the plot. 
@@ -350,6 +343,8 @@ plotMA(resLFC_T53D4_vs_Aktmyr, main="T53D4 vs Aktmyr\nshrunken", ylim = c(-7,7),
        ylab = "log fold change (ratio of normalized T53D4 / Aktmyr)",
        xlab = "means of normalized counts")
 
+#check known genes (enter gene names where after the ..=="xxx")
+plotCounts(dds, gene=which(rownames(resLFC_T53D4_vs_Aktmyr)=="BUB1"),intgroup = c("rep","sample"))
 plotCounts(dds, gene=which(rownames(resLFC_T53D4_vs_Aktmyr)=="BUB1"),intgroup = c("sample"))
 
 #Identify genes on the plot ARPE19 vs Aktmyr
@@ -382,6 +377,8 @@ plotMA(resLFC_Water_vs_Aktmyr, main="Water vs Aktmyr\nshrunken", ylim = c(-7,7),
        ylab = "log fold change (ratio of normalized Water / Aktmyr)",
        xlab = "means of normalized counts")
 
+#check known genes (enter gene names where after the ..=="xxx")
+plotCounts(dds, gene=which(rownames(resLFC_Water_vs_Aktmyr)=="BUB1"),intgroup = c("rep","sample"))
 plotCounts(dds, gene=which(rownames(resLFC_Water_vs_Aktmyr)=="BUB1"),intgroup = c("sample"))
 
 #Identify genes on the plot ARPE19 vs Aktmyr
@@ -607,7 +604,7 @@ dim(Down_in_WatervsAktmyr)
 
 # Let's loosen our restrictions on significance to all genes with any log fold change and adjusted p-values less than 0.1 (both are default)
 
-# Get ARPE19 vs RasV12 differentially expressed genes:
+# Get ARPE19 vs Aktmyr differentially expressed genes:
 res_ARPE19_vs_Aktmyr <- results(dds,
                                 lfc = 1.2,
                                 contrast=c("sample","ARPE19","Aktmyr"))
@@ -616,6 +613,7 @@ res_ARPE19_vs_Aktmyr <- results(dds,
 ARPE19vsAktmyr<- subset(res_ARPE19_vs_Aktmyr , padj < 0.05)
 dim(subset(res_ARPE19_vs_Aktmyr , padj < 0.05))
 
+# Get MekDD vs Aktmyr differentially expressed genes:
 res_MekDD_vs_Aktmyr <- results(dds,
                                 lfc = 1.2,
                                 contrast=c("sample","MekDD","Aktmyr"))
@@ -623,6 +621,7 @@ res_MekDD_vs_Aktmyr <- results(dds,
 MekDDvsAktmyr<- subset(res_MekDD_vs_Aktmyr , padj < 0.05)
 dim(subset(res_MekDD_vs_Aktmyr , padj < 0.05))
 
+# Get RasV12 vs Aktmyr differentially expressed genes:
 res_RasV12_vs_Aktmyr <- results(dds,
                                lfc = 1.2,
                                contrast=c("sample","RasV12","Aktmyr"))
@@ -630,6 +629,7 @@ res_RasV12_vs_Aktmyr <- results(dds,
 RasV12vsAktmyr <- subset(res_RasV12_vs_Aktmyr , padj < 0.05)
 dim(subset(res_RasV12_vs_Aktmyr , padj < 0.05))
 
+# Get T53D4 vs Aktmyr differentially expressed genes:
 res_T53D4_vs_Aktmyr <- results(dds,
                                 lfc = 1.2,
                                 contrast=c("sample","T53D4","Aktmyr"))
@@ -637,14 +637,14 @@ res_T53D4_vs_Aktmyr <- results(dds,
 T53D4vsAktmyr<- subset(res_T53D4_vs_Aktmyr , padj < 0.01)
 dim(subset(res_T53D4_vs_Aktmyr , padj < 0.05))
 
+# Get negclt vs Aktmyr differentially expressed genes:
+res_negclt_vs_Aktmyr <- results(dds,
+                               lfc = 1.2,
+                               contrast=c("sample","negclt","Aktmyr"))
 
-# res_negclt_vs_Aktmyr <- results(dds,
-#                                lfc = 1.2,
-#                                contrast=c("sample","negclt","Aktmyr"))
-# 
-# 
-# negcltvsAktmyr<- subset(res_negclt_vs_Aktmyr , padj < 0.05)
-# dim(subset(res_negclt_vs_Aktmyr , padj < 0.05))
+
+negcltvsAktmyr<- subset(res_negclt_vs_Aktmyr , padj < 0.05)
+dim(subset(res_negclt_vs_Aktmyr , padj < 0.05))
 
 #Determine how many genes were captured and merge them:
 changing_genes<- rbind(ARPE19vsAktmyr, MekDDvsAktmyr, RasV12vsAktmyr, T53D4vsAktmyr)  
@@ -664,8 +664,6 @@ class(changing_lrt_rdl)
 
 # Draw a heat map
 # Scale by row, listed below as scale = "row". This is really important. It sets the mean of every row to 0 and the standard deviation of every row to 1:
-
-#dcols= dist(t(p), method = "minkowski")
 p <- pheatmap(changing_lrt_rdl, 
               scale="row", 
               color = colorRampPalette(c("blue", "white", "red"), space = "Lab")(100),
@@ -677,9 +675,11 @@ p <- pheatmap(changing_lrt_rdl,
               treeheight_row = 100,
               clustering_distance_rows = "euclidean", 
               clustering_method = "complete",
-              show_rownames = FALSE) #,km= 10 ##kmeans
+              show_rownames = FALSE) 
 
+#shows dendrogram divison of row (genes)
 plot(p$tree_row)
+#shows dendrogram divisions of columns (samples)
 plot(p$tree_col)
 plot(p$gtable)
 
@@ -693,23 +693,32 @@ plot(which(lbl==2))
 rownames(changing_lrt_rdl) 
 colnames(changing_lrt_rdl) 
 rownames(changing_lrt_rdl[p$tree_row[["order"]],])
+
+#cut rows into the best groupings, where k = .. determins the number of divions
 cutree(p$tree_row,k=3)
-sort(cutree(p$tree_row,k=3))
+gene_divisions <-sort(cutree(p$tree_row,k=3))
+getwd()
+#save as list that can be used for go terms
+write.csv(list, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\gene_divisions.csv" )
+#shows visually how the rows were divied
 plot(sort(cutree(p$tree_row,k=3)))
-cutree(p$tree_col,k=5)
+#cut columns into the best groupings, where k = .. determins the number of divions
 sort(cutree(p$tree_col,k=5))
+sample_divisions<-cutree(p$tree_col,k=5)
+#save as list
+write.csv(list2, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\sample_divisions.csv" )
+#shows visually how the columns were divied
 plot(sort(cutree(p$tree_col,k=5)))
 
-
-
-# install.packages("d3heatmap")
+############## d3heatmap for interactive visualization of data ####################
+install.packages("d3heatmap")
 library("d3heatmap")
 d3heatmap(changing_lrt_rdl,scale = "row", colors= scales::col_quantile("RdYlBu",NULL,8),
           k_row =9,
           k_col = 5, 
           Rowv = T,
           Colv = T,
-          symm = T,
+          symm = F,
           distfun = dist
            )
 
