@@ -664,6 +664,8 @@ class(changing_lrt_rdl)
 
 # Draw a heat map
 # Scale by row, listed below as scale = "row". This is really important. It sets the mean of every row to 0 and the standard deviation of every row to 1:
+
+#dcols= dist(t(p), method = "minkowski")
 p <- pheatmap(changing_lrt_rdl, 
               scale="row", 
               color = colorRampPalette(c("blue", "white", "red"), space = "Lab")(100),
@@ -698,9 +700,11 @@ cutree(p$tree_col,k=5)
 sort(cutree(p$tree_col,k=5))
 plot(sort(cutree(p$tree_col,k=5)))
 
+
+
 # install.packages("d3heatmap")
 library("d3heatmap")
-d3heatmap(changing_lrt_rdl,scale = "row", colors= scales::col_quantile("YlOrRd",NULL,5),
+d3heatmap(changing_lrt_rdl,scale = "row", colors= scales::col_quantile("RdYlBu",NULL,8),
           k_row =9,
           k_col = 5, 
           Rowv = T,
