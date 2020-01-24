@@ -68,19 +68,17 @@ library(pheatmap)
 
 ###########  READ IN THE DATA  #####################
 
-# import the counts data
+#Must be in your code repository directory, and the counts and metadata file must be in that directory:
 getwd()
 
-#Set this to your working directory:
-setwd("/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2")
-getwd()
-countsData <- read.table(file = "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2/20200116_robs_counts.txt", header = TRUE, row.names = 1, skip = 2) 
+# import the counts data
+countsData <- read.table(file = "20200116_robs_counts.txt", header = TRUE, row.names = 1, skip = 2) 
 head(countsData)
 dim(countsData)
 class(countsData)
 
 # Read in the metadata
-metadata <- read.table(file = "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2/RR_ARPE_Deluca_Collab_manifest.txt", header = FALSE) # import the data
+metadata <- read.table(file = "RR_ARPE_Deluca_Collab_manifest.txt", header = FALSE) # import the data
 metadata
 colnames(metadata) <- c("fasta1", "fasta2", "names", "rep","sample")
 metadata
