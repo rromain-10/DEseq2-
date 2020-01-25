@@ -240,7 +240,7 @@ plotMA(resLFC_ARPE19_vs_Aktmyr, main="ARPE19 vs Aktmyr\nshrunken", ylim = c(-7,7
 
 #check known genes (enter gene names where after the ..=="xxx")
 plotCounts(dds, gene=which(rownames(resLFC_ARPE19_vs_Aktmyr)=="BUB1"),intgroup = c("sample"))
-plotCounts(dds, gene=which(rownames(resLFC_ARPE19_vs_Aktmyr)=="PPP2R5C"),intgroup = c("sample"))
+plotCounts(dds, gene=which(rownames(resLFC_ARPE19_vs_Aktmyr)=="PPP2R5E"),intgroup = c("sample"))
 
 #Identify genes on the plot ARPE19 vs Aktmyr
 #  Step1 -> execute idx code line below. 
@@ -645,7 +645,9 @@ negcltvsAktmyr<- subset(res_negclt_vs_Aktmyr , padj < 0.05)
 dim(subset(res_negclt_vs_Aktmyr , padj < 0.05))
 
 #Determine how many genes were captured and merge them:
-changing_genes<- rbind(ARPE19vsAktmyr, MekDDvsAktmyr, RasV12vsAktmyr, T53D4vsAktmyr)  
+changing_genes<- rbind(ARPE19vsAktmyr, MekDDvsAktmyr, RasV12vsAktmyr, T53D4vsAktmyr) 
+#save LogFold of changing genes
+write.csv(changing_genes, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\changing_genes.csv" )
 dim(changing_genes)
 length(unique(rownames(changing_genes)))
 
