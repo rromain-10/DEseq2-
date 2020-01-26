@@ -517,12 +517,12 @@ abline(h=-log10(0.005), col = "blue", lty = "dashed")
 
 
 # Select the significant subset of genes in ARPE19 vs Aktmyr
-Up_in_ARPE19vsAktmyr <- subset(resLFC_ARPE19_vs_Aktmyr, padj < 0.05 & log2FoldChange > 0.5)
+Up_in_ARPE19vsAktmyr <- subset(resLFC_ARPE19_vs_Aktmyr, padj < 0.05 & log2FoldChange > 1.2)
 Up_in_ARPE19vsAktmyr  <- Up_in_ARPE19vsAktmyr [order(Up_in_ARPE19vsAktmyr$padj),] #order them
 head(Up_in_ARPE19vsAktmyr) # Check them
 dim(Up_in_ARPE19vsAktmyr)
 # Select the significant subset of genes that are down-regulated in acetic acid
-Down_in_ARPE19vsAktmyr<- subset(resLFC_ARPE19_vs_Aktmyr, padj < 0.05 & log2FoldChange < -0.5)
+Down_in_ARPE19vsAktmyr<- subset(resLFC_ARPE19_vs_Aktmyr, padj < 0.05 & log2FoldChange < -1.2)
 Down_in_ARPE19vsAktmyr <- Down_in_ARPE19vsAktmyr[order(Down_in_ARPE19vsAktmyr$padj),]
 head(Down_in_ARPE19vsAktmyr)
 dim(Down_in_ARPE19vsAktmyr)
@@ -533,12 +533,12 @@ dim(Down_in_ARPE19vsAktmyr)
 # write(rownames(resLFC_ARPE19_vs_Aktmyr), file = "../03_output/all_present_genes.txt", sep = "\n") # sometimes you need a control/background set of genes, too.
 
 # Select the significant subset of genes MekDD vs Aktmyr
-Up_in_MekDDvsAktmyr <- subset(resLFC_MekDD_vs_Aktmyr, padj < 0.05 & log2FoldChange > 0.5)
+Up_in_MekDDvsAktmyr <- subset(resLFC_MekDD_vs_Aktmyr, padj < 0.05 & log2FoldChange > 1.2)
 Up_in_MekDDvsAktmyr  <- Up_in_Aktmyr [order(Up_in_Aktmyr$padj),] #order them
 head(Up_in_MekDDvsAktmyr) # Check them
 dim(Up_in_MekDDvsAktmyr)
 # Select the significant subset of genes that are down-regulated in acetic acid
-Down_in_MekDDvsAktmyr<- subset(resLFC_MekDD_vs_Aktmyr, padj < 0.05 & log2FoldChange < -0.5)
+Down_in_MekDDvsAktmyr<- subset(resLFC_MekDD_vs_Aktmyr, padj < 0.05 & log2FoldChange < -1.2)
 Down_in_MekDDvsAktmyr <- Down_in_MekDDvsAktmyr[order(Down_in_MekDDvsAktmyr$padj),]
 head(Down_in_MekDDvsAktmyr)
 dim(Down_in_MekDDvsAktmyr)
@@ -549,12 +549,12 @@ dim(Down_in_MekDDvsAktmyr)
 # write(rownames(resLFC_ARPE19_vs_Aktmyr), file = "../03_output/all_present_genes.txt", sep = "\n") # sometimes you need a control/background set of genes, too.
 
 # Select the significant subset of genes in RasV12 vs Aktmyr
-Up_in_RasV12vsAktmyr <- subset(resLFC_RasV12_vs_Aktmyr, padj < 0.05 & log2FoldChange > 0.5)
+Up_in_RasV12vsAktmyr <- subset(resLFC_RasV12_vs_Aktmyr, padj < 0.05 & log2FoldChange > 1.2)
 Up_in_RasV12vsAktmyr  <- Up_in_RasV12vsAktmyr [order(Up_in_RasV12vsAktmyr$padj),] #order them
 head(Up_in_RasV12vsAktmyr) # Check them
 dim(Up_in_RasV12vsAktmyr)
 # Select the significant subset of genes that are down-regulated in acetic acid
-Down_in_RasV12vsAktmyr<- subset(resLFC_RasV12_vs_Aktmyr, padj < 0.05 & log2FoldChange < -0.5)
+Down_in_RasV12vsAktmyr<- subset(resLFC_RasV12_vs_Aktmyr, padj < 0.05 & log2FoldChange < -1.2)
 Down_in_RasV12vsAktmyr <- Down_in_RasV12vsAktmyr[order(Down_in_RasV12vsAktmyr$padj),]
 head(Down_in_RasV12vsAktmyr)
 dim(Down_in_RasV12vsAktmyr)
@@ -565,12 +565,12 @@ dim(Down_in_RasV12vsAktmyr)
 # write(rownames(resLFC_ARPE19_vs_Aktmyr), file = "../03_output/all_present_genes.txt", sep = "\n") # sometimes you need a control/background set of genes, too.
 
 # Select the significant subset of genes T53D4 vs Aktmyr
-Up_in_T53D4vsAktmyr <- subset(resLFC_T53D4_vs_Aktmyr, padj < 0.05 & log2FoldChange > 0.5)
+Up_in_T53D4vsAktmyr <- subset(resLFC_T53D4_vs_Aktmyr, padj < 0.05 & log2FoldChange > 1.2)
 Up_in_T53D4vsAktmyr  <- Up_in_T53D4vsAktmyr [order(Up_in_T53D4vsAktmyr$padj),] #order them
 head(Up_in_T53D4sAktmyr) # Check them
 dim(Up_in_T53D4vsAktmyr)
 # Select the significant subset of genes that are down-regulated in acetic acid
-Down_in_T53D4vsAktmyr<- subset(resLFC_T53D4_vs_Aktmyr, padj < 0.05 & log2FoldChange < -0.5)
+Down_in_T53D4vsAktmyr<- subset(resLFC_T53D4_vs_Aktmyr, padj < 0.05 & log2FoldChange < -1.2)
 Down_in_T53D4vsAktmyr <- Down_in_T53D4vsAktmyr[order(Down_in_T53D4vsAktmyr$padj),]
 head(Down_in_T53D4vsAktmyr)
 dim(Down_in_T53D4vsAktmyr)
@@ -581,12 +581,12 @@ dim(Down_in_T53D4vsAktmyr)
 # write(rownames(resLFC_ARPE19_vs_Aktmyr), file = "../03_output/all_present_genes.txt", sep = "\n") # sometimes you need a control/background set of genes, too.
 
 # Select the significant subset of genes Water vs Aktmyr
-Up_in_WatervsAktmyr <- subset(resLFC_Water_vs_Aktmyr, padj < 0.05 & log2FoldChange > 0.5)
+Up_in_WatervsAktmyr <- subset(resLFC_Water_vs_Aktmyr, padj < 0.05 & log2FoldChange > 1.2)
 Up_in_WatervsAktmyr  <- Up_in_WatervsAktmyr [order(Up_in_WatervsAktmyr$padj),] #order them
 head(Up_in_WatervsAktmyr) # Check them
 dim(Up_in_WatervsAktmyr)
 # Select the significant subset of genes that are down-regulated in acetic acid
-Down_in_WatervsAktmyr<- subset(resLFC_Water_vs_Aktmyr, padj < 0.05 & log2FoldChange < -0.5)
+Down_in_WatervsAktmyr<- subset(resLFC_Water_vs_Aktmyr, padj < 0.05 & log2FoldChange < -1.2)
 Down_in_WatervsAktmyr <- Down_in_WatervsAktmyr[order(Down_in_WatervsAktmyr$padj),]
 head(Down_in_WatervsAktmyr)
 dim(Down_in_WatervsAktmyr)
@@ -677,6 +677,9 @@ p <- pheatmap(changing_lrt_rdl,
               clustering_method = "complete",
               show_rownames = FALSE) 
 
+#save pheatmap
+getwd()
+pdf("/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2/gene_clusters.pdf", width = 10, height = 12)
 #shows dendrogram divison of row (genes)
 plot(p$tree_row)
 #shows dendrogram divisions of columns (samples)
@@ -699,14 +702,14 @@ cutree(p$tree_row,k=3)
 gene_divisions <-sort(cutree(p$tree_row,k=3))
 getwd()
 #save as list that can be used for go terms
-write.csv(list, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\gene_divisions.csv" )
+write.csv(gene_divisions, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\gene_divisions.csv" )
 #shows visually how the rows were divied
 plot(sort(cutree(p$tree_row,k=3)))
 #cut columns into the best groupings, where k = .. determins the number of divions
 sort(cutree(p$tree_col,k=5))
 sample_divisions<-cutree(p$tree_col,k=5)
 #save as list
-write.csv(list2, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\sample_divisions.csv" )
+write.csv(sample_divisions, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\sample_divisions.csv" )
 #shows visually how the columns were divied
 plot(sort(cutree(p$tree_col,k=5)))
 
@@ -721,10 +724,3 @@ d3heatmap(changing_lrt_rdl,scale = "row", colors= scales::col_quantile("RdYlBu",
           symm = F,
           distfun = dist
            )
-
-
-
-# p
-# help(pheatmap)
-# pdf("../03_output/clustered_genes.pdf", width = 10, height = 12)
-
