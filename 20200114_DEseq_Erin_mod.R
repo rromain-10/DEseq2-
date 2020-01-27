@@ -184,7 +184,7 @@ head(dds)
 dds$sizeFactor
 head(counts(dds, normalized = TRUE))
 head(counts(dds, normalized = FALSE))
-normalized_genecounts <-counts(dds, normalized = TRUE)
+#normalized_genecounts <-counts(dds, normalized = TRUE)
 ####### save normalized nomralized counts file to working directory for excel browsing ######
 #write.csv(normalized_genecounts, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\2020021_normalized_genecounts.csv")
 
@@ -227,6 +227,7 @@ resLFC_ARPE19_vs_Aktmyr <- lfcShrink(dds,
                                      coef="sample_ARPE19_vs_Aktmyr", type='apeglm')
 
 summary(resLFC_ARPE19_vs_Aktmyr)
+#write.csv(resLFC_ARPE19_vs_Aktmyr, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\reslfc_ARPE19vsAkt_lfc12.csv")
 
 ##########ARPE19 vs Aktmyr plots#########
 par(mfrow=c(1,1))
@@ -260,7 +261,9 @@ summary(res_RasV12_vs_Aktmyr)
 resLFC_RasV12_vs_Aktmyr <- lfcShrink(dds,
                                      coef="sample_RasV12_vs_Aktmyr", type='apeglm')
 
+
 summary(resLFC_RasV12_vs_Aktmyr)
+#write.csv(resLFC_RasV12_vs_Aktmyr, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\reslfc_RasV12vsAkt.csv")
 
 ########RasV12 vs Aktmyr plots##########
 par(mfrow=c(1,1))
@@ -295,6 +298,7 @@ resLFC_MekDD_vs_Aktmyr <- lfcShrink(dds,
                                      coef="sample_MekDD_vs_Aktmyr", type='apeglm')
 
 summary(resLFC_MekDD_vs_Aktmyr)
+#write.csv(resLFC_MekDD_vs_Aktmyr, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\reslfc_MekDDvsAkt.csv")
 
 ##########MekDD vs Aktmyr plots##########
 par(mfrow=c(1,1))
@@ -330,6 +334,7 @@ resLFC_T53D4_vs_Aktmyr <- lfcShrink(dds,
                                     coef="sample_T53D4_vs_Aktmyr", type='apeglm')
 
 summary(resLFC_T53D4_vs_Aktmyr)
+#write.csv(resLFC_T53D4_vs_Aktmyr, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\reslfc_T53D4vsAkt.csv")
 
 ########T53D4 vs Aktmyr#########
 par(mfrow=c(1,1))
@@ -364,6 +369,7 @@ resLFC_Water_vs_Aktmyr <- lfcShrink(dds,
                                     coef="sample_negclt_vs_Aktmyr", type='apeglm')
 
 summary(resLFC_Water_vs_Aktmyr)
+#write.csv(resLFC_Water_vs_Aktmyr, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\reslfc_WatervsAkt.csv")
 
 ########Water vs Aktmyr#########
 par(mfrow=c(1,1))
@@ -647,7 +653,7 @@ dim(subset(res_negclt_vs_Aktmyr , padj < 0.05))
 #Determine how many genes were captured and merge them:
 changing_genes<- rbind(ARPE19vsAktmyr, MekDDvsAktmyr, RasV12vsAktmyr, T53D4vsAktmyr) 
 #save LogFold of changing genes
-write.csv(changing_genes, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\changing_genes.csv" )
+#write.csv(changing_genes, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\changing_genes.csv" )
 dim(changing_genes)
 length(unique(rownames(changing_genes)))
 
@@ -677,9 +683,6 @@ p <- pheatmap(changing_lrt_rdl,
               clustering_method = "complete",
               show_rownames = FALSE) 
 
-#save pheatmap
-getwd()
-pdf("/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2/gene_clusters.pdf", width = 10, height = 12)
 #shows dendrogram divison of row (genes)
 plot(p$tree_row)
 #shows dendrogram divisions of columns (samples)
@@ -701,15 +704,15 @@ rownames(changing_lrt_rdl[p$tree_row[["order"]],])
 cutree(p$tree_row,k=3)
 gene_divisions <-sort(cutree(p$tree_row,k=3))
 getwd()
-#save as list that can be used for go terms
-write.csv(gene_divisions, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\gene_divisions.csv" )
+# save as list that can be used for go terms
+#write.csv(gene_divisions, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\gene_divisions.csv" )
 #shows visually how the rows were divied
 plot(sort(cutree(p$tree_row,k=3)))
 #cut columns into the best groupings, where k = .. determins the number of divions
 sort(cutree(p$tree_col,k=5))
 sample_divisions<-cutree(p$tree_col,k=5)
 #save as list
-write.csv(sample_divisions, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\sample_divisions.csv" )
+#write.csv(sample_divisions, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\sample_divisions.csv" )
 #shows visually how the columns were divied
 plot(sort(cutree(p$tree_col,k=5)))
 
