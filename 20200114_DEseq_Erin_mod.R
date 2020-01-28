@@ -138,7 +138,7 @@ library(biomaRt)
 ensembl = useDataset("hsapiens_gene_ensembl",mart=useMart("ENSEMBL_MART_ENSEMBL"))
 ctsnames = rownames(cts)
 
-# figure out filter,values,and attributes at http://www.ensembl.org/biomart/
+# figure out filter,values,and attributes at http://www.ensembl.org/biomart/martview
 gene_names = getBM(mart = ensembl, filter='ensembl_gene_id', value=ctsnames, attributes=c('external_gene_name', 'ensembl_gene_id'))
 dim(gene_names) # 20002     2
 length(ctsnames) # 20003
