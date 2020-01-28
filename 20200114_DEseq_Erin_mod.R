@@ -235,7 +235,7 @@ summary(resLFC_ARPE19_vs_Aktmyr)
 
 ##ARPE19 vs Aktmyr plots##
 par(mfrow=c(1,1))
-plotMA(res_ARPE19_vs_Aktmyr, main="ARPE19 vs neg Aktmyr\nunshrunken", ylim = c(-20,20),
+plotMA(res_ARPE19_vs_Aktmyr, main="ARPE19 vs Aktmyr\nunshrunken", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized ARPE19 / Aktmyr)",
        xlab = "means of normalized counts")
 
@@ -421,6 +421,17 @@ plotMA(res_RasV12_vs_MekDD, main="RasV12 vs MekDD\nunshrunken", ylim = c(-20,20)
        ylab = "log fold change (ratio of normalized RasV12 / MekDD)",
        xlab = "means of normalized counts")
 
+#ARPE19 vs MekDD
+res_ARPE19_vs_MekDD <- results(dds,
+                               lfc = 1.2,
+                               contrast=c("sample","ARPE19","MekDD"))
+
+##ARPE19 vs MekDD plots##
+par(mfrow=c(1,1))
+plotMA(res_ARPE19_vs_MekDD, main="ARPE19 vs MekDD\nunshrunken", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized ARPE19 / MekDD)",
+       xlab = "means of normalized counts")
+
 ########## vs  T53D4 ##########
 #ARPE19 vs T53D4
 res_ARPE19_vs_T53D4 <- results(dds,
@@ -478,17 +489,14 @@ plotMA(res_Aktmyr_vs_T53D4, main="Aktmyr vs T53D4\nunshrunken", ylim = c(-20,20)
        ylab = "log fold change (ratio of normalized Aktmyr / T53D4)",
        xlab = "means of normalized counts")
 
-
-
-
 #RasV12 vs T53D4
 res_RasV12_vs_T53D4 <- results(dds,
                                lfc = 1.2,
                                contrast=c("sample","RasV12","T53D4"))
 
-##ARPE19 vs T53D4 plots##
+##RasV12 vs T53D4 plots##
 par(mfrow=c(1,1))
-plotMA(res_RasV12_vs_T53D4, main="RasV12 vs T53D4\nunshrunken", ylim = c(-7,7),
+plotMA(res_RasV12_vs_T53D4, main="RasV12 vs T53D4\nunshrunken", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized RasV12 / T53D4)",
        xlab = "means of normalized counts")
 
@@ -661,8 +669,11 @@ abline(h=-log10(0.005), col = "blue", lty = "dashed")
 
 ########## vs  MekDD ##########
 
+########## vs  RasV12 ##########
 
+########## vs  T53D4 ##########
 
+########## vs  ARPE19 ##########
 
 ############## GETTING LISTS OF SIGNIFICANTLY CHANGING GENES #####################
 # We will use the set of significantly changing genes from our variance shrunken analysis (resLFC):
@@ -748,13 +759,17 @@ dim(Down_in_WatervsAktmyr)
 # write(rownames(Up_in_Aktmyr), file = "../03_output/Genes Up in Aktmyr.txt", sep = "\n")
 # write(rownames(Down_in_Aktmyr), file = "../03_output/Genes Down Aktmyr.txt", sep = "\n")
 # write(rownames(resLFC_ARPE19_vs_Aktmyr), file = "../03_output/all_present_genes.txt", sep = "\n") # sometimes you need a control/background set of genes, too.
-############## MAKE HIERARCHICALLY CLUSTERED HEATMAPS OF ALL CHANGING GENES #####################
+
+
+
+
 
 ############## MAKE HIERARCHICALLY CLUSTERED HEATMAPS OF ALL CHANGING GENES #####################
-
 # Let's loosen our restrictions on significance to all genes with any log fold change and adjusted p-values less than 0.1 (both are default)
 # Get ARPE19 vs Aktmyr differentially expressed genes:
+
 ########## vs  Aktmyr ##########
+# Get ARPE19 vs Aktmyr differentially expressed genes:
 res_ARPE19_vs_Aktmyr <- results(dds,
                                 lfc = 1.2,
                                 contrast=c("sample","ARPE19","Aktmyr"))
@@ -784,22 +799,163 @@ res_T53D4_vs_Aktmyr <- results(dds,
                                 lfc = 1.2,
                                 contrast=c("sample","T53D4","Aktmyr"))
 
-T53D4vsAktmyr<- subset(res_T53D4_vs_Aktmyr , padj < 0.01)
+T53D4vsAktmyr <- subset(res_T53D4_vs_Aktmyr , padj < 0.05)
 dim(subset(res_T53D4_vs_Aktmyr , padj < 0.05))
 
-# Get negclt vs Aktmyr differentially expressed genes:
-res_negclt_vs_Aktmyr <- results(dds,
+########## vs  RasV12 ##########
+# Get MekDD vs RasV12 differentially expressed genes:
+res_MekDD_vs_RasV12 <- results(dds,
                                lfc = 1.2,
-                               contrast=c("sample","negclt","Aktmyr"))
+                               contrast=c("sample","MekDD","RasV12"))
 
+MekDDvsRasV12<- subset(res_MekDD_vs_RasV12 , padj < 0.05)
+dim(subset(res_MekDD_vs_RasV12 , padj < 0.05))
 
-negcltvsAktmyr<- subset(res_negclt_vs_Aktmyr , padj < 0.05)
-dim(subset(res_negclt_vs_Aktmyr , padj < 0.05))
+# Get Aktmyr vs RasV12 differentially expressed genes:
+res_Aktmyr_vs_RasV12 <- results(dds,
+                                lfc = 1.2,
+                                contrast=c("sample","Aktmyr","RasV12"))
 
-########## vs  Aktmyr ##########
+AktmyrvsRasV12<- subset(res_Aktmyr_vs_RasV12 , padj < 0.05)
+dim(subset(res_Aktmyr_vs_RasV12 , padj < 0.05))
+
+# Get T53D4 vs RasV12 differentially expressed genes:
+res_T53D4_vs_RasV12 <- results(dds,
+                                lfc = 1.2,
+                                contrast=c("sample","T53D4","RasV12"))
+
+T53D4vsRasV12<- subset(res_T53D4_vs_RasV12 , padj < 0.05)
+dim(subset(res_T53D4_vs_RasV12 , padj < 0.05))
+
+# Get ARPE19 vs RasV12 differentially expressed genes:
+res_ARPE19_vs_RasV12 <- results(dds,
+                               lfc = 1.2,
+                               contrast=c("sample","ARPE19","RasV12"))
+
+ARPE19vsRasV12<- subset(res_ARPE19_vs_RasV12 , padj < 0.05)
+dim(subset(res_ARPE19_vs_RasV12 , padj < 0.05))
+
+# Get ARPE19 vs RasV12 differentially expressed genes:
+res_ARPE19_vs_RasV12 <- results(dds,
+                                lfc = 1.2,
+                                contrast=c("sample","ARPE19","RasV12"))
+
+ARPE19vsRasV12<- subset(res_ARPE19_vs_RasV12 , padj < 0.05)
+dim(subset(res_ARPE19_vs_RasV12 , padj < 0.05))
+
+########## vs  T53D4 ##########
+# Get RasV12 vs T53D4 differentially expressed genes:
+res_RasV12_vs_T53D4 <- results(dds,
+                               lfc = 1.2,
+                               contrast=c("sample","RasV12","T53D4"))
+
+RasV12vsT53D4<- subset(res_RasV12_vs_T53D4 , padj < 0.05)
+dim(subset(res_RasV12_vs_T53D4 , padj < 0.05))
+
+# Get MekDD vs T53D4 differentially expressed genes:
+res_MekDD_vs_T53D4 <- results(dds,
+                               lfc = 1.2,
+                               contrast=c("sample","MekDD","T53D4"))
+
+MekDDvsT53D4<- subset(res_MekDD_vs_T53D4 , padj < 0.05)
+dim(subset(res_MekDD_vs_T53D4 , padj < 0.05))
+
+# Get Aktmyr vs T53D4 differentially expressed genes:
+res_Aktmyr_vs_T53D4 <- results(dds,
+                              lfc = 1.2,
+                              contrast=c("sample","Aktmyr","T53D4"))
+
+AktmyrvsT53D4<- subset(res_Aktmyr_vs_T53D4 , padj < 0.05)
+dim(subset(res_Aktmyr_vs_T53D4 , padj < 0.05))
+
+# Get Aktmyr vs T53D4 differentially expressed genes:
+res_Aktmyr_vs_T53D4 <- results(dds,
+                               lfc = 1.2,
+                               contrast=c("sample","Aktmyr","T53D4"))
+
+AktmyrvsT53D4<- subset(res_Aktmyr_vs_T53D4 , padj < 0.05)
+dim(subset(res_Aktmyr_vs_T53D4 , padj < 0.05))
+
+# Get ARPE19 vs T53D4 differentially expressed genes:
+res_ARPE19_vs_T53D4 <- results(dds,
+                               lfc = 1.2,
+                               contrast=c("sample","ARPE19","T53D4"))
+
+ARPE19vsT53D4<- subset(res_ARPE19_vs_T53D4 , padj < 0.05)
+dim(subset(res_ARPE19_vs_T53D4 , padj < 0.05))
+
+########## vs  MekDD ##########
+# Get T53D4 vs MekDD differentially expressed genes:
+res_T53D4_vs_MekDD <- results(dds,
+                               lfc = 1.2,
+                               contrast=c("sample","T53D4","MekDD"))
+
+T53D4vsMekDD<- subset(res_T53D4_vs_MekDD , padj < 0.05)
+dim(subset(res_T53D4_vs_MekDD , padj < 0.05))
+
+# Get RasV12 vs MekDD differentially expressed genes:
+res_RasV12_vs_MekDD <- results(dds,
+                              lfc = 1.2,
+                              contrast=c("sample","RasV12","MekDD"))
+
+RasV12vsMekDD<- subset(res_RasV12_vs_MekDD , padj < 0.05)
+dim(subset(res_RasV12_vs_MekDD , padj < 0.05))
+
+# Get Aktmyr vs MekDD differentially expressed genes:
+res_Aktmyr_vs_MekDD <- results(dds,
+                               lfc = 1.2,
+                               contrast=c("sample","Aktmyr","MekDD"))
+
+AktmyrvsMekDD<- subset(res_Aktmyr_vs_MekDD , padj < 0.05)
+dim(subset(res_Aktmyr_vs_MekDD , padj < 0.05))
+
+# Get ARPE19 vs MekDD differentially expressed genes:
+res_ARPE19_vs_MekDD <- results(dds,
+                               lfc = 1.2,
+                               contrast=c("sample","ARPE19","MekDD"))
+
+ARPE19vsMekDD<- subset(res_ARPE19_vs_MekDD , padj < 0.05)
+dim(subset(res_ARPE19_vs_MekDD , padj < 0.05))
+
+########## vs  ARPE19 ##########
+# Get MekDD vs ARPE19 differentially expressed genes:
+res_MekDD_vs_ARPE19<- results(dds,
+                              lfc = 1.2,
+                              contrast=c("sample","MekDD","ARPE19"))
+
+MekDDvsARPE19<- subset(res_MekDD_vs_ARPE19 , padj < 0.05)
+dim(subset(res_MekDD_vs_ARPE19 , padj < 0.05))
+
+# Get T53D4 vs ARPE19 differentially expressed genes:
+res_T53D4_vs_ARPE19<- results(dds,
+                              lfc = 1.2,
+                              contrast=c("sample","T53D4","ARPE19"))
+
+T53D4vsARPE19<- subset(res_T53D4_vs_ARPE19 , padj < 0.05)
+dim(subset(res_T53D4_vs_ARPE19 , padj < 0.05))
+
+# Get Aktmyr vs ARPE19 differentially expressed genes:
+res_Aktmyr_vs_ARPE19<- results(dds,
+                              lfc = 1.2,
+                              contrast=c("sample","Aktmyr","ARPE19"))
+
+AktmyrvsARPE19<- subset(res_Aktmyr_vs_ARPE19 , padj < 0.05)
+dim(subset(res_Aktmyr_vs_ARPE19 , padj < 0.05))
+
+# Get RasV12 vs ARPE19 differentially expressed genes:
+res_RasV12_vs_ARPE19<- results(dds,
+                               lfc = 1.2,
+                               contrast=c("sample","RasV12","ARPE19"))
+
+RasV12vsARPE19<- subset(res_RasV12_vs_ARPE19 , padj < 0.05)
+dim(subset(res_RasV12_vs_ARPE19 , padj < 0.05))
 
 #Determine how many genes were captured and merge them:
-changing_genes<- rbind(ARPE19vsAktmyr, MekDDvsAktmyr, RasV12vsAktmyr, T53D4vsAktmyr) 
+changing_genes<- rbind(ARPE19vsAktmyr, MekDDvsAktmyr, RasV12vsAktmyr, T53D4vsAktmyr,
+                       ARPE19vsMekDD, RasV12vsMekDD,T53D4vsMekDD,AktmyrvsMekDD,
+                       ARPE19vsT53D4, RasV12vsT53D4, MekDDvsT53D4, AktmyrvsT53D4,
+                       ARPE19vsRasV12, T53D4vsRasV12, MekDDvsRasV12, AktmyrvsRasV12,
+                       RasV12vsARPE19, T53D4vsARPE19, MekDDvsARPE19, AktmyrvsARPE19) 
 #save LogFold of changing genes
 #write.csv(changing_genes, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\changing_genes.csv" )
 dim(changing_genes)
@@ -825,7 +981,7 @@ p <- pheatmap(changing_lrt_rdl,
               cluster_rows=TRUE, 
               cluster_cols=TRUE, 
               cutree_rows = 3,
-              cutree_cols = 5,
+              cutree_cols = 4,
               treeheight_row = 100,
               clustering_distance_rows = "euclidean", 
               clustering_method = "complete",
@@ -837,12 +993,6 @@ plot(p$tree_row)
 plot(p$tree_col)
 plot(p$gtable)
 
-#identify clusters
-hc <-p$tree_col
-lbl <- cutree(hc, 5) # split gene dendrogram in 5 groups
-which(lbl==2) # grab genes of first group
-plot(which(lbl==2))
-
 #identify genes in clusters
 rownames(changing_lrt_rdl) 
 colnames(changing_lrt_rdl) 
@@ -853,8 +1003,8 @@ cutree(p$tree_row,k=3)
 gene_divisions <-sort(cutree(p$tree_row,k=3))
 getwd()
 # save as list that can be used for go terms
-#write.csv(gene_divisions, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\gene_divisions.csv" )
-#shows visually how the rows were divied
+write.csv(gene_divisions, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\gene_divisions.csv" )
+##shows visually how the rows were divied
 plot(sort(cutree(p$tree_row,k=3)))
 #cut columns into the best groupings, where k = .. determins the number of divions
 sort(cutree(p$tree_col,k=5))
