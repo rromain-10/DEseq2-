@@ -151,9 +151,12 @@ rownames(cts) <- gene_names$external_gene_name
 head(cts)
 
 ########## dds ################
+coldata= coldata[!1:17%in%c(6,14),]
+cts= cts[,!1:17%in%c(6,14)]
+
 dds <- DESeqDataSetFromMatrix(countData = cts,
                               colData = coldata,
-                              design = ~ sample + rep)
+                              design = ~ sample)
                              
 ################# PRE-FILTERING -- FILTER FOR PRESENT GENES: ################# 
 # Not necessary, but helps keep things fast. 
@@ -216,7 +219,8 @@ resultsNames(dds)
 ############## DIFFERENTIAL EXPRESSION ANALYSIS #####################
 # calculate the statistically significant differences between resultNames(dds)
 
-######ARPE19 vs Aktmyr#########
+######## vs AKTMYR #########
+#ARPE19 vs Aktmyr#
 res_ARPE19_vs_Aktmyr <- results(dds,
                                 lfc = 1.2,
                                 contrast=c("sample","ARPE19","Aktmyr"))
@@ -229,9 +233,9 @@ resLFC_ARPE19_vs_Aktmyr <- lfcShrink(dds,
 summary(resLFC_ARPE19_vs_Aktmyr)
 #write.csv(resLFC_ARPE19_vs_Aktmyr, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\reslfc_ARPE19vsAkt_lfc12.csv")
 
-##########ARPE19 vs Aktmyr plots#########
+##ARPE19 vs Aktmyr plots##
 par(mfrow=c(1,1))
-plotMA(res_ARPE19_vs_Aktmyr, main="ARPE19 vs neg Aktmyr\nunshrunken", ylim = c(-7,7),
+plotMA(res_ARPE19_vs_Aktmyr, main="ARPE19 vs neg Aktmyr\nunshrunken", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized ARPE19 / Aktmyr)",
        xlab = "means of normalized counts")
 
@@ -251,7 +255,7 @@ idx <- identify(resLFC_ARPE19_vs_Aktmyr$baseMean,resLFC_ARPE19_vs_Aktmyr$log2Fol
 #  Step4 -> click here to see what you got!
 rownames(resLFC_ARPE19_vs_Aktmyr)[idx]
 
-#########RasV12 vs Aktmyr#############
+#RasV12 vs Aktmyr#
 res_RasV12_vs_Aktmyr <- results(dds,
                                 lfc = 1.2,
                                 contrast=c("sample","RasV12","Aktmyr"))
@@ -265,9 +269,9 @@ resLFC_RasV12_vs_Aktmyr <- lfcShrink(dds,
 summary(resLFC_RasV12_vs_Aktmyr)
 #write.csv(resLFC_RasV12_vs_Aktmyr, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\reslfc_RasV12vsAkt.csv")
 
-########RasV12 vs Aktmyr plots##########
+##RasV12 vs Aktmyr plots##
 par(mfrow=c(1,1))
-plotMA(res_RasV12_vs_Aktmyr, main="RasV12 vs Aktmyr\nunshrunken", ylim = c(-7,7),
+plotMA(res_RasV12_vs_Aktmyr, main="RasV12 vs Aktmyr\nunshrunken", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized RasV12 / Aktmyr)",
        xlab = "means of normalized counts")
 
@@ -300,9 +304,9 @@ resLFC_MekDD_vs_Aktmyr <- lfcShrink(dds,
 summary(resLFC_MekDD_vs_Aktmyr)
 #write.csv(resLFC_MekDD_vs_Aktmyr, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\reslfc_MekDDvsAkt.csv")
 
-##########MekDD vs Aktmyr plots##########
+##MekDD vs Aktmyr plots##
 par(mfrow=c(1,1))
-plotMA(res_MekDD_vs_Aktmyr, main="MekDD vs Aktmyr\nunshrunken", ylim = c(-7,7),
+plotMA(res_MekDD_vs_Aktmyr, main="MekDD vs Aktmyr\nunshrunken", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized MekDD / Aktmyr)",
        xlab = "means of normalized counts")
 
@@ -336,9 +340,9 @@ resLFC_T53D4_vs_Aktmyr <- lfcShrink(dds,
 summary(resLFC_T53D4_vs_Aktmyr)
 #write.csv(resLFC_T53D4_vs_Aktmyr, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\reslfc_T53D4vsAkt.csv")
 
-########T53D4 vs Aktmyr#########
+##T53D4 vs Aktmyr plots##
 par(mfrow=c(1,1))
-plotMA(res_T53D4_vs_Aktmyr, main="T53D4 vs Aktmyr\nunshrunken", ylim = c(-7,7),
+plotMA(res_T53D4_vs_Aktmyr, main="T53D4 vs Aktmyr\nunshrunken", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized T53D4 / Aktmyr)",
        xlab = "means of normalized counts")
 
@@ -358,46 +362,186 @@ idx <- identify(resLFC_T53D4_vs_Aktmyr$baseMean,resLFC_T53D4_vs_Aktmyr$log2FoldC
 #  Step4 -> click here to see what you got!
 rownames(resLFC_T53D4_vs_Aktmyr)[idx]
 
-#negclt(water) vs Aktmyr
-res_Water_vs_Aktmyr <- results(dds,
+
+########## vs  MEKDD ##########
+#T53D4 vs MekDD
+res_T53D4_vs_MekDD <- results(dds,
                                lfc = 1.2,
-                               contrast=c("sample","negclt","Aktmyr"))
+                               contrast=c("sample","T53D4","MekDD"))
 
-summary(res_Water_vs_Aktmyr)
+summary(res_T53D4_vs_MekDD)
 
-resLFC_Water_vs_Aktmyr <- lfcShrink(dds,
-                                    coef="sample_negclt_vs_Aktmyr", type='apeglm')
+# resLFC_T53D4_vs_MekDD <- lfcShrink(dds,
+#                                     coef="sample_T53D4_vs_MekDD", type='apeglm')
+#We haven't had support for shrinkage LFC estimators for designs with interactions for a while, although I hope to have a working implementation in this devel cycle (so release by October). So you'll have to check in later for this, sorry. The alternative to shrinkage is to remove the genes with low mean counts for the MA plot.
 
-summary(resLFC_Water_vs_Aktmyr)
-#write.csv(resLFC_Water_vs_Aktmyr, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\reslfc_WatervsAkt.csv")
-
-########Water vs Aktmyr#########
+##T53D4 vs MekDD plots## 
 par(mfrow=c(1,1))
-plotMA(res_Water_vs_Aktmyr, main="Water vs Aktmyr\nunshrunken", ylim = c(-7,7),
-       ylab = "log fold change (ratio of normalized Water / Aktmyr)",
+plotMA(res_T53D4_vs_MekDD, main="T53D4 vs MekDD\nunshrunken", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized T53D4 / MekDD)",
        xlab = "means of normalized counts")
 
-plotMA(resLFC_Water_vs_Aktmyr, main="Water vs Aktmyr\nshrunken", ylim = c(-7,7),
-       ylab = "log fold change (ratio of normalized Water / Aktmyr)",
-       xlab = "means of normalized counts")
+#plotMA(resLFC_T53D4_vs_MekDD, main="T53D4 vs MekDD\nshrunken", ylim = c(-7,7),
+#       ylab = "log fold change (ratio of normalized T53D4 / MekDD)",
+#      xlab = "means of normalized counts")
 
 #check known genes (enter gene names where after the ..=="xxx")
-plotCounts(dds, gene=which(rownames(resLFC_Water_vs_Aktmyr)=="BUB1"),intgroup = c("rep","sample"))
-plotCounts(dds, gene=which(rownames(resLFC_Water_vs_Aktmyr)=="BUB1"),intgroup = c("sample"))
+#plotCounts(dds, gene=which(rownames(resLFC_T53D4_vs_Aktmyr)=="BUB1"),intgroup = c("rep","sample"))
+#plotCounts(dds, gene=which(rownames(resLFC_T53D4_vs_Aktmyr)=="BUB1"),intgroup = c("sample"))
 
 #Identify genes on the plot ARPE19 vs Aktmyr
 #  Step1 -> execute idx code line below. 
 #  Step2 -> Click on a dot in the plot. 
 #  Step3 -> To finish, click on "finish" in the upper right hand corner of the plot
-idx <- identify(resLFC_Water_vs_Aktmyr$baseMean,resLFC_Water_vs_Aktmyr$log2FoldChange, labels = gene_names$external_gene_name)
+idx <- identify(resLFC_T53D4_vs_Aktmyr$baseMean,resLFC_T53D4_vs_Aktmyr$log2FoldChange, labels = gene_names$external_gene_name)
 #  Step4 -> click here to see what you got!
-rownames(resLFC_Water_vs_Aktmyr)[idx]
+rownames(resLFC_T53D4_vs_Aktmyr)[idx]
+
+#Aktmyr vs MekDD
+res_Aktmyr_vs_MekDD <- results(dds,
+                              lfc = 1.2,
+                              contrast=c("sample","Aktmyr","MekDD"))
+
+summary(res_Aktmyr_vs_MekDD)
+
+##Aktmyr vs MekDD plots##
+par(mfrow=c(1,1))
+plotMA(res_Aktmyr_vs_MekDD, main="Aktmyr vs MekDD\nunshrunken", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized Aktmyr / MekDD)",
+       xlab = "means of normalized counts")
+
+#RasV12 vs MekDD
+res_RasV12_vs_MekDD <- results(dds,
+                               lfc = 1.2,
+                               contrast=c("sample","RasV12","MekDD"))
+
+##RasV12 vs MekDD plots##
+par(mfrow=c(1,1))
+plotMA(res_RasV12_vs_MekDD, main="RasV12 vs MekDD\nunshrunken", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized RasV12 / MekDD)",
+       xlab = "means of normalized counts")
+
+########## vs  T53D4 ##########
+#ARPE19 vs T53D4
+res_ARPE19_vs_T53D4 <- results(dds,
+                               lfc = 1.2,
+                               contrast=c("sample","ARPE19","T53D4"))
+
+##ARPE19 vs T53D4 plots##
+par(mfrow=c(1,1))
+plotMA(res_ARPE19_vs_T53D4, main="ARPE19 vs T53D4\nunshrunken", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized ARPE19 / T53D4)",
+       xlab = "means of normalized counts")
+
+#MekDD vs T53D4
+res_MekDD_vs_T53D4 <- results(dds,
+                              lfc = 1.2,
+                              contrast=c("sample","MekDD","T53D4"))
+
+##MekDD vs T53D4 plots##
+par(mfrow=c(1,1))
+plotMA(res_T53D4_vs_MekDD, main="MekDD vs T53D4\nunshrunken", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized MekDD / T53D4)",
+       xlab = "means of normalized counts")
+
+########## vs  T53D4 ##########
+#ARPE19 vs T53D4
+res_ARPE19_vs_T53D4 <- results(dds,
+                              lfc = 1.2,
+                              contrast=c("sample","ARPE19","T53D4"))
+
+##ARPE19 vs T53D4 plots##
+par(mfrow=c(1,1))
+plotMA(res_ARPE19_vs_T53D4, main="ARPE19 vs T53D4\nunshrunken", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized ARPE19 / T53D4)",
+       xlab = "means of normalized counts")
+
+#MekDD vs T53D4
+res_MekDD_vs_T53D4 <- results(dds,
+                               lfc = 1.2,
+                               contrast=c("sample","MekDD","T53D4"))
+
+##MekDD vs T53D4 plots##
+par(mfrow=c(1,1))
+plotMA(res_MekDD_vs_T53D4, main="MekDD vs T53D4\nunshrunken", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized MekDD / T53D4)",
+       xlab = "means of normalized counts")
+
+#Aktmyr vs T53D4
+res_Aktmyr_vs_T53D4 <- results(dds,
+                              lfc = 1.2,
+                              contrast=c("sample","Aktmyr","T53D4"))
+
+##Aktmyr vs T53D4##
+par(mfrow=c(1,1))
+plotMA(res_Aktmyr_vs_T53D4, main="Aktmyr vs T53D4\nunshrunken", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized Aktmyr / T53D4)",
+       xlab = "means of normalized counts")
 
 
-##### VOLCANO PLOTS:###################
+
+
+#RasV12 vs T53D4
+res_RasV12_vs_T53D4 <- results(dds,
+                               lfc = 1.2,
+                               contrast=c("sample","RasV12","T53D4"))
+
+##ARPE19 vs T53D4 plots##
+par(mfrow=c(1,1))
+plotMA(res_RasV12_vs_T53D4, main="RasV12 vs T53D4\nunshrunken", ylim = c(-7,7),
+       ylab = "log fold change (ratio of normalized RasV12 / T53D4)",
+       xlab = "means of normalized counts")
+
+########## vs  ARPE19 ##########
+#T53D4 vs ARPE19
+res_T53D4_vs_ARPE19 <- results(dds,
+                               lfc = 1.2,
+                               contrast=c("sample","T53D4","ARPE19"))
+
+##T53D4 vs ARPE19 plots##
+par(mfrow=c(1,1))
+plotMA(res_T53D4_vs_ARPE19, main="T53D4 vs ARPE19\nunshrunken", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized T53D4 / ARPE19)",
+       xlab = "means of normalized counts")
+
+#RasV12 vs ARPE19
+res_RasV12_vs_ARPE19 <- results(dds,
+                               lfc = 1.2,
+                               contrast=c("sample","RasV12","ARPE19"))
+
+##RasV12 vs ARPE19 plots##
+par(mfrow=c(1,1))
+plotMA(res_RasV12_vs_ARPE19, main="RasV12 vs ARPE19\nunshrunken", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized RasV12 / ARPE19)",
+       xlab = "means of normalized counts")
+
+#MekDD vs ARPE19
+res_MekDD_vs_ARPE19 <- results(dds,
+                                lfc = 1.2,
+                                contrast=c("sample","MekDD","ARPE19"))
+
+##MekDD vs ARPE19 plots##
+par(mfrow=c(1,1))
+plotMA(res_MekDD_vs_ARPE19, main="MekDD vs ARPE19\nunshrunken", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized MekDD / ARPE19)",
+       xlab = "means of normalized counts")
+
+#Aktmyr vs ARPE19
+res_Aktmyr_vs_ARPE19 <- results(dds,
+                               lfc = 1.2,
+                               contrast=c("sample","Aktmyr","ARPE19"))
+
+##Aktmyr vs ARPE19 plots##
+par(mfrow=c(1,1))
+plotMA(res_Aktmyr_vs_ARPE19, main="Aktmyr vs ARPE19\nunshrunken", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized Aktmyr / ARPE19)",
+       xlab = "means of normalized counts")
+
+############# VOLCANO PLOTS:###################
 # Volcano plots are nice ways of displaying the fold change against the p-value.
 resultsNames(dds)
 
+########## vs  Aktmyr ##########
 #ARPE19 vs Aktmyr
 res_volcano_plot_ARPE19vsAktmyr <- lfcShrink(dds,coef="sample_ARPE19_vs_Aktmyr", type='apeglm') # Calculate padj without a lower lfc limit
 significantLFC_volcano_plot_ARPE19vsAktmyr <- subset(res_volcano_plot_ARPE19vsAktmyr, padj < 0.05) # Identify significantly changing genes
@@ -515,6 +659,8 @@ abline(v=0.5, col = "blue", lty = "dashed")
 abline(v=-0.5, col = "blue", lty = "dashed")
 abline(h=-log10(0.005), col = "blue", lty = "dashed")
 
+########## vs  MekDD ##########
+
 
 
 
@@ -607,8 +753,8 @@ dim(Down_in_WatervsAktmyr)
 ############## MAKE HIERARCHICALLY CLUSTERED HEATMAPS OF ALL CHANGING GENES #####################
 
 # Let's loosen our restrictions on significance to all genes with any log fold change and adjusted p-values less than 0.1 (both are default)
-
 # Get ARPE19 vs Aktmyr differentially expressed genes:
+########## vs  Aktmyr ##########
 res_ARPE19_vs_Aktmyr <- results(dds,
                                 lfc = 1.2,
                                 contrast=c("sample","ARPE19","Aktmyr"))
@@ -649,6 +795,8 @@ res_negclt_vs_Aktmyr <- results(dds,
 
 negcltvsAktmyr<- subset(res_negclt_vs_Aktmyr , padj < 0.05)
 dim(subset(res_negclt_vs_Aktmyr , padj < 0.05))
+
+########## vs  Aktmyr ##########
 
 #Determine how many genes were captured and merge them:
 changing_genes<- rbind(ARPE19vsAktmyr, MekDDvsAktmyr, RasV12vsAktmyr, T53D4vsAktmyr) 
