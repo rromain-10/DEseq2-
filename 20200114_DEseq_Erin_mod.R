@@ -187,7 +187,7 @@ head(dds)
 dds$sizeFactor
 head(counts(dds, normalized = TRUE))
 head(counts(dds, normalized = FALSE))
-#normalized_genecounts <-counts(dds, normalized = TRUE)
+normalized_genecounts <-counts(dds, normalized = TRUE)
 ####### save normalized nomralized counts file to working directory for excel browsing ######
 #write.csv(normalized_genecounts, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\2020021_normalized_genecounts.csv")
 
@@ -235,17 +235,16 @@ summary(resLFC_ARPE19_vs_Aktmyr)
 
 ##ARPE19 vs Aktmyr plots##
 par(mfrow=c(1,1))
-plotMA(res_ARPE19_vs_Aktmyr, main="ARPE19 vs Aktmyr\nunshrunken", ylim = c(-20,20),
+plotMA(res_ARPE19_vs_Aktmyr, main="ARPE19 vs Aktmyr ", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized ARPE19 / Aktmyr)",
-       xlab = "means of normalized counts")
+       xlab = "means of normalized counts",
+       cex.main= 3,
+       cex= 1.5)
+# 
+# plotMA(resLFC_ARPE19_vs_Aktmyr, main="ARPE19 vs Aktmyr\nshrunken", ylim = c(-7,7),
+#        ylab = "log fold change (ratio of normalized ARPE19 / Aktmyr)",
+#        xlab = "means of normalized counts")
 
-plotMA(resLFC_ARPE19_vs_Aktmyr, main="ARPE19 vs Aktmyr\nshrunken", ylim = c(-7,7),
-       ylab = "log fold change (ratio of normalized ARPE19 / Aktmyr)",
-       xlab = "means of normalized counts")
-
-#check known genes (enter gene names where after the ..=="xxx")
-plotCounts(dds, gene=which(rownames(resLFC_ARPE19_vs_Aktmyr)=="BUB1"),intgroup = c("sample"))
-plotCounts(dds, gene=which(rownames(resLFC_ARPE19_vs_Aktmyr)=="PPP2R5E"),intgroup = c("sample"))
 
 #Identify genes on the plot ARPE19 vs Aktmyr
 #  Step1 -> execute idx code line below. 
@@ -271,17 +270,15 @@ summary(resLFC_RasV12_vs_Aktmyr)
 
 ##RasV12 vs Aktmyr plots##
 par(mfrow=c(1,1))
-plotMA(res_RasV12_vs_Aktmyr, main="RasV12 vs Aktmyr\nunshrunken", ylim = c(-20,20),
+plotMA(res_RasV12_vs_Aktmyr, main="RasV12 vs Aktmyr", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized RasV12 / Aktmyr)",
-       xlab = "means of normalized counts")
+       xlab = "means of normalized counts",
+       cex.main= 3,
+       cex= 1.5)
 
-plotMA(resLFC_RasV12_vs_Aktmyr, main="RasV12 vs Aktmyr\nshrunken", ylim = c(-7,7),
-       ylab = "log fold change (ratio of normalized RasV12 / Aktmyr)",
-       xlab = "means of normalized counts")
-
-#check known genes (enter gene names where after the ..=="xxx")
-plotCounts(dds, gene=which(rownames(resLFC_RasV12_vs_Aktmyr)=="BUB1"),intgroup = c("rep","sample"))
-plotCounts(dds, gene=which(rownames(resLFC_RasV12_vs_Aktmyr)=="BUB1"),intgroup = c("sample"))
+# plotMA(resLFC_RasV12_vs_Aktmyr, main="RasV12 vs Aktmyr\nshrunken", ylim = c(-7,7),
+#        ylab = "log fold change (ratio of normalized RasV12 / Aktmyr)",
+#        xlab = "means of normalized counts")
 
 #Identify genes on the plot ARPE19 vs Aktmyr
 #  Step1 -> execute idx code line below. 
@@ -306,17 +303,17 @@ summary(resLFC_MekDD_vs_Aktmyr)
 
 ##MekDD vs Aktmyr plots##
 par(mfrow=c(1,1))
-plotMA(res_MekDD_vs_Aktmyr, main="MekDD vs Aktmyr\nunshrunken", ylim = c(-20,20),
+plotMA(res_MekDD_vs_Aktmyr, main="MekDD vs Aktmyr", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized MekDD / Aktmyr)",
-       xlab = "means of normalized counts")
+       xlab = "means of normalized counts",
+       cex=1.5,
+       cex.main=3)
 
-plotMA(resLFC_MekDD_vs_Aktmyr, main="MekDD vs Aktmyr\nshrunken", ylim = c(-7,7),
-       ylab = "log fold change (ratio of normalized MekDD / Aktmyr)",
-       xlab = "means of normalized counts")
 
-#check known genes (enter gene names where after the ..=="xxx")
-plotCounts(dds, gene=which(rownames(resLFC_MekDD_vs_Aktmyr)=="BUB1"),intgroup = c("rep","sample"))
-plotCounts(dds, gene=which(rownames(resLFC_MekDD_vs_Aktmyr)=="BUB1"),intgroup = c("sample"))
+# plotMA(resLFC_MekDD_vs_Aktmyr, main="MekDD vs Aktmyr\nshrunken", ylim = c(-7,7),
+#        ylab = "log fold change (ratio of normalized MekDD / Aktmyr)",
+#        xlab = "means of normalized counts")
+
 
 #Identify genes on the plot ARPE19 vs Aktmyr
 #  Step1 -> execute idx code line below. 
@@ -342,17 +339,15 @@ summary(resLFC_T53D4_vs_Aktmyr)
 
 ##T53D4 vs Aktmyr plots##
 par(mfrow=c(1,1))
-plotMA(res_T53D4_vs_Aktmyr, main="T53D4 vs Aktmyr\nunshrunken", ylim = c(-20,20),
+plotMA(res_T53D4_vs_Aktmyr, main="T53D4 vs Aktmyr", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized T53D4 / Aktmyr)",
-       xlab = "means of normalized counts")
+       xlab = "means of normalized counts",
+       cex.main= 3,
+       cex= 1.5)
 
-plotMA(resLFC_T53D4_vs_Aktmyr, main="T53D4 vs Aktmyr\nshrunken", ylim = c(-7,7),
-       ylab = "log fold change (ratio of normalized T53D4 / Aktmyr)",
-       xlab = "means of normalized counts")
-
-#check known genes (enter gene names where after the ..=="xxx")
-plotCounts(dds, gene=which(rownames(resLFC_T53D4_vs_Aktmyr)=="BUB1"),intgroup = c("rep","sample"))
-plotCounts(dds, gene=which(rownames(resLFC_T53D4_vs_Aktmyr)=="BUB1"),intgroup = c("sample"))
+# plotMA(resLFC_T53D4_vs_Aktmyr, main="T53D4 vs Aktmyr\nshrunken", ylim = c(-7,7),
+#        ylab = "log fold change (ratio of normalized T53D4 / Aktmyr)",
+#        xlab = "means of normalized counts")
 
 #Identify genes on the plot ARPE19 vs Aktmyr
 #  Step1 -> execute idx code line below. 
@@ -373,21 +368,19 @@ summary(res_T53D4_vs_MekDD)
 
 # resLFC_T53D4_vs_MekDD <- lfcShrink(dds,
 #                                     coef="sample_T53D4_vs_MekDD", type='apeglm')
-#We haven't had support for shrinkage LFC estimators for designs with interactions for a while, although I hope to have a working implementation in this devel cycle (so release by October). So you'll have to check in later for this, sorry. The alternative to shrinkage is to remove the genes with low mean counts for the MA plot.
+#https://support.bioconductor.org/p/98689/
 
 ##T53D4 vs MekDD plots## 
 par(mfrow=c(1,1))
-plotMA(res_T53D4_vs_MekDD, main="T53D4 vs MekDD\nunshrunken", ylim = c(-20,20),
+plotMA(res_T53D4_vs_MekDD, main="T53D4 vs MekDD", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized T53D4 / MekDD)",
-       xlab = "means of normalized counts")
+       xlab = "means of normalized counts",
+       cex.main= 3,
+       cex= 1.5)
 
 #plotMA(resLFC_T53D4_vs_MekDD, main="T53D4 vs MekDD\nshrunken", ylim = c(-7,7),
 #       ylab = "log fold change (ratio of normalized T53D4 / MekDD)",
 #      xlab = "means of normalized counts")
-
-#check known genes (enter gene names where after the ..=="xxx")
-#plotCounts(dds, gene=which(rownames(resLFC_T53D4_vs_Aktmyr)=="BUB1"),intgroup = c("rep","sample"))
-#plotCounts(dds, gene=which(rownames(resLFC_T53D4_vs_Aktmyr)=="BUB1"),intgroup = c("sample"))
 
 #Identify genes on the plot ARPE19 vs Aktmyr
 #  Step1 -> execute idx code line below. 
@@ -406,9 +399,11 @@ summary(res_Aktmyr_vs_MekDD)
 
 ##Aktmyr vs MekDD plots##
 par(mfrow=c(1,1))
-plotMA(res_Aktmyr_vs_MekDD, main="Aktmyr vs MekDD\nunshrunken", ylim = c(-20,20),
+plotMA(res_Aktmyr_vs_MekDD, main="Aktmyr vs MekDD", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized Aktmyr / MekDD)",
-       xlab = "means of normalized counts")
+       xlab = "means of normalized counts",
+       cex.main= 3,
+       cex= 1.5)
 
 #RasV12 vs MekDD
 res_RasV12_vs_MekDD <- results(dds,
@@ -417,9 +412,11 @@ res_RasV12_vs_MekDD <- results(dds,
 
 ##RasV12 vs MekDD plots##
 par(mfrow=c(1,1))
-plotMA(res_RasV12_vs_MekDD, main="RasV12 vs MekDD\nunshrunken", ylim = c(-20,20),
+plotMA(res_RasV12_vs_MekDD, main="RasV12 vs MekDD", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized RasV12 / MekDD)",
-       xlab = "means of normalized counts")
+       xlab = "means of normalized counts",
+       cex.main= 3,
+       cex= 1.5)
 
 #ARPE19 vs MekDD
 res_ARPE19_vs_MekDD <- results(dds,
@@ -428,9 +425,11 @@ res_ARPE19_vs_MekDD <- results(dds,
 
 ##ARPE19 vs MekDD plots##
 par(mfrow=c(1,1))
-plotMA(res_ARPE19_vs_MekDD, main="ARPE19 vs MekDD\nunshrunken", ylim = c(-20,20),
+plotMA(res_ARPE19_vs_MekDD, main="ARPE19 vs MekDD", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized ARPE19 / MekDD)",
-       xlab = "means of normalized counts")
+       xlab = "means of normalized counts",
+       cex.main= 3,
+       cex= 1.5)
 
 ########## vs  T53D4 ##########
 #ARPE19 vs T53D4
@@ -440,9 +439,11 @@ res_ARPE19_vs_T53D4 <- results(dds,
 
 ##ARPE19 vs T53D4 plots##
 par(mfrow=c(1,1))
-plotMA(res_ARPE19_vs_T53D4, main="ARPE19 vs T53D4\nunshrunken", ylim = c(-20,20),
+plotMA(res_ARPE19_vs_T53D4, main="ARPE19 vs T53D4", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized ARPE19 / T53D4)",
-       xlab = "means of normalized counts")
+       xlab = "means of normalized counts",
+       cex.main= 3,
+       cex= 1.5)
 
 #MekDD vs T53D4
 res_MekDD_vs_T53D4 <- results(dds,
@@ -451,54 +452,37 @@ res_MekDD_vs_T53D4 <- results(dds,
 
 ##MekDD vs T53D4 plots##
 par(mfrow=c(1,1))
-plotMA(res_T53D4_vs_MekDD, main="MekDD vs T53D4\nunshrunken", ylim = c(-20,20),
+plotMA(res_T53D4_vs_MekDD, main="MekDD vs T53D4", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized MekDD / T53D4)",
-       xlab = "means of normalized counts")
-
-########## vs  T53D4 ##########
-#ARPE19 vs T53D4
-res_ARPE19_vs_T53D4 <- results(dds,
-                              lfc = 1.2,
-                              contrast=c("sample","ARPE19","T53D4"))
-
-##ARPE19 vs T53D4 plots##
-par(mfrow=c(1,1))
-plotMA(res_ARPE19_vs_T53D4, main="ARPE19 vs T53D4\nunshrunken", ylim = c(-20,20),
-       ylab = "log fold change (ratio of normalized ARPE19 / T53D4)",
-       xlab = "means of normalized counts")
-
-#MekDD vs T53D4
-res_MekDD_vs_T53D4 <- results(dds,
-                               lfc = 1.2,
-                               contrast=c("sample","MekDD","T53D4"))
-
-##MekDD vs T53D4 plots##
-par(mfrow=c(1,1))
-plotMA(res_MekDD_vs_T53D4, main="MekDD vs T53D4\nunshrunken", ylim = c(-20,20),
-       ylab = "log fold change (ratio of normalized MekDD / T53D4)",
-       xlab = "means of normalized counts")
-
-#Aktmyr vs T53D4
-res_Aktmyr_vs_T53D4 <- results(dds,
-                              lfc = 1.2,
-                              contrast=c("sample","Aktmyr","T53D4"))
-
-##Aktmyr vs T53D4##
-par(mfrow=c(1,1))
-plotMA(res_Aktmyr_vs_T53D4, main="Aktmyr vs T53D4\nunshrunken", ylim = c(-20,20),
-       ylab = "log fold change (ratio of normalized Aktmyr / T53D4)",
-       xlab = "means of normalized counts")
+       xlab = "means of normalized counts",
+       cex.main= 3,
+       cex= 1.5)
 
 #RasV12 vs T53D4
 res_RasV12_vs_T53D4 <- results(dds,
-                               lfc = 1.2,
-                               contrast=c("sample","RasV12","T53D4"))
+                              lfc = 1.2,
+                              contrast=c("sample","RasV12","T53D4"))
 
 ##RasV12 vs T53D4 plots##
 par(mfrow=c(1,1))
-plotMA(res_RasV12_vs_T53D4, main="RasV12 vs T53D4\nunshrunken", ylim = c(-20,20),
+plotMA(res_RasV12_vs_T53D4, main="RasV12 vs T53D4", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized RasV12 / T53D4)",
-       xlab = "means of normalized counts")
+       xlab = "means of normalized counts",
+       cex.main= 3,
+       cex= 1.5)
+
+#Aktmyr vs T53D4
+res_Aktmyr_vs_T53D4 <- results(dds,
+                               lfc = 1.2,
+                               contrast=c("sample","Aktmyr","T53D4"))
+
+##Aktmyr vs T53D4 plots##
+par(mfrow=c(1,1))
+plotMA(res_Aktmyr_vs_T53D4, main="Aktmyr vs T53D4", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized Aktmyr / T53D4)",
+       xlab = "means of normalized counts",
+       cex.main= 3,
+       cex= 1.5)
 
 ########## vs  ARPE19 ##########
 #T53D4 vs ARPE19
@@ -508,9 +492,11 @@ res_T53D4_vs_ARPE19 <- results(dds,
 
 ##T53D4 vs ARPE19 plots##
 par(mfrow=c(1,1))
-plotMA(res_T53D4_vs_ARPE19, main="T53D4 vs ARPE19\nunshrunken", ylim = c(-20,20),
+plotMA(res_T53D4_vs_ARPE19, main="T53D4 vs ARPE19", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized T53D4 / ARPE19)",
-       xlab = "means of normalized counts")
+       xlab = "means of normalized counts",
+       cex.main= 3,
+       cex= 1.5)
 
 #RasV12 vs ARPE19
 res_RasV12_vs_ARPE19 <- results(dds,
@@ -519,9 +505,11 @@ res_RasV12_vs_ARPE19 <- results(dds,
 
 ##RasV12 vs ARPE19 plots##
 par(mfrow=c(1,1))
-plotMA(res_RasV12_vs_ARPE19, main="RasV12 vs ARPE19\nunshrunken", ylim = c(-20,20),
+plotMA(res_RasV12_vs_ARPE19, main="RasV12 vs ARPE19", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized RasV12 / ARPE19)",
-       xlab = "means of normalized counts")
+       xlab = "means of normalized counts",
+       cex.main= 3,
+       cex= 1.5)
 
 #MekDD vs ARPE19
 res_MekDD_vs_ARPE19 <- results(dds,
@@ -530,9 +518,11 @@ res_MekDD_vs_ARPE19 <- results(dds,
 
 ##MekDD vs ARPE19 plots##
 par(mfrow=c(1,1))
-plotMA(res_MekDD_vs_ARPE19, main="MekDD vs ARPE19\nunshrunken", ylim = c(-20,20),
+plotMA(res_MekDD_vs_ARPE19, main="MekDD vs ARPE19", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized MekDD / ARPE19)",
-       xlab = "means of normalized counts")
+       xlab = "means of normalized counts",
+       cex.main= 3,
+       cex= 1.5)
 
 #Aktmyr vs ARPE19
 res_Aktmyr_vs_ARPE19 <- results(dds,
@@ -541,9 +531,74 @@ res_Aktmyr_vs_ARPE19 <- results(dds,
 
 ##Aktmyr vs ARPE19 plots##
 par(mfrow=c(1,1))
-plotMA(res_Aktmyr_vs_ARPE19, main="Aktmyr vs ARPE19\nunshrunken", ylim = c(-20,20),
+plotMA(res_Aktmyr_vs_ARPE19, main="Aktmyr vs ARPE19", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized Aktmyr / ARPE19)",
-       xlab = "means of normalized counts")
+       xlab = "means of normalized counts",
+       cex.main= 3,
+       cex= 1.5)
+
+########## vs  RasV12 ##########
+#ARPE19 vs RasV12
+res_ARPE19_vs_RasV12 <- results(dds,
+                               lfc = 1.2,
+                               contrast=c("sample","ARPE19","RasV12"))
+
+##ARPE19 vs RasV12 plots##
+par(mfrow=c(1,1))
+plotMA(res_ARPE19_vs_RasV12, main="ARPE19 vs RasV12", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized ARPE19 / RasV12)",
+       xlab = "means of normalized counts",
+       cex.main= 3,
+       cex= 1.5)
+
+#T53D4 vs RasV12
+res_T53D4_vs_RasV12 <- results(dds,
+                                lfc = 1.2,
+                                contrast=c("sample","T53D4","RasV12"))
+
+##T53D4 vs RasV12 plots##
+par(mfrow=c(1,1))
+plotMA(res_T53D4_vs_RasV12, main="T53D4 vs RasV12", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized T53D4 / RasV12)",
+       xlab = "means of normalized counts",
+       cex.main= 3,
+       cex= 1.5)
+
+
+#MekDD vs RasV12
+res_MekDD_vs_RasV12 <- results(dds,
+                               lfc = 1.2,
+                               contrast=c("sample","MekDD","RasV12"))
+
+##MekDD vs RasV12 plots##
+par(mfrow=c(1,1))
+plotMA(res_MekDD_vs_RasV12, main="MekDD vs RasV12", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized MekDD / RasV12)",
+       xlab = "means of normalized counts",
+       cex.main= 3,
+       cex= 1.5)
+
+#Aktmyr vs RasV12
+res_Aktmyr_vs_RasV12 <- results(dds,
+                               lfc = 1.2,
+                               contrast=c("sample","Aktmyr","RasV12"))
+
+##Aktmyr vs RasV12 plots##
+par(mfrow=c(1,1))
+plotMA(res_Aktmyr_vs_RasV12, main="Aktmyr vs RasV12", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized Aktmyr / RasV12)",
+       xlab = "means of normalized counts",
+       cex.main= 3,
+       cex= 1.5)
+
+
+############## PLOT COUNTS ###################
+
+#check known genes (enter gene names where after the ..=="xxx")
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="BUB1"),intgroup = c("sample"))
+
+
+
 
 ############# VOLCANO PLOTS:###################
 # Volcano plots are nice ways of displaying the fold change against the p-value.
@@ -868,14 +923,6 @@ res_Aktmyr_vs_T53D4 <- results(dds,
 AktmyrvsT53D4<- subset(res_Aktmyr_vs_T53D4 , padj < 0.05)
 dim(subset(res_Aktmyr_vs_T53D4 , padj < 0.05))
 
-# Get Aktmyr vs T53D4 differentially expressed genes:
-res_Aktmyr_vs_T53D4 <- results(dds,
-                               lfc = 1.2,
-                               contrast=c("sample","Aktmyr","T53D4"))
-
-AktmyrvsT53D4<- subset(res_Aktmyr_vs_T53D4 , padj < 0.05)
-dim(subset(res_Aktmyr_vs_T53D4 , padj < 0.05))
-
 # Get ARPE19 vs T53D4 differentially expressed genes:
 res_ARPE19_vs_T53D4 <- results(dds,
                                lfc = 1.2,
@@ -980,7 +1027,7 @@ p <- pheatmap(changing_lrt_rdl,
               border_color = TRUE,
               cluster_rows=TRUE, 
               cluster_cols=TRUE, 
-              cutree_rows = 3,
+              cutree_rows = 4,
               cutree_cols = 4,
               treeheight_row = 100,
               clustering_distance_rows = "euclidean", 
@@ -999,11 +1046,11 @@ colnames(changing_lrt_rdl)
 rownames(changing_lrt_rdl[p$tree_row[["order"]],])
 
 #cut rows into the best groupings, where k = .. determins the number of divions
-cutree(p$tree_row,k=3)
-gene_divisions <-sort(cutree(p$tree_row,k=3))
+cutree(p$tree_row,k=4)
+gene_divisions <-sort(cutree(p$tree_row,k=4))
 getwd()
-# save as list that can be used for go terms
-write.csv(gene_divisions, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\gene_divisions.csv" )
+#save as list that can be used for go terms
+#write.csv(gene_divisions, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\gene_divisions.csv" )
 ##shows visually how the rows were divied
 plot(sort(cutree(p$tree_row,k=3)))
 #cut columns into the best groupings, where k = .. determins the number of divions
