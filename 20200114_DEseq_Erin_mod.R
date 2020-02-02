@@ -593,13 +593,114 @@ plotMA(res_Aktmyr_vs_RasV12, main="Aktmyr vs RasV12", ylim = c(-20,20),
 
 
 ############## PLOT COUNTS ###################
-
 #check known genes (enter gene names where after the ..=="xxx")
-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="BUB1"),intgroup = c("sample"))
-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="BUB1B"),intgroup = c("sample"))
-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="AURKB"),intgroup = c("sample"))
+pc_BUB1<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="BUB1"),intgroup = c("sample"), cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot(pc_BUB1, aes(x = "BUB1", y = count, color = sample)) + 
+  geom_point(position=position_jitter(w = 0.2,h = 2)) +
+  ggtitle("BUB1") +
+  theme(plot.title = element_text(hjust = 0.5))
 
+pc_BUB1B<- plotCounts(dds, gene=which(rownames(normalized_genecounts)=="BUB1B"),intgroup = c("sample"), cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot(pc_BUB1B, aes(x = "BUB1B", y = count, color = sample)) + 
+  geom_point(position=position_jitter(w = 0.2,h = 2)) +
+  ggtitle("BUB1B") +
+  theme(plot.title = element_text(hjust = 0.5))
 
+pc_AURKB<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="AURKB"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot(pc_AURKB, aes(x = "AURKB", y = count, color = sample)) + 
+  geom_point(position=position_jitter(w = 0.2,h = 2)) +
+  ggtitle("AURKB") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+pc_PPP2R5C<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R5C"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot(pc_PPP2R5C, aes(x = "PPP2R5C", y = count, color = sample)) + 
+  geom_point(position=position_jitter(w = 0.2,h = 2)) +
+  ggtitle("PPP2R5C") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+pc_PPP2R5B<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R5B"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot(pc_PPP2R5B, aes(x = "PPP2R5B", y = count, color = sample)) + 
+  geom_point(position=position_jitter(w = 0.2,h = 2)) +
+  ggtitle("PPP2R5B") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+pc_PPP2R5A<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R5A"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot(pc_PPP2R5B, aes(x = "PPP2R5A", y = count, color = sample)) + 
+  geom_point(position=position_jitter(w = 0.2,h = 2)) +
+  ggtitle("PPP2R5A") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+pc_PPP2R2A<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R2A"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot(pc_PPP2R5B, aes(x = "PPP2R2A", y = count, color = sample)) + 
+  geom_point(position=position_jitter(w = 0.2,h = 2)) +
+  ggtitle("PPP2R2A") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+pc_PPP2R2B<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R2B"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot(pc_PPP2R5B, aes(x = "PPP2R2B", y = count, color = sample)) + 
+  geom_point(position=position_jitter(w = 0.2,h = 2)) +
+  ggtitle("PPP2R2B") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+pc_PPP2R2C<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R2C"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot(pc_PPP2R2C, aes(x = "PPP2R2C", y = count, color = sample)) + 
+  geom_point(position=position_jitter(w = 0.2,h = 2)) +
+  ggtitle("PPP2R2C") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+pc_PPP2R2C<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R2C"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot(pc_PPP2R5B, aes(x = "PPP2R2C", y = count, color = sample)) + 
+  geom_point(position=position_jitter(w = 0.2,h = 2)) +
+  ggtitle("PPP2R2C") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+pc_PPP2R5E<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R5E"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot(pc_PPP2R5E, aes(x = "PPP2R5E", y = count, color = sample)) + 
+  geom_point(position=position_jitter(w = 0.2,h = 2)) +
+  ggtitle("PPP2R5E") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+pc_PPP1CA<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP1CA"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot(pc_PPP1CA, aes(x = "PPP1CA", y = count, color = sample)) + 
+  geom_point(position=position_jitter(w = 0.2,h = 2)) +
+  ggtitle("PPP1CA") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+pc_PPP1CC<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP1CC"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot(pc_PPP1CC, aes(x = "PPP1CC", y = count, color = sample)) + 
+  geom_point(position=position_jitter(w = 0.2,h = 2)) +
+  ggtitle("PPP1CC") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+pc_PPP1CB<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP1CB"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot(pc_PPP1CB, aes(x = "PPP1CB", y = count, color = sample)) + 
+  geom_point(position=position_jitter(w = 0.2,h = 2)) +
+  ggtitle("PPP1CB") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+pc_NDC80<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="NDC80"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot(pc_NDC80, aes(x = "NDC80", y = count, color = sample)) + 
+  geom_point(position=position_jitter(w = 0.2,h = 2)) +
+  ggtitle("NDC80") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+pc_SKA1<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SKA1"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot(pc_SKA1, aes(x = "SKA1", y = count, color = sample)) + 
+  geom_point(position=position_jitter(w = 0.2,h = 2)) +
+  ggtitle("SKA1") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+pc_SKA2<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SKA2"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot(pc_SKA2, aes(x = "SKA2", y = count, color = sample)) + 
+  geom_point(position=position_jitter(w = 0.2,h = 2)) +
+  ggtitle("SKA2") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+pc_SKA3<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SKA3"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot(pc_SKA3, aes(x = "SKA3", y = count, color = sample)) + 
+  geom_point(position=position_jitter(w = 0.2,h = 2)) +
+  ggtitle("SKA3") +
+  theme(plot.title = element_text(hjust = 0.5))
 
 ############# VOLCANO PLOTS:###################
 # Volcano plots are nice ways of displaying the fold change against the p-value.
