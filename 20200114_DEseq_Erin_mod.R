@@ -844,7 +844,7 @@ with(res_T53D4_vs_RasV12 [Ras_genes, ],
 
 ############## PLOT COUNTS ###################
 #check known genes (enter gene names where after the ..=="xxx")
-library("ggplot2")
+library(ggplot2)
 
 #Reorder samples to match experimental design
 dds$sample <- factor(dds$sample, levels=c("ARPE19", "T53D4", "RasV12", "Aktmyr", "MekDD"))
@@ -854,23 +854,23 @@ dds$sample
 plotCounts(dds, gene=which(rownames(normalized_genecounts)=="HRAS"),intgroup = c("sample"), cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_HRAS1<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="HRAS"),intgroup = c("sample"), cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 ggplot (pc_BUB1,aes(x=sample,y=count)) +
-  geom_boxplot(aes(fill=sample))+ geom_jitter()
-  scale_y_log10() + 
+  geom_boxplot(aes(fill=sample, alpha=0.9))+ geom_jitter() +
+  scale_y_log10() + stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +
   ggtitle("HRAS expression")
 
 #AKT1
 plotCounts(dds, gene=which(rownames(normalized_genecounts)=="AKT1"),intgroup = c("sample"), cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_AKT1<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="AKT1"),intgroup = c("sample"), cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 ggplot (pc_BUB1,aes(x=sample,y=count)) +
-  geom_boxplot(aes(fill=sample))+
-  scale_y_log10() + 
+  geom_boxplot(aes(fill=sample, alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +
+  geom_jitter()+scale_y_log10() + 
   ggtitle("AKT1 expression")
 
 #MAP2K6
 plotCounts(dds, gene=which(rownames(normalized_genecounts)=="MAP2K6"),intgroup = c("sample"), cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_MAP2K6<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="MAP2K6"),intgroup = c("sample"), cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 ggplot (pc_BUB1,aes(x=sample,y=count)) + 
-  geom_boxplot(aes(fill=sample))+geom_jitter()
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
   scale_y_log10() + 
   ggtitle("MAP2K6 expression")
 
@@ -878,7 +878,7 @@ ggplot (pc_BUB1,aes(x=sample,y=count)) +
 plotCounts(dds, gene=which(rownames(normalized_genecounts)=="BUB1"),intgroup = c("sample"), cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_BUB1<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="BUB1"),intgroup = c("sample"), cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 ggplot (pc_BUB1,aes(x=sample,y=count)) +
-  geom_boxplot(aes(fill=sample))+geom_jitter()
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
   scale_y_log10() + 
   ggtitle("BUB1 expression")
 
@@ -886,7 +886,7 @@ ggplot (pc_BUB1,aes(x=sample,y=count)) +
 plotCounts(dds, gene=which(rownames(normalized_genecounts)=="BUB1B"),intgroup = c("sample"), cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_BUB1B<- plotCounts(dds, gene=which(rownames(normalized_genecounts)=="BUB1B"),intgroup = c("sample"), cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 ggplot (pc_BUB1B,aes(x=sample,y=count)) +
-  geom_boxplot(aes(fill=sample))+geom_jitter()
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
   scale_y_log10() + 
   ggtitle("BUB1B expression")
 
@@ -894,7 +894,7 @@ ggplot (pc_BUB1B,aes(x=sample,y=count)) +
 plotCounts(dds, gene=which(rownames(normalized_genecounts)=="AURKB"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_AURKB<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="AURKB"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 ggplot (pc_AURKB,aes(x=sample,y=count)) +
-  geom_boxplot(aes(fill=sample))+geom_jitter()
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
   scale_y_log10() + 
   ggtitle("AURKB expression")
 
@@ -902,7 +902,7 @@ ggplot (pc_AURKB,aes(x=sample,y=count)) +
 plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R5C"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_PPP2R5C<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R5C"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 ggplot (pc_PPP2R5C,aes(x=sample,y=count)) +
-  geom_boxplot(aes(fill=sample))+geom_jitter()
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
   scale_y_log10() + 
   ggtitle("PPP2R5C expression")
 
@@ -910,7 +910,7 @@ ggplot (pc_PPP2R5C,aes(x=sample,y=count)) +
 plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R5B"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_PPP2R5B<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R5B"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 ggplot (pc_PPP2R5B,aes(x=sample,y=count)) +
-  geom_boxplot(aes(fill=sample))+geom_jitter()
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
   scale_y_log10() + 
   ggtitle("PPP2R5B expression")
 
@@ -918,7 +918,7 @@ ggplot (pc_PPP2R5B,aes(x=sample,y=count)) +
 plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R5A"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_PPP2R5A<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R5A"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 ggplot (pc_PPP2R5A,aes(x=sample,y=count)) +
-  geom_boxplot(aes(fill=sample))+geom_jitter()
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
   scale_y_log10() + 
   ggtitle("PPP2R5A expression")
 
@@ -934,7 +934,7 @@ ggplot (pc_PPP2R2A,aes(x=sample,y=count)) +
 plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R2B"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData =T)
 pc_PPP2R2B<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R2B"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 ggplot (pc_PPP2R2B,aes(x=sample,y=count)) +
-  geom_boxplot(aes(fill=sample))+geom_jitter()
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
   scale_y_log10() + 
   ggtitle("PPP2R2B expression")
 
@@ -942,7 +942,7 @@ ggplot (pc_PPP2R2B,aes(x=sample,y=count)) +
 plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R2C"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_PPP2R2C<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R2C"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 ggplot (pc_PPP2R2C,aes(x=sample,y=count)) +
-  geom_boxplot(aes(fill=sample))+geom_jitter()
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
   scale_y_log10() + 
   ggtitle("PPP2R2C expression")
 
@@ -950,7 +950,7 @@ ggplot (pc_PPP2R2C,aes(x=sample,y=count)) +
 plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R5E"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_PPP2R5E<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R5E"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 ggplot (pc_PPP2R5E,aes(x=sample,y=count)) +
-  geom_boxplot(aes(fill=sample))+geom_jitter()
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
   scale_y_log10() + 
   ggtitle("PPP2R5E expression")
 
@@ -958,7 +958,7 @@ ggplot (pc_PPP2R5E,aes(x=sample,y=count)) +
 plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP1CA"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_PPP1CA<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP1CA"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 ggplot (pc_PPP1CA,aes(x=sample,y=count)) +
-  geom_boxplot(aes(fill=sample))+geom_jitter()
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
   scale_y_log10() + 
   ggtitle("PPP1CA expression")
 
@@ -966,7 +966,7 @@ ggplot (pc_PPP1CA,aes(x=sample,y=count)) +
 plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP1CC"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_PPP1CC<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP1CC"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 ggplot (pc_PPP1CC,aes(x=sample,y=count)) +
-  geom_boxplot(aes(fill=sample))+geom_jitter()
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
   scale_y_log10() + 
   ggtitle("PPP1CC expression")
 
@@ -974,7 +974,7 @@ ggplot (pc_PPP1CC,aes(x=sample,y=count)) +
 plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP1CB"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_PPP1CB<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP1CB"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 ggplot (pc_PPP1CB,aes(x=sample,y=count)) +
-  geom_boxplot(aes(fill=sample))+geom_jitter()
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
   scale_y_log10() + 
   ggtitle("PPP1CB expression")
 
@@ -982,7 +982,7 @@ ggplot (pc_PPP1CB,aes(x=sample,y=count)) +
 plotCounts(dds, gene=which(rownames(normalized_genecounts)=="NDC80"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_NDC80<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="NDC80"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 ggplot (pc_NDC80,aes(x=sample,y=count)) +
-  geom_boxplot(aes(fill=sample))+geom_jitter()
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
   scale_y_log10() + 
   ggtitle("NDC80 expression")
 
@@ -990,7 +990,7 @@ ggplot (pc_NDC80,aes(x=sample,y=count)) +
 plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SKA1"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_SKA1<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SKA1"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 ggplot (pc_SKA2,aes(x=sample,y=count)) +
-  geom_boxplot(aes(fill=sample))+geom_jitter()
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
   scale_y_log10() + 
   ggtitle("SKA1 expression")
 
@@ -998,7 +998,7 @@ ggplot (pc_SKA2,aes(x=sample,y=count)) +
 plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SKA2"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_SKA2<- plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SKA2"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 ggplot (pc_SKA2,aes(x=sample,y=count)) +
-  geom_boxplot(aes(fill=sample))+geom_jitter()
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
   scale_y_log10() + 
   ggtitle("SKA2 expression")
 
@@ -1006,7 +1006,7 @@ ggplot (pc_SKA2,aes(x=sample,y=count)) +
 plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SKA3"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_SKA3<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SKA3"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 ggplot (pc_SKA3,aes(x=sample,y=count)) +
-  geom_boxplot(aes(fill=sample))+geom_jitter()
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
   scale_y_log10() + 
   ggtitle("SKA3 expression")
 
@@ -1014,7 +1014,7 @@ ggplot (pc_SKA3,aes(x=sample,y=count)) +
 plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SGO1"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_SGO1<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SGO1"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 ggplot (pc_SGO1,aes(x=sample,y=count)) +
-  geom_boxplot(aes(fill=sample))+geom_jitter(alpha=0.5)
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
   scale_y_log10() + 
   ggtitle("SGO1 expression")
 
