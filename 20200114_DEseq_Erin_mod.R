@@ -1457,24 +1457,6 @@ p <- pheatmap(changing_lrt_rdl,
               show_rownames = FALSE,
               returnData=F)
 
-#new matrix for genes of interest per sample
-genes_of_interest <- changing_lrt_rdl[selectedGenes[selectedGenes %in% rownames(changing_lrt_rdl)],]
-genes_of_interest
-class(genes_of_interest)
-
-goi<- pheatmap(genes_of_interest, 
-              scale="none", 
-              color = colorRampPalette(c("blue", "white", "red"), space = "Lab")(100),
-              border_color = TRUE,
-              treeheight_row = 100,
-              cluster_rows=TRUE, 
-              cluster_cols=T,
-              cutree_rows = 4,
-              cutree_cols = 5,
-              clustering_distance_rows = "euclidean", 
-              clustering_method = "complete",
-              show_rownames = T)   
-
 #matrix for mean of counts per rep for rach sample
 changing_lrt_rdl_df<- as.data.frame(changing_lrt_rdl)
 #finding mean for MekDD reps
@@ -1494,20 +1476,37 @@ head(means_of_changing_genes)
 
 
 #heatmap of means of reps per sample
-
 means_heatmap<- pheatmap(means_of_changing_genes, 
-               scale="row", 
-               color = colorRampPalette(c("blue", "white", "red"), space = "Lab")(100),
-               border_color = TRUE,
-               treeheight_row = 100,
-               cluster_rows=TRUE, 
-               cluster_cols=T,
-               cutree_rows = 7,
-               cutree_cols = 5,
-               clustering_distance_rows = "euclidean", 
-               clustering_method = "complete",
-               show_rownames = F
-               )
+                         scale="row", 
+                         color = colorRampPalette(c("blue", "white", "red"), space = "Lab")(100),
+                         border_color = T,
+                         treeheight_row = 100,
+                         cluster_rows=TRUE, 
+                         cluster_cols=F,
+                         cutree_rows = 7,
+                         cutree_cols = 5,
+                         clustering_distance_rows = "euclidean", 
+                         clustering_method = "complete",
+                         show_rownames = F)
+
+#new matrix for genes of interest per sample
+genes_of_interest <- changing_lrt_rdl[selectedGenes[selectedGenes %in% rownames(changing_lrt_rdl)],]
+genes_of_interest
+class(genes_of_interest)
+
+goi<- pheatmap(genes_of_interest, 
+              scale="none", 
+              color = colorRampPalette(c("blue", "white", "red"), space = "Lab")(100),
+              border_color = TRUE,
+              treeheight_row = 100,
+              cluster_rows=TRUE, 
+              cluster_cols=T,
+              cutree_rows = 4,
+              cutree_cols = 5,
+              clustering_distance_rows = "euclidean", 
+              clustering_method = "complete",
+              show_rownames = T)   
+
 
 #heatmp showing means of genes of interest
 genes_of_interest_means <- means_of_changing_genes[selectedGenes[selectedGenes %in% rownames(means_of_changing_genes)],]
@@ -1524,6 +1523,60 @@ means_heatmap_goi<- pheatmap(genes_of_interest_means,
                          clustering_distance_rows = "euclidean", 
                          clustering_method = "complete",
                          show_rownames = T)
+
+#all the genes of interest didnt show up in our any of the changing genes heatmaps
+#therfore we will use the normalized_genecounts data frame to make a heatmap showing all our gois
+ncounts_goi <- normalized_genecounts[selectedGenes[selectedGenes %in% rownames(normalized_genecounts)],]
+ncounts_goi_no_genecol<-ncounts_goi
+#remove gene col from df
+ncounts_goi_no_genecol$Gene=NULL
+
+ncounts_heatmap_goi<- pheatmap(ncounts_goi_no_genecol, 
+                             scale="column", 
+                             color = colorRampPalette(c("blue", "white", "red"), space = "Lab")(100),
+                             border_color = TRUE,
+                             treeheight_row = 100,
+                             cluster_rows=TRUE, 
+                             cluster_cols=T,
+                             cutree_rows = 8,
+                             cutree_cols = 5,
+                             clustering_distance_rows = "euclidean", 
+                             clustering_method = "complete",
+                             show_rownames = T)
+
+##heatmap for means of normalized counts for genes or interest
+#means of reps per sample for gene of interest on 'ncounts_goi_no_genecol" df
+#matrix for mean of counts per rep for rach sample
+ncounts_goi_no_genecol<- as.data.frame(ncounts_goi_no_genecol)
+#finding mean for MekDD reps
+MekDD_ncounts=(ncounts_goi_no_genecol$MekDD_1_1 + ncounts_goi_no_genecol$MekDD_3_1 + ncounts_goi_no_genecol$MekDD_2_1)/3
+#finding mean for Akt reps
+Aktmyr_ncounts=(ncounts_goi_no_genecol$Aktmyr_1_2+ncounts_goi_no_genecol$Aktmyr_2_2+ncounts_goi_no_genecol$Aktmyr_3_2)/3
+#finding mean for ARPE19 reps
+ARPE19_ncounts=(ncounts_goi_no_genecol$ARPE19_1_3+ncounts_goi_no_genecol$ARPE19_2_3+ncounts_goi_no_genecol$ARPE19_3_3)/3
+#finding mean for RasV12
+RasV12_ncounts=(ncounts_goi_no_genecol$RasV12_1_4+ncounts_goi_no_genecol$RasV12_2_4+ncounts_goi_no_genecol$RasV12_2_4)/3
+#finding mean for T53D4
+T53D4_ncounts=(ncounts_goi_no_genecol$T53D4_1_5+ncounts_goi_no_genecol$T53D4_2_5+ncounts_goi_no_genecol$T53D4_3_5)/3
+#new dataframe with all the means of the different samples
+means_of_changing_genes_ncounts<-data.frame(ARPE19_ncounts,T53D4_ncounts,RasV12_ncounts,MekDD_ncounts,Aktmyr_ncounts)
+rownames(means_of_changing_genes_ncounts)<-rownames(ncounts_goi_no_genecol) 
+head(means_of_changing_genes_ncounts)
+
+ncounts_means_heatmap_goi<- pheatmap(means_of_changing_genes_ncounts, 
+                               scale="row", 
+                               color = colorRampPalette(c("blue", "white", "red"), space = "Lab")(100),
+                               border_color = TRUE,
+                               treeheight_row = 100,
+                               cluster_rows=TRUE, 
+                               cluster_cols=F,
+                               cutree_rows = 6,
+                               cutree_cols = 5,
+                               clustering_distance_rows = "euclidean", 
+                               clustering_method = "complete",
+                               show_rownames = T)
+
+
 
 #shows dendrogram divison of row (genes)
 plot(p$tree_row)
