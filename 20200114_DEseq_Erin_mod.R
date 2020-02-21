@@ -48,8 +48,8 @@ biocLite("DESeq2")
 #Install RColorBrewer: https://cran.r-project.org/web/packages/RColorBrewer/index.html
 #install.packages("RColorBrewer")
 # 
-# ######### DONE WITH: FIRST TIME USE ONLY SECTION ##############
-# ################################
+########## DONE WITH: FIRST TIME USE ONLY SECTION ##############
+#################################
 
 
 ###########  LOAD PACKAGE  #####################
@@ -60,6 +60,8 @@ library(DESeq2)
 library(corrplot)
 library(RColorBrewer)
 library(pheatmap)
+library(ggplot2)
+library(d3heatmap)
 
 #################################################
 
@@ -227,6 +229,19 @@ selectedGenes = c('BUB1B','AURKB','BUB1','SKA1','SKA2','SKA3','SGO1','PPP2R5C',
                   'PPP2R5B','PPP2R2A','PPP2R2A','PPP2R5D','PPP2R5A','PPP2R5E',
                   'PPP1CA','PPP1CC','PPP1CB','NDC80')
 
+#Gene associated with MEK pathway
+Mek_genes=c('MAP2K1', 'MAP2K2','MAP2K3','MAP2K4','MAP2K5','MAP2K6','MAP2K7',
+             'PTPN11', 'GBR2','SOS1')
+
+#Gens associated with the RAS pathway
+Ras_genes=c('KRAS','NRAS','BRAF','HRAS','RAF1')
+
+#Gene associated with AKT pathway
+Akt_genes =c('AKT1','AKT2','AKT3','AKT8','PDK1','PDK2','MTOR')
+
+#Genes assocaited with T53D4
+T53D4_genes=c('CDK4', 'TP53')
+
 ######## vs AKTMYR #########
 #ARPE19 vs Aktmyr#
 res_ARPE19_vs_Aktmyr <- results(dds,
@@ -247,11 +262,16 @@ plotMA(res_ARPE19_vs_Aktmyr, main="ARPE19 vs Aktmyr ", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized ARPE19 / Aktmyr)",
        xlab = "means of normalized counts",
        cex.main= 3,
-       cex= 1)
+       cex= 0.5,
+       alpha= 0.5)
 with(res_ARPE19_vs_Aktmyr [selectedGenes, ],
      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
               lwd=2)
        text(baseMean,log2FoldChange, selectedGenes, pos=2, col="dodgerblue")})
+with(res_ARPE19_vs_Aktmyr [Akt_genes, ],
+     { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+              lwd=2)
+       text(baseMean,log2FoldChange, Akt_genes, pos=2, col="dodgerblue")})
 
 # plotMA(resLFC_ARPE19_vs_Aktmyr, main="ARPE19 vs Aktmyr\nshrunken", ylim = c(-7,7),
 #        ylab = "log fold change (ratio of normalized ARPE19 / Aktmyr)",
@@ -262,9 +282,9 @@ with(res_ARPE19_vs_Aktmyr [selectedGenes, ],
 #  Step1 -> execute idx code line below. 
 #  Step2 -> Click on a dot in the plot. 
 #  Step3 -> To finish, click on "finish" in the upper right hand corner of the plot
-idx <- identify(resLFC_ARPE19_vs_Aktmyr$baseMean,resLFC_ARPE19_vs_Aktmyr$log2FoldChange, labels = gene_names$external_gene_name)
-#  Step4 -> click here to see what you got!
-rownames(resLFC_ARPE19_vs_Aktmyr)[idx]
+# idx <- identify(resLFC_ARPE19_vs_Aktmyr$baseMean,resLFC_ARPE19_vs_Aktmyr$log2FoldChange, labels = gene_names$external_gene_name)
+# #  Step4 -> click here to see what you got!
+# rownames(resLFC_ARPE19_vs_Aktmyr)[idx]
 
 #RasV12 vs Aktmyr#
 res_RasV12_vs_Aktmyr <- results(dds,
@@ -286,12 +306,17 @@ plotMA(res_RasV12_vs_Aktmyr, main="RasV12 vs Aktmyr", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized RasV12 / Aktmyr)",
        xlab = "means of normalized counts",
        cex.main= 3,
-       cex= 1)
+       cex= 0.5,
+       alpha= 0.5)
 with(res_RasV12_vs_Aktmyr [selectedGenes, ],
      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
               lwd=2)
        text(baseMean,log2FoldChange,
             selectedGenes, pos=2, col="dodgerblue")})
+with(res_RasV12_vs_Aktmyr [Akt_genes, ],
+     { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+              lwd=2)
+       text(baseMean,log2FoldChange, Akt_genes, pos=2, col="dodgerblue")})
 
 # plotMA(resLFC_RasV12_vs_Aktmyr, main="RasV12 vs Aktmyr\nshrunken", ylim = c(-7,7),
 #        ylab = "log fold change (ratio of normalized RasV12 / Aktmyr)",
@@ -301,9 +326,9 @@ with(res_RasV12_vs_Aktmyr [selectedGenes, ],
 #  Step1 -> execute idx code line below. 
 #  Step2 -> Click on a dot in the plot. 
 #  Step3 -> To finish, click on "finish" in the upper right hand corner of the plot
-idx <- identify(resLFC_RasV12_vs_Aktmyr$baseMean,resLFC_RasV12_vs_Aktmyr$log2FoldChange, labels = gene_names$external_gene_name)
-#  Step4 -> click here to see what you got!
-rownames(resLFC_RasV12_vs_Aktmyr)[idx]
+# idx <- identify(resLFC_RasV12_vs_Aktmyr$baseMean,resLFC_RasV12_vs_Aktmyr$log2FoldChange, labels = gene_names$external_gene_name)
+# #  Step4 -> click here to see what you got!
+# rownames(resLFC_RasV12_vs_Aktmyr)[idx]
 
 #MekDD vs Aktmyr
 res_MekDD_vs_Aktmyr <- results(dds,
@@ -323,13 +348,18 @@ par(mfrow=c(1,1))
 plotMA(res_MekDD_vs_Aktmyr, main="MekDD vs Aktmyr", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized MekDD / Aktmyr)",
        xlab = "means of normalized counts",
-       cex=1,
-       cex.main=3)
+       cex=0.5,
+       cex.main=3,
+       alpha= 0.5)
 with(res_MekDD_vs_Aktmyr [selectedGenes, ],
      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
               lwd=2)
        text(baseMean,log2FoldChange,
             selectedGenes, pos=2, col="dodgerblue")})
+with(res_MekDD_vs_Aktmyr [Akt_genes, ],
+     { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+              lwd=2)
+       text(baseMean,log2FoldChange, Akt_genes, pos=2, col="dodgerblue")})
 
 
 # plotMA(resLFC_MekDD_vs_Aktmyr, main="MekDD vs Aktmyr\nshrunken", ylim = c(-7,7),
@@ -341,9 +371,9 @@ with(res_MekDD_vs_Aktmyr [selectedGenes, ],
 #  Step1 -> execute idx code line below. 
 #  Step2 -> Click on a dot in the plot. 
 #  Step3 -> To finish, click on "finish" in the upper right hand corner of the plot
-idx <- identify(resLFC_MekDD_vs_Aktmyr$baseMean,resLFC_MekDD_vs_Aktmyr$log2FoldChange, labels = gene_names$external_gene_name)
-#  Step4 -> click here to see what you got!
-rownames(resLFC_MekDD_vs_Aktmyr)[idx]
+# idx <- identify(resLFC_MekDD_vs_Aktmyr$baseMean,resLFC_MekDD_vs_Aktmyr$log2FoldChange, labels = gene_names$external_gene_name)
+# #  Step4 -> click here to see what you got!
+# rownames(resLFC_MekDD_vs_Aktmyr)[idx]
 
 
 #T53D4 vs Aktmyr
@@ -365,12 +395,17 @@ plotMA(res_T53D4_vs_Aktmyr, main="T53D4 vs Aktmyr", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized T53D4 / Aktmyr)",
        xlab = "means of normalized counts",
        cex.main= 3,
-       cex= 1)
+       cex= 0.5,
+       alpha= 0.5)
 with(res_T53D4_vs_Aktmyr [selectedGenes, ],
      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
               lwd=2)
        text(baseMean,log2FoldChange,
             selectedGenes, pos=2, col="dodgerblue")})
+with(res_T53D4_vs_Aktmyr [Akt_genes, ],
+     { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+              lwd=2)
+       text(baseMean,log2FoldChange, Akt_genes, pos=2, col="dodgerblue")})
 
 # plotMA(resLFC_T53D4_vs_Aktmyr, main="T53D4 vs Aktmyr\nshrunken", ylim = c(-7,7),
 #        ylab = "log fold change (ratio of normalized T53D4 / Aktmyr)",
@@ -380,9 +415,9 @@ with(res_T53D4_vs_Aktmyr [selectedGenes, ],
 #  Step1 -> execute idx code line below. 
 #  Step2 -> Click on a dot in the plot. 
 #  Step3 -> To finish, click on "finish" in the upper right hand corner of the plot
-idx <- identify(resLFC_T53D4_vs_Aktmyr$baseMean,resLFC_T53D4_vs_Aktmyr$log2FoldChange, labels = gene_names$external_gene_name)
-#  Step4 -> click here to see what you got!
-rownames(resLFC_T53D4_vs_Aktmyr)[idx]
+# idx <- identify(resLFC_T53D4_vs_Aktmyr$baseMean,resLFC_T53D4_vs_Aktmyr$log2FoldChange, labels = gene_names$external_gene_name)
+# #  Step4 -> click here to see what you got!
+# rownames(resLFC_T53D4_vs_Aktmyr)[idx]
 
 
 ########## vs  MEKDD ##########
@@ -403,12 +438,17 @@ plotMA(res_T53D4_vs_MekDD, main="T53D4 vs MekDD", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized T53D4 / MekDD)",
        xlab = "means of normalized counts",
        cex.main= 3,
-       cex= 1)
+       cex= 0.5,
+       alpha= 0.5)
 with(res_T53D4_vs_MekDD [selectedGenes, ],
      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
               lwd=2)
        text(baseMean,log2FoldChange,
             selectedGenes, pos=2, col="dodgerblue")})
+with(res_T53D4_vs_MekDD [Mek_genes, ],
+     { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+              lwd=2)
+       text(baseMean,log2FoldChange, Ras_genes, pos=2, col="dodgerblue")})
 
 #plotMA(resLFC_T53D4_vs_MekDD, main="T53D4 vs MekDD\nshrunken", ylim = c(-7,7),
 #       ylab = "log fold change (ratio of normalized T53D4 / MekDD)",
@@ -418,9 +458,9 @@ with(res_T53D4_vs_MekDD [selectedGenes, ],
 #  Step1 -> execute idx code line below. 
 #  Step2 -> Click on a dot in the plot. 
 #  Step3 -> To finish, click on "finish" in the upper right hand corner of the plot
-idx <- identify(resLFC_T53D4_vs_Aktmyr$baseMean,resLFC_T53D4_vs_Aktmyr$log2FoldChange, labels = gene_names$external_gene_name)
-#  Step4 -> click here to see what you got!
-rownames(resLFC_T53D4_vs_Aktmyr)[idx]
+# idx <- identify(resLFC_T53D4_vs_Aktmyr$baseMean,resLFC_T53D4_vs_Aktmyr$log2FoldChange, labels = gene_names$external_gene_name)
+# #  Step4 -> click here to see what you got!
+# rownames(resLFC_T53D4_vs_Aktmyr)[idx]
 
 #Aktmyr vs MekDD
 res_Aktmyr_vs_MekDD <- results(dds,
@@ -435,18 +475,24 @@ plotMA(res_Aktmyr_vs_MekDD, main="Aktmyr vs MekDD", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized Aktmyr / MekDD)",
        xlab = "means of normalized counts",
        cex.main= 3,
-       cex= 1)
+       cex= 0.5,
+       alpha= 0.5)
 with(res_Aktmyr_vs_MekDD [selectedGenes, ],
      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
               lwd=2)
        text(baseMean,log2FoldChange,
             selectedGenes, pos=2, col="dodgerblue")})
+with(res_Aktmyr_vs_MekDD [Mek_genes, ],
+     { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+              lwd=2)
+       text(baseMean,log2FoldChange, Mek_genes, pos=2, col="dodgerblue")})
 
 
 #RasV12 vs MekDD
 res_RasV12_vs_MekDD <- results(dds,
                                lfc = 0.01,
                                contrast=c("sample","RasV12","MekDD"))
+summary(res_RasV12_vs_MekDD)
 
 ##RasV12 vs MekDD plots##
 par(mfrow=c(1,1))
@@ -454,17 +500,24 @@ plotMA(res_RasV12_vs_MekDD, main="RasV12 vs MekDD", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized RasV12 / MekDD)",
        xlab = "means of normalized counts",
        cex.main= 3,
-       cex= 1)
+       cex= 0.5,
+       alpha= 0.5)
 with(res_RasV12_vs_MekDD [selectedGenes, ],
      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
               lwd=2)
        text(baseMean,log2FoldChange,
             selectedGenes, pos=2, col="dodgerblue")})
+with(res_RasV12_vs_MekDD [Mek_genes, ],
+     { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+              lwd=2)
+       text(baseMean,log2FoldChange, Mek_genes, pos=2, col="dodgerblue")})
 
 #ARPE19 vs MekDD
 res_ARPE19_vs_MekDD <- results(dds,
                                lfc = 0.01,
                                contrast=c("sample","ARPE19","MekDD"))
+
+summary(res_ARPE19_vs_MekDD)
 
 ##ARPE19 vs MekDD plots##
 par(mfrow=c(1,1))
@@ -472,18 +525,24 @@ plotMA(res_ARPE19_vs_MekDD, main="ARPE19 vs MekDD", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized ARPE19 / MekDD)",
        xlab = "means of normalized counts",
        cex.main= 3,
-       cex= 1)
+       cex= 0.5,
+       alpha= 0.5)
 with(res_ARPE19_vs_MekDD [selectedGenes, ],
      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
               lwd=2)
        text(baseMean,log2FoldChange,
             selectedGenes, pos=2, col="dodgerblue")})
+with(res_ARPE19_vs_MekDD [Mek_genes, ],
+     { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+              lwd=2)
+       text(baseMean,log2FoldChange, Mek_genes, pos=2, col="dodgerblue")})
 
 ########## vs  T53D4 ##########
 #ARPE19 vs T53D4
 res_ARPE19_vs_T53D4 <- results(dds,
                                lfc = 0.01,
                                contrast=c("sample","ARPE19","T53D4"))
+summary(res_ARPE19_vs_T53D4)
 
 ##ARPE19 vs T53D4 plots##
 par(mfrow=c(1,1))
@@ -491,25 +550,31 @@ plotMA(res_ARPE19_vs_T53D4, main="ARPE19 vs T53D4", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized ARPE19 / T53D4)",
        xlab = "means of normalized counts",
        cex.main= 3,
-       cex= 1)
+       cex= 0.5,
+       alpha=0.5)
 with(res_ARPE19_vs_T53D4 [selectedGenes, ],
      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
               lwd=2)
        text(baseMean,log2FoldChange,
             selectedGenes, pos=2, col="dodgerblue")})
+with(res_ARPE19_vs_T53D4 [T53D4_genes, ],
+     { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+              lwd=2)
+       text(baseMean,log2FoldChange, T53D4_genes, pos=2, col="dodgerblue")})
 
 #Identify genes on the plot ARPE19 vs Aktmyr
 #  Step1 -> execute idx code line below. 
 #  Step2 -> Click on a dot in the plot. 
 #  Step3 -> To finish, click on "finish" in the upper right hand corner of the plot
-idx <- identify(res_ARPE19_vs_T53D4$baseMean,res_ARPE19_vs_T53D4$log2FoldChange, labels = gene_names$external_gene_name)
-#  Step4 -> click here to see what you got!
-rownames(res_ARPE19_vs_T53D4)[idx]
+# idx <- identify(res_ARPE19_vs_T53D4$baseMean,res_ARPE19_vs_T53D4$log2FoldChange, labels = gene_names$external_gene_name)
+# #  Step4 -> click here to see what you got!
+# rownames(res_ARPE19_vs_T53D4)[idx]
 
 #MekDD vs T53D4
 res_MekDD_vs_T53D4 <- results(dds,
                               lfc = 0.01,
                               contrast=c("sample","MekDD","T53D4"))
+summary(res_MekDD_vs_T53D4)
 
 ##MekDD vs T53D4 plots##
 par(mfrow=c(1,1))
@@ -517,17 +582,23 @@ plotMA(res_T53D4_vs_MekDD, main="MekDD vs T53D4", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized MekDD / T53D4)",
        xlab = "means of normalized counts",
        cex.main= 3,
-       cex= 1)
+       cex= 0.5,
+       alpha= 0.5)
 with(res_T53D4_vs_MekDD [selectedGenes, ],
      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
               lwd=2)
        text(baseMean,log2FoldChange,
             selectedGenes, pos=2, col="dodgerblue")})
+with(res_T53D4_vs_MekDD [T53D4_genes, ],
+     { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+              lwd=2)
+       text(baseMean,log2FoldChange, T53D4_genes, pos=2, col="dodgerblue")})
 
 #RasV12 vs T53D4
 res_RasV12_vs_T53D4 <- results(dds,
                               lfc = 0.01,
                               contrast=c("sample","RasV12","T53D4"))
+summary(res_RasV12_vs_T53D4)
 
 ##RasV12 vs T53D4 plots##
 par(mfrow=c(1,1))
@@ -535,17 +606,23 @@ plotMA(res_RasV12_vs_T53D4, main="RasV12 vs T53D4", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized RasV12 / T53D4)",
        xlab = "means of normalized counts",
        cex.main= 3,
-       cex= 1)
+       cex= 0.5,
+       alpha= 0.5)
 with(res_RasV12_vs_T53D4 [selectedGenes, ],
      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
               lwd=2)
        text(baseMean,log2FoldChange,
             selectedGenes, pos=2, col="dodgerblue")})
+with(res_RasV12_vs_T53D4 [T53D4_genes, ],
+     { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+              lwd=2)
+       text(baseMean,log2FoldChange, T53D4_genes, pos=2, col="dodgerblue")})
 
 #Aktmyr vs T53D4
 res_Aktmyr_vs_T53D4 <- results(dds,
                                lfc = 0.01,
                                contrast=c("sample","Aktmyr","T53D4"))
+summary(res_Aktmyr_vs_T53D4)
 
 ##Aktmyr vs T53D4 plots##
 par(mfrow=c(1,1))
@@ -553,18 +630,24 @@ plotMA(res_Aktmyr_vs_T53D4, main="Aktmyr vs T53D4", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized Aktmyr / T53D4)",
        xlab = "means of normalized counts",
        cex.main= 3,
-       cex= 1)
+       cex= 0.5,
+       alpha= 0.5)
 with(res_Aktmyr_vs_T53D4 [selectedGenes, ],
                    { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
                             lwd=2)
                      text(baseMean,log2FoldChange,
                           selectedGenes, pos=2, col="dodgerblue")})
+with(res_Aktmyr_vs_T53D4 [T53D4_genes, ],
+     { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+              lwd=2)
+       text(baseMean,log2FoldChange, T53D4_genes, pos=2, col="dodgerblue")})
 
 ########## vs  ARPE19 ##########
 #T53D4 vs ARPE19
 res_T53D4_vs_ARPE19 <- results(dds,
                                lfc = 0.01,
                                contrast=c("sample","T53D4","ARPE19"))
+summary(res_T53D4_vs_ARPE19)
 
 ##T53D4 vs ARPE19 plots##
 par(mfrow=c(1,1))
@@ -572,17 +655,23 @@ plotMA(res_T53D4_vs_ARPE19, main="T53D4 vs ARPE19", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized T53D4 / ARPE19)",
        xlab = "means of normalized counts",
        cex.main= 3,
-       cex= 1)
+       cex= 0.5,
+       alpha= 0.5)
 with(res_T53D4_vs_ARPE19 [selectedGenes, ],
      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
               lwd=2)
        text(baseMean,log2FoldChange,
             selectedGenes, pos=2, col="dodgerblue")})
+with(res_T53D4_vs_ARPE19 [T53D4_genes, ],
+     { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+              lwd=2)
+       text(baseMean,log2FoldChange, T53D4_genes, pos=2, col="dodgerblue")})
 
 #RasV12 vs ARPE19
 res_RasV12_vs_ARPE19 <- results(dds,
                                lfc = 0.01,
                                contrast=c("sample","RasV12","ARPE19"))
+summary(res_RasV12_vs_ARPE19)
 
 ##RasV12 vs ARPE19 plots##
 par(mfrow=c(1,1))
@@ -590,17 +679,23 @@ plotMA(res_RasV12_vs_ARPE19, main="RasV12 vs ARPE19", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized RasV12 / ARPE19)",
        xlab = "means of normalized counts",
        cex.main= 3,
-       cex= 1)
+       cex=0.5,
+       alpha= 0.5)
 with(res_RasV12_vs_ARPE19 [selectedGenes, ],
      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
               lwd=2)
        text(baseMean,log2FoldChange,
             selectedGenes, pos=2, col="dodgerblue")})
+with(res_RasV12_vs_ARPE19 [Ras_genes, ],
+     { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+              lwd=2)
+       text(baseMean,log2FoldChange, Ras_genes, pos=2, col="dodgerblue")})
 
 #MekDD vs ARPE19
 res_MekDD_vs_ARPE19 <- results(dds,
                                 lfc = 0.01,
                                 contrast=c("sample","MekDD","ARPE19"))
+summary(res_MekDD_vs_ARPE19)
 
 ##MekDD vs ARPE19 plots##
 par(mfrow=c(1,1))
@@ -608,17 +703,23 @@ plotMA(res_MekDD_vs_ARPE19, main="MekDD vs ARPE19", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized MekDD / ARPE19)",
        xlab = "means of normalized counts",
        cex.main= 3,
-       cex= 1)
+       cex= 0.5,
+       alpha=0.5)
 with(res_MekDD_vs_ARPE19 [selectedGenes, ],
      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
               lwd=2)
        text(baseMean,log2FoldChange,
             selectedGenes, pos=2, col="dodgerblue")})
+with(res_RasV12_vs_ARPE19 [Mek_genes, ],
+     { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+              lwd=2)
+       text(baseMean,log2FoldChange, Mek_genes, pos=2, col="dodgerblue")})
 
 #Aktmyr vs ARPE19
 res_Aktmyr_vs_ARPE19 <- results(dds,
                                lfc = 0.01,
                                contrast=c("sample","Aktmyr","ARPE19"))
+summary(res_Aktmyr_vs_ARPE19)
 
 ##Aktmyr vs ARPE19 plots##
 par(mfrow=c(1,1))
@@ -626,18 +727,25 @@ plotMA(res_Aktmyr_vs_ARPE19, main="Aktmyr vs ARPE19", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized Aktmyr / ARPE19)",
        xlab = "means of normalized counts",
        cex.main= 3,
-       cex= 1)
+       cex=0.5,
+       alpha=0.5)
 with(res_Aktmyr_vs_ARPE19 [selectedGenes, ],
      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
               lwd=2)
        text(baseMean,log2FoldChange,
             selectedGenes, pos=2, col="dodgerblue")})
+with(res_Aktmyr_vs_ARPE19 [Akt_genes, ],
+     { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+              lwd=2)
+       text(baseMean,log2FoldChange,
+            Akt_genes, pos=2, col="dodgerblue")})
 
 ########## vs  RasV12 ##########
 #ARPE19 vs RasV12
 res_ARPE19_vs_RasV12 <- results(dds,
                                lfc = 0.01,
                                contrast=c("sample","ARPE19","RasV12"))
+summary(res_ARPE19_vs_RasV12)
 
 ##ARPE19 vs RasV12 plots##
 par(mfrow=c(1,1))
@@ -645,17 +753,24 @@ plotMA(res_ARPE19_vs_RasV12, main="ARPE19 vs RasV12", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized ARPE19 / RasV12)",
        xlab = "means of normalized counts",
        cex.main= 3,
-       cex= 1)
+       cex= 0.5,
+       alpha= 0.5)
 with(res_ARPE19_vs_RasV12 [selectedGenes, ],
      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
              lwd=2)
        text(baseMean,log2FoldChange,
             selectedGenes, pos=2, col="dodgerblue")})
+with(res_ARPE19_vs_RasV12 [Ras_genes, ],
+     { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+              lwd=2)
+       text(baseMean,log2FoldChange,
+            Ras_genes, pos=2, col="dodgerblue")})
 
 #T53D4 vs RasV12
 res_T53D4_vs_RasV12 <- results(dds,
                                 lfc = 0.01,
                                 contrast=c("sample","T53D4","RasV12"))
+summary(res_T53D4_vs_RasV12)
 
 ##T53D4 vs RasV12 plots##
 par(mfrow=c(1,1))
@@ -663,17 +778,24 @@ plotMA(res_T53D4_vs_RasV12, main="T53D4 vs RasV12", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized T53D4 / RasV12)",
        xlab = "means of normalized counts",
        cex.main= 3,
-       cex= 1)
+       cex= 0.5,
+       alpha= 0.5)
 with(res_T53D4_vs_RasV12 [selectedGenes, ],
      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
               lwd=2)
        text(baseMean,log2FoldChange,
             selectedGenes, pos=2, col="dodgerblue")})
+with(res_T53D4_vs_RasV12 [Ras_genes, ],
+     { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+              lwd=2)
+       text(baseMean,log2FoldChange,
+            Ras_genes, pos=2, col="dodgerblue")})
 
 #MekDD vs RasV12
 res_MekDD_vs_RasV12 <- results(dds,
                                lfc = 0.01,
                                contrast=c("sample","MekDD","RasV12"))
+summary(res_MekDD_vs_RasV12)
 
 ##MekDD vs RasV12 plots##
 par(mfrow=c(1,1))
@@ -681,17 +803,25 @@ plotMA(res_MekDD_vs_RasV12, main="MekDD vs RasV12", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized MekDD / RasV12)",
        xlab = "means of normalized counts",
        cex.main= 3,
-       cex= 1)
+       cex=0.5,
+       alpha= 0.5)
 with(res_MekDD_vs_RasV12 [selectedGenes, ],
      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
               lwd=2)
        text(baseMean,log2FoldChange,
             selectedGenes, pos=2, col="dodgerblue")})
+with(res_T53D4_vs_RasV12 [Ras_genes, ],
+     { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+              lwd=2)
+       text(baseMean,log2FoldChange,
+            Ras_genes, pos=2, col="dodgerblue")})
 
 #Aktmyr vs RasV12
 res_Aktmyr_vs_RasV12 <- results(dds,
                                lfc = 0.01,
                                contrast=c("sample","Aktmyr","RasV12"))
+summary(res_Aktmyr_vs_RasV12)
+
 
 ##Aktmyr vs RasV12 plots##
 par(mfrow=c(1,1))
@@ -699,339 +829,412 @@ plotMA(res_Aktmyr_vs_RasV12, main="Aktmyr vs RasV12", ylim = c(-20,20),
        ylab = "log fold change (ratio of normalized Aktmyr / RasV12)",
        xlab = "means of normalized counts",
        cex.main= 3,
-       cex= 1)
+       cex= 0.5,
+       alpha=0.5)
 with(res_Aktmyr_vs_RasV12 [selectedGenes, ],
      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
               lwd=2)
        text(baseMean,log2FoldChange,
             selectedGenes, pos=2, col="dodgerblue")})
+with(res_T53D4_vs_RasV12 [Ras_genes, ],
+     { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+              lwd=2)
+       text(baseMean,log2FoldChange,
+            Ras_genes, pos=2, col="dodgerblue")})
 
 ############## PLOT COUNTS ###################
 #check known genes (enter gene names where after the ..=="xxx")
+library("ggplot2")
+
+#Reorder samples to match experimental design
+dds$sample <- factor(dds$sample, levels=c("ARPE19", "T53D4", "RasV12", "Aktmyr", "MekDD"))
+dds$sample
+
+#HRAS
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="HRAS"),intgroup = c("sample"), cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_HRAS1<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="HRAS"),intgroup = c("sample"), cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_BUB1,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample))+ geom_jitter()
+  scale_y_log10() + 
+  ggtitle("HRAS expression")
+
+#AKT1
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="AKT1"),intgroup = c("sample"), cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_AKT1<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="AKT1"),intgroup = c("sample"), cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_BUB1,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample))+
+  scale_y_log10() + 
+  ggtitle("AKT1 expression")
+
+#MAP2K6
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="MAP2K6"),intgroup = c("sample"), cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_MAP2K6<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="MAP2K6"),intgroup = c("sample"), cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_BUB1,aes(x=sample,y=count)) + 
+  geom_boxplot(aes(fill=sample))+geom_jitter()
+  scale_y_log10() + 
+  ggtitle("MAP2K6 expression")
+
+#BUB1
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="BUB1"),intgroup = c("sample"), cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_BUB1<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="BUB1"),intgroup = c("sample"), cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
-ggplot(pc_BUB1, aes(x = "BUB1", y = count, color = sample)) + 
-  geom_point(position=position_jitter(w = 0.2,h = 2)) +
-  ggtitle("BUB1") +
-  theme(plot.title = element_text(hjust = 0.5))
+ggplot (pc_BUB1,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample))+geom_jitter()
+  scale_y_log10() + 
+  ggtitle("BUB1 expression")
 
+#BUB1B
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="BUB1B"),intgroup = c("sample"), cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_BUB1B<- plotCounts(dds, gene=which(rownames(normalized_genecounts)=="BUB1B"),intgroup = c("sample"), cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
-ggplot(pc_BUB1B, aes(x = "BUB1B", y = count, color = sample)) + 
-  geom_point(position=position_jitter(w = 0.2,h = 2)) +
-  ggtitle("BUB1B") +
-  theme(plot.title = element_text(hjust = 0.5))
+ggplot (pc_BUB1B,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample))+geom_jitter()
+  scale_y_log10() + 
+  ggtitle("BUB1B expression")
 
+#AURKB
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="AURKB"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_AURKB<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="AURKB"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
-ggplot(pc_AURKB, aes(x = "AURKB", y = count, color = sample)) + 
-  geom_point(position=position_jitter(w = 0.2,h = 2)) +
-  ggtitle("AURKB") +
-  theme(plot.title = element_text(hjust = 0.5))
+ggplot (pc_AURKB,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample))+geom_jitter()
+  scale_y_log10() + 
+  ggtitle("AURKB expression")
 
+#PPP2R5C
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R5C"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_PPP2R5C<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R5C"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
-ggplot(pc_PPP2R5C, aes(x = "PPP2R5C", y = count, color = sample)) + 
-  geom_point(position=position_jitter(w = 0.2,h = 2)) +
-  ggtitle("PPP2R5C") +
-  theme(plot.title = element_text(hjust = 0.5))
+ggplot (pc_PPP2R5C,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample))+geom_jitter()
+  scale_y_log10() + 
+  ggtitle("PPP2R5C expression")
 
+#PPP2R5B
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R5B"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_PPP2R5B<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R5B"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
-ggplot(pc_PPP2R5B, aes(x = "PPP2R5B", y = count, color = sample)) + 
-  geom_point(position=position_jitter(w = 0.2,h = 2)) +
-  ggtitle("PPP2R5B") +
-  theme(plot.title = element_text(hjust = 0.5))
+ggplot (pc_PPP2R5B,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample))+geom_jitter()
+  scale_y_log10() + 
+  ggtitle("PPP2R5B expression")
 
+#PPP2R5A
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R5A"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_PPP2R5A<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R5A"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
-ggplot(pc_PPP2R5B, aes(x = "PPP2R5A", y = count, color = sample)) + 
-  geom_point(position=position_jitter(w = 0.2,h = 2)) +
-  ggtitle("PPP2R5A") +
-  theme(plot.title = element_text(hjust = 0.5))
+ggplot (pc_PPP2R5A,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample))+geom_jitter()
+  scale_y_log10() + 
+  ggtitle("PPP2R5A expression")
 
+#PPP2R2A
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R2A"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_PPP2R2A<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R2A"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
-ggplot(pc_PPP2R5B, aes(x = "PPP2R2A", y = count, color = sample)) + 
-  geom_point(position=position_jitter(w = 0.2,h = 2)) +
-  ggtitle("PPP2R2A") +
-  theme(plot.title = element_text(hjust = 0.5))
+ggplot (pc_PPP2R2A,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample))+geom_jitter()
+  scale_y_log10() + 
+  ggtitle("PPP2R2A expression")
 
+#PPP2R2B
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R2B"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData =T)
 pc_PPP2R2B<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R2B"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
-ggplot(pc_PPP2R5B, aes(x = "PPP2R2B", y = count, color = sample)) + 
-  geom_point(position=position_jitter(w = 0.2,h = 2)) +
-  ggtitle("PPP2R2B") +
-  theme(plot.title = element_text(hjust = 0.5))
+ggplot (pc_PPP2R2B,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample))+geom_jitter()
+  scale_y_log10() + 
+  ggtitle("PPP2R2B expression")
 
+#PPP2R2C
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R2C"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_PPP2R2C<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R2C"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
-ggplot(pc_PPP2R2C, aes(x = "PPP2R2C", y = count, color = sample)) + 
-  geom_point(position=position_jitter(w = 0.2,h = 2)) +
-  ggtitle("PPP2R2C") +
-  theme(plot.title = element_text(hjust = 0.5))
+ggplot (pc_PPP2R2C,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample))+geom_jitter()
+  scale_y_log10() + 
+  ggtitle("PPP2R2C expression")
 
-pc_PPP2R2C<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R2C"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
-ggplot(pc_PPP2R5B, aes(x = "PPP2R2C", y = count, color = sample)) + 
-  geom_point(position=position_jitter(w = 0.2,h = 2)) +
-  ggtitle("PPP2R2C") +
-  theme(plot.title = element_text(hjust = 0.5))
-
+#PPP2R5E
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R5E"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_PPP2R5E<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R5E"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
-ggplot(pc_PPP2R5E, aes(x = "PPP2R5E", y = count, color = sample)) + 
-  geom_point(position=position_jitter(w = 0.2,h = 2)) +
-  ggtitle("PPP2R5E") +
-  theme(plot.title = element_text(hjust = 0.5))
+ggplot (pc_PPP2R5E,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample))+geom_jitter()
+  scale_y_log10() + 
+  ggtitle("PPP2R5E expression")
 
+#PPP1CA
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP1CA"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_PPP1CA<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP1CA"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
-ggplot(pc_PPP1CA, aes(x = "PPP1CA", y = count, color = sample)) + 
-  geom_point(position=position_jitter(w = 0.2,h = 2)) +
-  ggtitle("PPP1CA") +
-  theme(plot.title = element_text(hjust = 0.5))
+ggplot (pc_PPP1CA,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample))+geom_jitter()
+  scale_y_log10() + 
+  ggtitle("PPP1CA expression")
 
+#PPP1CC
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP1CC"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_PPP1CC<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP1CC"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
-ggplot(pc_PPP1CC, aes(x = "PPP1CC", y = count, color = sample)) + 
-  geom_point(position=position_jitter(w = 0.2,h = 2)) +
-  ggtitle("PPP1CC") +
-  theme(plot.title = element_text(hjust = 0.5))
+ggplot (pc_PPP1CC,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample))+geom_jitter()
+  scale_y_log10() + 
+  ggtitle("PPP1CC expression")
 
+#PPP1CB
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP1CB"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_PPP1CB<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP1CB"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
-ggplot(pc_PPP1CB, aes(x = "PPP1CB", y = count, color = sample)) + 
-  geom_point(position=position_jitter(w = 0.2,h = 2)) +
-  ggtitle("PPP1CB") +
-  theme(plot.title = element_text(hjust = 0.5))
+ggplot (pc_PPP1CB,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample))+geom_jitter()
+  scale_y_log10() + 
+  ggtitle("PPP1CB expression")
 
+#NDC80
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="NDC80"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_NDC80<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="NDC80"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
-ggplot(pc_NDC80, aes(x = "NDC80", y = count, color = sample)) + 
-  geom_point(position=position_jitter(w = 0.2,h = 2)) +
-  ggtitle("NDC80") +
-  theme(plot.title = element_text(hjust = 0.5))
+ggplot (pc_NDC80,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample))+geom_jitter()
+  scale_y_log10() + 
+  ggtitle("NDC80 expression")
 
+#SKA1
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SKA1"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_SKA1<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SKA1"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
-ggplot(pc_SKA1, aes(x = "SKA1", y = count, color = sample)) + 
-  geom_point(position=position_jitter(w = 0.2,h = 2)) +
-  ggtitle("SKA1") +
-  theme(plot.title = element_text(hjust = 0.5))
+ggplot (pc_SKA2,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample))+geom_jitter()
+  scale_y_log10() + 
+  ggtitle("SKA1 expression")
 
-pc_SKA2<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SKA2"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
-ggplot(pc_SKA2, aes(x = "SKA2", y = count, color = sample)) + 
-  geom_point(position=position_jitter(w = 0.2,h = 2)) +
-  ggtitle("SKA2") +
-  theme(plot.title = element_text(hjust = 0.5))
+#SKA2
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SKA2"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_SKA2<- plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SKA2"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_SKA2,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample))+geom_jitter()
+  scale_y_log10() + 
+  ggtitle("SKA2 expression")
 
+#SKA3
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SKA3"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_SKA3<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SKA3"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
-ggplot(pc_SKA3, aes(x = "SKA3", y = count, color = sample)) + 
-  geom_point(position=position_jitter(w = 0.2,h = 2)) +
-  ggtitle("SKA3") +
-  theme(plot.title = element_text(hjust = 0.5))
+ggplot (pc_SKA3,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample))+geom_jitter()
+  scale_y_log10() + 
+  ggtitle("SKA3 expression")
+
+#SGO1
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SGO1"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_SGO1<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SGO1"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_SGO1,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample))+geom_jitter(alpha=0.5)
+  scale_y_log10() + 
+  ggtitle("SGO1 expression")
+
 
 ############# VOLCANO PLOTS:###################
 # Volcano plots are nice ways of displaying the fold change against the p-value.
-resultsNames(dds)
-
-########## vs  Aktmyr ##########
-#ARPE19 vs Aktmyr
-res_volcano_plot_ARPE19vsAktmyr <- lfcShrink(dds,coef="sample_ARPE19_vs_Aktmyr", type='apeglm') # Calculate padj without a lower lfc limit
-significantLFC_volcano_plot_ARPE19vsAktmyr <- subset(res_volcano_plot_ARPE19vsAktmyr, padj < 0.1) # Identify significantly changing genes
-significant_points_to_plot_ARPE19vsAktmyr <-res_volcano_plot_ARPE19vsAktmyr [which(rownames(res_volcano_plot_ARPE19vsAktmyr ) %in% rownames(significantLFC_volcano_plot_ARPE19vsAktmyr)),] 
-# We will set the top limit of the plot as 100. I'll need to find all the points that exceed that measure:
-maxedout_ARPE19vsAktmyr <- subset(res_volcano_plot_ARPE19vsAktmyr , padj < 10e-100)
-
-#Draw volcano plot for ARPE19 vs Aktmyr
-par(mfrow=c(1,1)) # one plot only 
-# Draw the plot
-plot(res_volcano_plot_ARPE19vsAktmyr $log2FoldChange, -log10(res_volcano_plot_ARPE19vsAktmyr $padj),
-     main="Volcano plot", xlab="Effect size: log2(fold-change)", ylab="-log10(adjusted p-value)", pch=20, cex = 0.4, ylim = c(0, 100), xlim = c(-6,6), col = "#00000030")
-# Add points
-points(maxedout_ARPE19vsAktmyr$log2FoldChange, rep(102, length(maxedout_ARPEvsAktmyr$log2FoldChange)), 
-       pch=17, cex = 0.4, ylim = c(0, 100), col = "red")
-
-points(significant_points_to_plot_ARPE19vsAktmyr$log2FoldChange, -log10(significant_points_to_plot_ARPE19vsAktmyr$padj),
-       pch=20, cex = 0.4, ylim = c(0, 100), col = "red")
-# Add lines
-abline(v=0, col = "blue")
-abline(v=0.5, col = "blue", lty = "dashed")
-abline(v=-0.5, col = "blue", lty = "dashed")
-abline(h=-log10(0.005), col = "blue", lty = "dashed")
-
-#RasV12 vs Aktmyr
-res_volcano_plot_RasV12vsAktmyr <- lfcShrink(dds,coef="sample_RasV12_vs_Aktmyr", type='apeglm') # Calculate padj without a lower lfc limit
-significantLFC_volcano_plot_RasV12vsAktmyr <- subset(resLFC_RasV12_vs_Aktmyr, padj < 0.1) # Identify significantly changing genes
-significant_points_to_plot_RasV12vsAktmyr <-res_volcano_plot_RasV12vsAktmyr [which(rownames(res_volcano_plot_RasV12vsAktmyr ) %in% rownames(significantLFC_volcano_plot_RasV12vsAktmyr)),] 
-# We will set the top limit of the plot as 100. I'll need to find all the points that exceed that measure:
-maxedout_RasV12vsAktmyr <- subset(res_volcano_plot_RasV12vsAktmyr , padj < 10e-100)
-
-#Draw volcano plot for ARPE19 vs Aktmyr
-par(mfrow=c(1,1)) # one plot only 
-plot(res_volcano_plot_RasV12vsAktmyr $log2FoldChange, -log10(res_volcano_plot_RasV12vsAktmyr $padj),
-     main="Volcano plot", xlab="Effect size: log2(fold-change)", ylab="-log10(adjusted p-value)", pch=20, cex = 0.4, ylim = c(0, 100), xlim = c(-6,6), col = "#00000030")
-# Add points
-points(maxedout_RasV12vsAktmyr$log2FoldChange, rep(102, length(maxedout_RasV12vsAktmyr$log2FoldChange)), 
-       pch=17, cex = 0.4, ylim = c(0, 100), col = "red")
-
-points(significant_points_to_plot_RasV12vsAktmyr$log2FoldChange, -log10(significant_points_to_plot_RasV12vsAktmyr$padj),
-       pch=20, cex = 0.4, ylim = c(0, 100), col = "red")
-# Add lines
-abline(v=0, col = "blue")
-abline(v=0.5, col = "blue", lty = "dashed")
-abline(v=-0.5, col = "blue", lty = "dashed")
-abline(h=-log10(0.005), col = "blue", lty = "dashed")
-
-
-#MekDD vs Aktmyr
-res_volcano_plot_MekDDvsAktmyr <- lfcShrink(dds,coef="sample_MekDD_vs_Aktmyr", type='apeglm') # Calculate padj without a lower lfc limit
-significantLFC_volcano_plot_MekDDvsAktmyr <- subset(resLFC_MekDD_vs_Aktmyr, padj < 0.1) # Identify significantly changing genes
-significant_points_to_plot_MekDDvsAktmyr <-res_volcano_plot_MekDDvsAktmyr [which(rownames(res_volcano_plot_MekDDvsAktmyr ) %in% rownames(significantLFC_volcano_plot_MekDDvsAktmyr)),] 
-# We will set the top limit of the plot as 100. I'll need to find all the points that exceed that measure:
-maxedout_MekDDvsAktmyr <- subset(res_volcano_plot_MekDDvsAktmyr , padj < 10e-100)
-
-#Draw volcano plot for MekDD vs Aktmyr
-par(mfrow=c(1,1)) # one plot only 
-plot(res_volcano_plot_MekDDvsAktmyr $log2FoldChange, -log10(res_volcano_plot_MekDDvsAktmyr $padj),
-     main="Volcano plot", xlab="Effect size: log2(fold-change)", ylab="-log10(adjusted p-value)", pch=20, cex = 0.4, ylim = c(0, 100), xlim = c(-6,6), col = "#00000030")
-# Add points
-points(maxedout_MekDDvsAktmyr$log2FoldChange, rep(102, length(maxedout_MekDDvsAktmyr$log2FoldChange)), 
-       pch=17, cex = 0.4, ylim = c(0, 100), col = "red")
-
-points(significant_points_to_plot_MekDDvsAktmyr$log2FoldChange, -log10(significant_points_to_plot_MekDDvsAktmyr$padj),
-       pch=20, cex = 0.4, ylim = c(0, 100), col = "red")
-# Add lines
-abline(v=0, col = "blue")
-abline(v=0.5, col = "blue", lty = "dashed")
-abline(v=-0.5, col = "blue", lty = "dashed")
-abline(h=-log10(0.005), col = "blue", lty = "dashed")
-
-#T53D4 vs Aktmyr
-res_volcano_plot_T53D4vsAktmyr <- lfcShrink(dds,coef="sample_T53D4_vs_Aktmyr", type='apeglm') # Calculate padj without a lower lfc limit
-significantLFC_volcano_plot_T53D4vsAktmyr <- subset(resLFC_T53D4_vs_Aktmyr, padj < 0.1) # Identify significantly changing genes
-significant_points_to_plot_T53D4vsAktmyr <-res_volcano_plot_T53D4vsAktmyr [which(rownames(res_volcano_plot_T53D4vsAktmyr ) %in% rownames(significantLFC_volcano_plot_T53D4vsAktmyr)),] 
-# We will set the top limit of the plot as 100. I'll need to find all the points that exceed that measure:
-maxedout_T53D4vsAktmyr <- subset(res_volcano_plot_T53D4vsAktmyr , padj < 10e-100)
-
-#Draw volcano plot for T53D4 vs Aktmyr
-par(mfrow=c(1,1)) # one plot only 
-plot(res_volcano_plot_T53D4vsAktmyr $log2FoldChange, -log10(res_volcano_plot_T53D4vsAktmyr $padj),
-     main="Volcano plot", xlab="Effect size: log2(fold-change)", ylab="-log10(adjusted p-value)", pch=20, cex = 0.4, ylim = c(0, 100), xlim = c(-6,6), col = "#00000030")
-# Add points
-points(maxedout_T53D4vsAktmyr$log2FoldChange, rep(102, length(maxedout_T53D4vsAktmyr$log2FoldChange)), 
-       pch=17, cex = 0.4, ylim = c(0, 100), col = "red")
-
-points(significant_points_to_plot_T53D4vsAktmyr$log2FoldChange, -log10(significant_points_to_plot_T53D4vsAktmyr$padj),
-       pch=20, cex = 0.4, ylim = c(0, 100), col = "red")
-# Add lines
-abline(v=0, col = "blue")
-abline(v=0.5, col = "blue", lty = "dashed")
-abline(v=-0.5, col = "blue", lty = "dashed")
-abline(h=-log10(0.005), col = "blue", lty = "dashed")
-
-#Water vs Aktmyr
-res_volcano_plot_WatervsAktmyr <- lfcShrink(dds,coef="sample_negclt_vs_Aktmyr", type='apeglm') # Calculate padj without a lower lfc limit
-significantLFC_volcano_plot_WatervsAktmyr <- subset(resLFC_Water_vs_Aktmyr, padj < 0.1) # Identify significantly changing genes
-significant_points_to_plot_WatervsAktmyr <-res_volcano_plot_WatervsAktmyr [which(rownames(res_volcano_plot_WatervsAktmyr ) %in% rownames(significantLFC_volcano_plot_T53D4vsAktmyr)),] 
-# We will set the top limit of the plot as 100. I'll need to find all the points that exceed that measure:
-maxedout_WatervsAktmyr <- subset(res_volcano_plot_WatervsAktmyr , padj < 10e-100)
-
-#Draw volcano plot for Water vs Aktmyr
-par(mfrow=c(1,1)) # one plot only 
-plot(res_volcano_plot_WatervsAktmyr $log2FoldChange, -log10(res_volcano_plot_WatervsAktmyr $padj),
-     main="Volcano plot", xlab="Effect size: log2(fold-change)", ylab="-log10(adjusted p-value)", pch=20, cex = 0.4, ylim = c(0, 100), xlim = c(-6,6), col = "#00000030")
-# Add points
-points(maxedout_WatervsAktmyr$log2FoldChange, rep(102, length(maxedout_WatervsAktmyr$log2FoldChange)), 
-       pch=17, cex = 0.4, ylim = c(0, 100), col = "red")
-
-points(significant_points_to_plot_WatervsAktmyr$log2FoldChange, -log10(significant_points_to_plot_WatervsAktmyr$padj),
-       pch=20, cex = 0.4, ylim = c(0, 100), col = "red")
-# Add lines
-abline(v=0, col = "blue")
-abline(v=0.5, col = "blue", lty = "dashed")
-abline(v=-0.5, col = "blue", lty = "dashed")
-abline(h=-log10(0.005), col = "blue", lty = "dashed")
-
-########## vs  MekDD ##########
-
-########## vs  RasV12 ##########
-
-########## vs  T53D4 ##########
-
-########## vs  ARPE19 ##########
-
-############## GETTING LISTS OF SIGNIFICANTLY CHANGING GENES #####################
-# We will use the set of significantly changing genes from our variance shrunken analysis (resLFC):
-
-
-# Select the significant subset of genes in ARPE19 vs Aktmyr
-Up_in_ARPE19vsAktmyr <- subset(resLFC_ARPE19_vs_Aktmyr, padj < 0.1 & log2FoldChange > 1.2)
-Up_in_ARPE19vsAktmyr  <- Up_in_ARPE19vsAktmyr [order(Up_in_ARPE19vsAktmyr$padj),] #order them
-head(Up_in_ARPE19vsAktmyr) # Check them
-dim(Up_in_ARPE19vsAktmyr)
-# Select the significant subset of genes that are down-regulated in acetic acid
-Down_in_ARPE19vsAktmyr<- subset(resLFC_ARPE19_vs_Aktmyr, padj < 0.1 & log2FoldChange < -1.2)
-Down_in_ARPE19vsAktmyr <- Down_in_ARPE19vsAktmyr[order(Down_in_ARPE19vsAktmyr$padj),]
-head(Down_in_ARPE19vsAktmyr)
-dim(Down_in_ARPE19vsAktmyr)
-
-# Save these lists to output files:
-# write(rownames(Up_in_Aktmyr), file = "../03_output/Genes Up in Aktmyr.txt", sep = "\n")
-# write(rownames(Down_in_Aktmyr), file = "../03_output/Genes Down Aktmyr.txt", sep = "\n")
-# write(rownames(resLFC_ARPE19_vs_Aktmyr), file = "../03_output/all_present_genes.txt", sep = "\n") # sometimes you need a control/background set of genes, too.
-
-# Select the significant subset of genes MekDD vs Aktmyr
-Up_in_MekDDvsAktmyr <- subset(resLFC_MekDD_vs_Aktmyr, padj < 0.1 & log2FoldChange > 1.2)
-Up_in_MekDDvsAktmyr  <- Up_in_Aktmyr [order(Up_in_Aktmyr$padj),] #order them
-head(Up_in_MekDDvsAktmyr) # Check them
-dim(Up_in_MekDDvsAktmyr)
-# Select the significant subset of genes that are down-regulated in acetic acid
-Down_in_MekDDvsAktmyr<- subset(resLFC_MekDD_vs_Aktmyr, padj < 0.1 & log2FoldChange < -1.2)
-Down_in_MekDDvsAktmyr <- Down_in_MekDDvsAktmyr[order(Down_in_MekDDvsAktmyr$padj),]
-head(Down_in_MekDDvsAktmyr)
-dim(Down_in_MekDDvsAktmyr)
-
-# Save these lists to output files:
-# write(rownames(Up_in_Aktmyr), file = "../03_output/Genes Up in Aktmyr.txt", sep = "\n")
-# write(rownames(Down_in_Aktmyr), file = "../03_output/Genes Down Aktmyr.txt", sep = "\n")
-# write(rownames(resLFC_ARPE19_vs_Aktmyr), file = "../03_output/all_present_genes.txt", sep = "\n") # sometimes you need a control/background set of genes, too.
-
-# Select the significant subset of genes in RasV12 vs Aktmyr
-Up_in_RasV12vsAktmyr <- subset(resLFC_RasV12_vs_Aktmyr, padj < 0.1 & log2FoldChange > 1.2)
-Up_in_RasV12vsAktmyr  <- Up_in_RasV12vsAktmyr [order(Up_in_RasV12vsAktmyr$padj),] #order them
-head(Up_in_RasV12vsAktmyr) # Check them
-dim(Up_in_RasV12vsAktmyr)
-# Select the significant subset of genes that are down-regulated in acetic acid
-Down_in_RasV12vsAktmyr<- subset(resLFC_RasV12_vs_Aktmyr, padj < 0.1 & log2FoldChange < -1.2)
-Down_in_RasV12vsAktmyr <- Down_in_RasV12vsAktmyr[order(Down_in_RasV12vsAktmyr$padj),]
-head(Down_in_RasV12vsAktmyr)
-dim(Down_in_RasV12vsAktmyr)
-
-# Save these lists to output files:
-# write(rownames(Up_in_Aktmyr), file = "../03_output/Genes Up in Aktmyr.txt", sep = "\n")
-# write(rownames(Down_in_Aktmyr), file = "../03_output/Genes Down Aktmyr.txt", sep = "\n")
-# write(rownames(resLFC_ARPE19_vs_Aktmyr), file = "../03_output/all_present_genes.txt", sep = "\n") # sometimes you need a control/background set of genes, too.
-
-# Select the significant subset of genes T53D4 vs Aktmyr
-Up_in_T53D4vsAktmyr <- subset(resLFC_T53D4_vs_Aktmyr, padj < 0.1 & log2FoldChange > 1.2)
-Up_in_T53D4vsAktmyr  <- Up_in_T53D4vsAktmyr [order(Up_in_T53D4vsAktmyr$padj),] #order them
-head(Up_in_T53D4sAktmyr) # Check them
-dim(Up_in_T53D4vsAktmyr)
-# Select the significant subset of genes that are down-regulated in acetic acid
-Down_in_T53D4vsAktmyr<- subset(resLFC_T53D4_vs_Aktmyr, padj < 0.1 & log2FoldChange < -1.2)
-Down_in_T53D4vsAktmyr <- Down_in_T53D4vsAktmyr[order(Down_in_T53D4vsAktmyr$padj),]
-head(Down_in_T53D4vsAktmyr)
-dim(Down_in_T53D4vsAktmyr)
-
-# Save these lists to output files:
-# write(rownames(Up_in_Aktmyr), file = "../03_output/Genes Up in Aktmyr.txt", sep = "\n")
-# write(rownames(Down_in_Aktmyr), file = "../03_output/Genes Down Aktmyr.txt", sep = "\n")
-# write(rownames(resLFC_ARPE19_vs_Aktmyr), file = "../03_output/all_present_genes.txt", sep = "\n") # sometimes you need a control/background set of genes, too.
-
-# Select the significant subset of genes Water vs Aktmyr
-Up_in_WatervsAktmyr <- subset(resLFC_Water_vs_Aktmyr, padj < 0.1 & log2FoldChange > 1.2)
-Up_in_WatervsAktmyr  <- Up_in_WatervsAktmyr [order(Up_in_WatervsAktmyr$padj),] #order them
-head(Up_in_WatervsAktmyr) # Check them
-dim(Up_in_WatervsAktmyr)
-# Select the significant subset of genes that are down-regulated in acetic acid
-Down_in_WatervsAktmyr<- subset(resLFC_Water_vs_Aktmyr, padj < 0.1 & log2FoldChange < -1.2)
-Down_in_WatervsAktmyr <- Down_in_WatervsAktmyr[order(Down_in_WatervsAktmyr$padj),]
-head(Down_in_WatervsAktmyr)
-dim(Down_in_WatervsAktmyr)
-
-
-# Save these lists to output files:
-# write(rownames(Up_in_Aktmyr), file = "../03_output/Genes Up in Aktmyr.txt", sep = "\n")
-# write(rownames(Down_in_Aktmyr), file = "../03_output/Genes Down Aktmyr.txt", sep = "\n")
-# write(rownames(resLFC_ARPE19_vs_Aktmyr), file = "../03_output/all_present_genes.txt", sep = "\n") # sometimes you need a control/background set of genes, too.
-
-
+# resultsNames(dds)
+# 
+# ########## vs  Aktmyr ##########
+# #ARPE19 vs Aktmyr
+# res_volcano_plot_ARPE19vsAktmyr <- lfcShrink(dds,coef="sample_ARPE19_vs_Aktmyr", type='apeglm') # Calculate padj without a lower lfc limit
+# significantLFC_volcano_plot_ARPE19vsAktmyr <- subset(res_volcano_plot_ARPE19vsAktmyr, padj < 0.1) # Identify significantly changing genes
+# significant_points_to_plot_ARPE19vsAktmyr <-res_volcano_plot_ARPE19vsAktmyr [which(rownames(res_volcano_plot_ARPE19vsAktmyr ) %in% rownames(significantLFC_volcano_plot_ARPE19vsAktmyr)),] 
+# # We will set the top limit of the plot as 100. I'll need to find all the points that exceed that measure:
+# maxedout_ARPE19vsAktmyr <- subset(res_volcano_plot_ARPE19vsAktmyr , padj < 10e-100)
+# 
+# #Draw volcano plot for ARPE19 vs Aktmyr
+# par(mfrow=c(1,1)) # one plot only 
+# # Draw the plot
+# plot(res_volcano_plot_ARPE19vsAktmyr $log2FoldChange, -log10(res_volcano_plot_ARPE19vsAktmyr $padj),
+#      main="Volcano plot", xlab="Effect size: log2(fold-change)", ylab="-log10(adjusted p-value)", pch=20, cex = 0.4, ylim = c(0, 100), xlim = c(-6,6), col = "#00000030")
+# # Add points
+# points(maxedout_ARPE19vsAktmyr$log2FoldChange, rep(102, length(maxedout_ARPEvsAktmyr$log2FoldChange)), 
+#        pch=17, cex = 0.4, ylim = c(0, 100), col = "red")
+# 
+# points(significant_points_to_plot_ARPE19vsAktmyr$log2FoldChange, -log10(significant_points_to_plot_ARPE19vsAktmyr$padj),
+#        pch=20, cex = 0.4, ylim = c(0, 100), col = "red")
+# # Add lines
+# abline(v=0, col = "blue")
+# abline(v=0.5, col = "blue", lty = "dashed")
+# abline(v=-0.5, col = "blue", lty = "dashed")
+# abline(h=-log10(0.005), col = "blue", lty = "dashed")
+# 
+# #RasV12 vs Aktmyr
+# res_volcano_plot_RasV12vsAktmyr <- lfcShrink(dds,coef="sample_RasV12_vs_Aktmyr", type='apeglm') # Calculate padj without a lower lfc limit
+# significantLFC_volcano_plot_RasV12vsAktmyr <- subset(resLFC_RasV12_vs_Aktmyr, padj < 0.1) # Identify significantly changing genes
+# significant_points_to_plot_RasV12vsAktmyr <-res_volcano_plot_RasV12vsAktmyr [which(rownames(res_volcano_plot_RasV12vsAktmyr ) %in% rownames(significantLFC_volcano_plot_RasV12vsAktmyr)),] 
+# # We will set the top limit of the plot as 100. I'll need to find all the points that exceed that measure:
+# maxedout_RasV12vsAktmyr <- subset(res_volcano_plot_RasV12vsAktmyr , padj < 10e-100)
+# 
+# #Draw volcano plot for ARPE19 vs Aktmyr
+# par(mfrow=c(1,1)) # one plot only 
+# plot(res_volcano_plot_RasV12vsAktmyr $log2FoldChange, -log10(res_volcano_plot_RasV12vsAktmyr $padj),
+#      main="Volcano plot", xlab="Effect size: log2(fold-change)", ylab="-log10(adjusted p-value)", pch=20, cex = 0.4, ylim = c(0, 100), xlim = c(-6,6), col = "#00000030")
+# # Add points
+# points(maxedout_RasV12vsAktmyr$log2FoldChange, rep(102, length(maxedout_RasV12vsAktmyr$log2FoldChange)), 
+#        pch=17, cex = 0.4, ylim = c(0, 100), col = "red")
+# 
+# points(significant_points_to_plot_RasV12vsAktmyr$log2FoldChange, -log10(significant_points_to_plot_RasV12vsAktmyr$padj),
+#        pch=20, cex = 0.4, ylim = c(0, 100), col = "red")
+# # Add lines
+# abline(v=0, col = "blue")
+# abline(v=0.5, col = "blue", lty = "dashed")
+# abline(v=-0.5, col = "blue", lty = "dashed")
+# abline(h=-log10(0.005), col = "blue", lty = "dashed")
+# 
+# 
+# #MekDD vs Aktmyr
+# res_volcano_plot_MekDDvsAktmyr <- lfcShrink(dds,coef="sample_MekDD_vs_Aktmyr", type='apeglm') # Calculate padj without a lower lfc limit
+# significantLFC_volcano_plot_MekDDvsAktmyr <- subset(resLFC_MekDD_vs_Aktmyr, padj < 0.1) # Identify significantly changing genes
+# significant_points_to_plot_MekDDvsAktmyr <-res_volcano_plot_MekDDvsAktmyr [which(rownames(res_volcano_plot_MekDDvsAktmyr ) %in% rownames(significantLFC_volcano_plot_MekDDvsAktmyr)),] 
+# # We will set the top limit of the plot as 100. I'll need to find all the points that exceed that measure:
+# maxedout_MekDDvsAktmyr <- subset(res_volcano_plot_MekDDvsAktmyr , padj < 10e-100)
+# 
+# #Draw volcano plot for MekDD vs Aktmyr
+# par(mfrow=c(1,1)) # one plot only 
+# plot(res_volcano_plot_MekDDvsAktmyr $log2FoldChange, -log10(res_volcano_plot_MekDDvsAktmyr $padj),
+#      main="Volcano plot", xlab="Effect size: log2(fold-change)", ylab="-log10(adjusted p-value)", pch=20, cex = 0.4, ylim = c(0, 100), xlim = c(-6,6), col = "#00000030")
+# # Add points
+# points(maxedout_MekDDvsAktmyr$log2FoldChange, rep(102, length(maxedout_MekDDvsAktmyr$log2FoldChange)), 
+#        pch=17, cex = 0.4, ylim = c(0, 100), col = "red")
+# 
+# points(significant_points_to_plot_MekDDvsAktmyr$log2FoldChange, -log10(significant_points_to_plot_MekDDvsAktmyr$padj),
+#        pch=20, cex = 0.4, ylim = c(0, 100), col = "red")
+# # Add lines
+# abline(v=0, col = "blue")
+# abline(v=0.5, col = "blue", lty = "dashed")
+# abline(v=-0.5, col = "blue", lty = "dashed")
+# abline(h=-log10(0.005), col = "blue", lty = "dashed")
+# 
+# #T53D4 vs Aktmyr
+# res_volcano_plot_T53D4vsAktmyr <- lfcShrink(dds,coef="sample_T53D4_vs_Aktmyr", type='apeglm') # Calculate padj without a lower lfc limit
+# significantLFC_volcano_plot_T53D4vsAktmyr <- subset(resLFC_T53D4_vs_Aktmyr, padj < 0.1) # Identify significantly changing genes
+# significant_points_to_plot_T53D4vsAktmyr <-res_volcano_plot_T53D4vsAktmyr [which(rownames(res_volcano_plot_T53D4vsAktmyr ) %in% rownames(significantLFC_volcano_plot_T53D4vsAktmyr)),] 
+# # We will set the top limit of the plot as 100. I'll need to find all the points that exceed that measure:
+# maxedout_T53D4vsAktmyr <- subset(res_volcano_plot_T53D4vsAktmyr , padj < 10e-100)
+# 
+# #Draw volcano plot for T53D4 vs Aktmyr
+# par(mfrow=c(1,1)) # one plot only 
+# plot(res_volcano_plot_T53D4vsAktmyr $log2FoldChange, -log10(res_volcano_plot_T53D4vsAktmyr $padj),
+#      main="Volcano plot", xlab="Effect size: log2(fold-change)", ylab="-log10(adjusted p-value)", pch=20, cex = 0.4, ylim = c(0, 100), xlim = c(-6,6), col = "#00000030")
+# # Add points
+# points(maxedout_T53D4vsAktmyr$log2FoldChange, rep(102, length(maxedout_T53D4vsAktmyr$log2FoldChange)), 
+#        pch=17, cex = 0.4, ylim = c(0, 100), col = "red")
+# 
+# points(significant_points_to_plot_T53D4vsAktmyr$log2FoldChange, -log10(significant_points_to_plot_T53D4vsAktmyr$padj),
+#        pch=20, cex = 0.4, ylim = c(0, 100), col = "red")
+# # Add lines
+# abline(v=0, col = "blue")
+# abline(v=0.5, col = "blue", lty = "dashed")
+# abline(v=-0.5, col = "blue", lty = "dashed")
+# abline(h=-log10(0.005), col = "blue", lty = "dashed")
+# 
+# #Water vs Aktmyr
+# res_volcano_plot_WatervsAktmyr <- lfcShrink(dds,coef="sample_negclt_vs_Aktmyr", type='apeglm') # Calculate padj without a lower lfc limit
+# significantLFC_volcano_plot_WatervsAktmyr <- subset(resLFC_Water_vs_Aktmyr, padj < 0.1) # Identify significantly changing genes
+# significant_points_to_plot_WatervsAktmyr <-res_volcano_plot_WatervsAktmyr [which(rownames(res_volcano_plot_WatervsAktmyr ) %in% rownames(significantLFC_volcano_plot_T53D4vsAktmyr)),] 
+# # We will set the top limit of the plot as 100. I'll need to find all the points that exceed that measure:
+# maxedout_WatervsAktmyr <- subset(res_volcano_plot_WatervsAktmyr , padj < 10e-100)
+# 
+# #Draw volcano plot for Water vs Aktmyr
+# par(mfrow=c(1,1)) # one plot only 
+# plot(res_volcano_plot_WatervsAktmyr $log2FoldChange, -log10(res_volcano_plot_WatervsAktmyr $padj),
+#      main="Volcano plot", xlab="Effect size: log2(fold-change)", ylab="-log10(adjusted p-value)", pch=20, cex = 0.4, ylim = c(0, 100), xlim = c(-6,6), col = "#00000030")
+# # Add points
+# points(maxedout_WatervsAktmyr$log2FoldChange, rep(102, length(maxedout_WatervsAktmyr$log2FoldChange)), 
+#        pch=17, cex = 0.4, ylim = c(0, 100), col = "red")
+# 
+# points(significant_points_to_plot_WatervsAktmyr$log2FoldChange, -log10(significant_points_to_plot_WatervsAktmyr$padj),
+#        pch=20, cex = 0.4, ylim = c(0, 100), col = "red")
+# # Add lines
+# abline(v=0, col = "blue")
+# abline(v=0.5, col = "blue", lty = "dashed")
+# abline(v=-0.5, col = "blue", lty = "dashed")
+# abline(h=-log10(0.005), col = "blue", lty = "dashed")
+# 
+# ########## vs  MekDD ##########
+# 
+# ########## vs  RasV12 ##########
+# 
+# ########## vs  T53D4 ##########
+# 
+# ########## vs  ARPE19 ##########
+# 
+# ############## GETTING LISTS OF SIGNIFICANTLY CHANGING GENES #####################
+# # We will use the set of significantly changing genes from our variance shrunken analysis (resLFC):
+# 
+# ########## vs  Aktmyr ##########
+# # Select the significant subset of genes in ARPE19 vs Aktmyr
+# Up_in_ARPE19vsAktmyr <- subset(resLFC_ARPE19_vs_Aktmyr, padj < 0.1 & log2FoldChange > 1.2)
+# Up_in_ARPE19vsAktmyr  <- Up_in_ARPE19vsAktmyr [order(Up_in_ARPE19vsAktmyr$padj),] #order them
+# head(Up_in_ARPE19vsAktmyr) # Check them
+# dim(Up_in_ARPE19vsAktmyr)
+# # Select the significant subset of genes that are down-regulated in acetic acid
+# Down_in_ARPE19vsAktmyr<- subset(resLFC_ARPE19_vs_Aktmyr, padj < 0.1 & log2FoldChange < -1.2)
+# Down_in_ARPE19vsAktmyr <- Down_in_ARPE19vsAktmyr[order(Down_in_ARPE19vsAktmyr$padj),]
+# head(Down_in_ARPE19vsAktmyr)
+# dim(Down_in_ARPE19vsAktmyr)
+# 
+# # Save these lists to output files:
+# # write(rownames(Up_in_Aktmyr), file = "../03_output/Genes Up in Aktmyr.txt", sep = "\n")
+# # write(rownames(Down_in_Aktmyr), file = "../03_output/Genes Down Aktmyr.txt", sep = "\n")
+# # write(rownames(resLFC_ARPE19_vs_Aktmyr), file = "../03_output/all_present_genes.txt", sep = "\n") # sometimes you need a control/background set of genes, too.
+# 
+# # Select the significant subset of genes MekDD vs Aktmyr
+# Up_in_MekDDvsAktmyr <- subset(resLFC_MekDD_vs_Aktmyr, padj < 0.1 & log2FoldChange > 1.2)
+# Up_in_MekDDvsAktmyr  <- Up_in_Aktmyr [order(Up_in_Aktmyr$padj),] #order them
+# head(Up_in_MekDDvsAktmyr) # Check them
+# dim(Up_in_MekDDvsAktmyr)
+# # Select the significant subset of genes that are down-regulated in acetic acid
+# Down_in_MekDDvsAktmyr<- subset(resLFC_MekDD_vs_Aktmyr, padj < 0.1 & log2FoldChange < -1.2)
+# Down_in_MekDDvsAktmyr <- Down_in_MekDDvsAktmyr[order(Down_in_MekDDvsAktmyr$padj),]
+# head(Down_in_MekDDvsAktmyr)
+# dim(Down_in_MekDDvsAktmyr)
+# 
+# # Save these lists to output files:
+# # write(rownames(Up_in_Aktmyr), file = "../03_output/Genes Up in Aktmyr.txt", sep = "\n")
+# # write(rownames(Down_in_Aktmyr), file = "../03_output/Genes Down Aktmyr.txt", sep = "\n")
+# # write(rownames(resLFC_ARPE19_vs_Aktmyr), file = "../03_output/all_present_genes.txt", sep = "\n") # sometimes you need a control/background set of genes, too.
+# 
+# # Select the significant subset of genes in RasV12 vs Aktmyr
+# Up_in_RasV12vsAktmyr <- subset(resLFC_RasV12_vs_Aktmyr, padj < 0.1 & log2FoldChange > 1.2)
+# Up_in_RasV12vsAktmyr  <- Up_in_RasV12vsAktmyr [order(Up_in_RasV12vsAktmyr$padj),] #order them
+# head(Up_in_RasV12vsAktmyr) # Check them
+# dim(Up_in_RasV12vsAktmyr)
+# # Select the significant subset of genes that are down-regulated in acetic acid
+# Down_in_RasV12vsAktmyr<- subset(resLFC_RasV12_vs_Aktmyr, padj < 0.1 & log2FoldChange < -1.2)
+# Down_in_RasV12vsAktmyr <- Down_in_RasV12vsAktmyr[order(Down_in_RasV12vsAktmyr$padj),]
+# head(Down_in_RasV12vsAktmyr)
+# dim(Down_in_RasV12vsAktmyr)
+# 
+# # Save these lists to output files:
+# # write(rownames(Up_in_Aktmyr), file = "../03_output/Genes Up in Aktmyr.txt", sep = "\n")
+# # write(rownames(Down_in_Aktmyr), file = "../03_output/Genes Down Aktmyr.txt", sep = "\n")
+# # write(rownames(resLFC_ARPE19_vs_Aktmyr), file = "../03_output/all_present_genes.txt", sep = "\n") # sometimes you need a control/background set of genes, too.
+# 
+# # Select the significant subset of genes T53D4 vs Aktmyr
+# Up_in_T53D4vsAktmyr <- subset(resLFC_T53D4_vs_Aktmyr, padj < 0.1 & log2FoldChange > 1.2)
+# Up_in_T53D4vsAktmyr  <- Up_in_T53D4vsAktmyr [order(Up_in_T53D4vsAktmyr$padj),] #order them
+# head(Up_in_T53D4sAktmyr) # Check them
+# dim(Up_in_T53D4vsAktmyr)
+# # Select the significant subset of genes that are down-regulated in acetic acid
+# Down_in_T53D4vsAktmyr<- subset(resLFC_T53D4_vs_Aktmyr, padj < 0.1 & log2FoldChange < -1.2)
+# Down_in_T53D4vsAktmyr <- Down_in_T53D4vsAktmyr[order(Down_in_T53D4vsAktmyr$padj),]
+# head(Down_in_T53D4vsAktmyr)
+# dim(Down_in_T53D4vsAktmyr)
+# 
+# # Save these lists to output files:
+# # write(rownames(Up_in_Aktmyr), file = "../03_output/Genes Up in Aktmyr.txt", sep = "\n")
+# # write(rownames(Down_in_Aktmyr), file = "../03_output/Genes Down Aktmyr.txt", sep = "\n")
+# # write(rownames(resLFC_ARPE19_vs_Aktmyr), file = "../03_output/all_present_genes.txt", sep = "\n") # sometimes you need a control/background set of genes, too.
+# 
+# # Select the significant subset of genes Water vs Aktmyr
+# Up_in_WatervsAktmyr <- subset(resLFC_Water_vs_Aktmyr, padj < 0.1 & log2FoldChange > 1.2)
+# Up_in_WatervsAktmyr  <- Up_in_WatervsAktmyr [order(Up_in_WatervsAktmyr$padj),] #order them
+# head(Up_in_WatervsAktmyr) # Check them
+# dim(Up_in_WatervsAktmyr)
+# # Select the significant subset of genes that are down-regulated in acetic acid
+# Down_in_WatervsAktmyr<- subset(resLFC_Water_vs_Aktmyr, padj < 0.1 & log2FoldChange < -1.2)
+# Down_in_WatervsAktmyr <- Down_in_WatervsAktmyr[order(Down_in_WatervsAktmyr$padj),]
+# head(Down_in_WatervsAktmyr)
+# dim(Down_in_WatervsAktmyr)
+# 
+# 
+# # Save these lists to output files:
+# # write(rownames(Up_in_Aktmyr), file = "../03_output/Genes Up in Aktmyr.txt", sep = "\n")
+# # write(rownames(Down_in_Aktmyr), file = "../03_output/Genes Down Aktmyr.txt", sep = "\n")
+# # write(rownames(resLFC_ARPE19_vs_Aktmyr), file = "../03_output/all_present_genes.txt", sep = "\n") # sometimes you need a control/background set of genes, too.
+# 
+# 
 
 
 
@@ -1235,6 +1438,7 @@ head(changing_lrt_rdl)
 
 # Make sure it is in matrix form:
 class(changing_lrt_rdl)
+changing_df<- as.data.frame(changing_lrt_rdl, Header=T)
 
 # Draw a heat map
 # Scale by row, listed below as scale = "row". This is really important. It sets the mean of every row to 0 and the standard deviation of every row to 1:
@@ -1249,7 +1453,21 @@ p <- pheatmap(changing_lrt_rdl,
               treeheight_row = 100,
               clustering_distance_rows = "euclidean", 
               clustering_method = "complete",
-              show_rownames = FALSE) 
+              show_rownames = FALSE,
+              returnData= T) 
+
+
+
+changing_sample<-colnames(changing_df)
+changing_genes<-rownames(changing_df)
+changing_df$counts<- as.numeric(rnorm(nrow(changing_df)))
+
+#ggplot heat map
+ggplot(changing_df, aes(x=col(changing_df) ,
+                        y= rownames(changing_df))) +
+  geom_tile (aes(fill=counts))
+
+  
 
 #shows dendrogram divison of row (genes)
 plot(p$tree_row)
@@ -1289,3 +1507,4 @@ d3heatmap(changing_lrt_rdl,scale = "row", colors= scales::col_quantile("RdYlBu",
           symm = F,
           distfun = dist
            )
+  
