@@ -1438,7 +1438,8 @@ head(changing_lrt_rdl)
 
 # Make sure it is in matrix form:
 class(changing_lrt_rdl)
-changing_df<- as.data.frame(changing_lrt_rdl, Header=T)
+
+
 
 # Draw a heat map
 # Scale by row, listed below as scale = "row". This is really important. It sets the mean of every row to 0 and the standard deviation of every row to 1:
@@ -1454,20 +1455,75 @@ p <- pheatmap(changing_lrt_rdl,
               clustering_distance_rows = "euclidean", 
               clustering_method = "complete",
               show_rownames = FALSE,
-              returnData= T) 
+              returnData=F)
+
+#new matrix for genes of interest per sample
+genes_of_interest <- changing_lrt_rdl[selectedGenes[selectedGenes %in% rownames(changing_lrt_rdl)],]
+genes_of_interest
+class(genes_of_interest)
+
+goi<- pheatmap(genes_of_interest, 
+              scale="none", 
+              color = colorRampPalette(c("blue", "white", "red"), space = "Lab")(100),
+              border_color = TRUE,
+              treeheight_row = 100,
+              cluster_rows=TRUE, 
+              cluster_cols=T,
+              cutree_rows = 4,
+              cutree_cols = 5,
+              clustering_distance_rows = "euclidean", 
+              clustering_method = "complete",
+              show_rownames = T)   
+
+#matrix for mean of counts per rep for rach sample
+changing_lrt_rdl_df<- as.data.frame(changing_lrt_rdl)
+#finding mean for MekDD reps
+MekDD=(changing_lrt_rdl_df$MekDD_1_1 + changing_lrt_rdl_df$MekDD_3_1 + changing_lrt_rdl_df$MekDD_2_1)/3
+#finding mean for Akt reps
+Aktmyr=(changing_lrt_rdl_df$Aktmyr_1_2+changing_lrt_rdl_df$Aktmyr_2_2+changing_lrt_rdl_df$Aktmyr_3_2)/3
+#finding mean for ARPE19 reps
+ARPE19=(changing_lrt_rdl_df$ARPE19_1_3+changing_lrt_rdl_df$ARPE19_2_3+changing_lrt_rdl_df$ARPE19_3_3)/3
+#finding mean for RasV12
+RasV12=(changing_lrt_rdl_df$RasV12_1_4+changing_lrt_rdl_df$RasV12_2_4+changing_lrt_rdl_df$RasV12_2_4)/3
+#finding mean for T53D4
+T53D4=(changing_lrt_rdl_df$T53D4_1_5+changing_lrt_rdl_df$T53D4_2_5+changing_lrt_rdl_df$T53D4_3_5)/3
+#new dataframe with all the means of the different samples
+means_of_changing_genes<-data.frame(ARPE19,T53D4,RasV12,MekDD,Aktmyr)
+rownames(means_of_changing_genes)<-rownames(changing_lrt_rdl_df) 
+head(means_of_changing_genes)
 
 
+#heatmap of means of reps per sample
 
-changing_sample<-colnames(changing_df)
-changing_genes<-rownames(changing_df)
-changing_df$counts<- as.numeric(rnorm(nrow(changing_df)))
+means_heatmap<- pheatmap(means_of_changing_genes, 
+               scale="row", 
+               color = colorRampPalette(c("blue", "white", "red"), space = "Lab")(100),
+               border_color = TRUE,
+               treeheight_row = 100,
+               cluster_rows=TRUE, 
+               cluster_cols=T,
+               cutree_rows = 7,
+               cutree_cols = 5,
+               clustering_distance_rows = "euclidean", 
+               clustering_method = "complete",
+               show_rownames = F
+               )
 
-#ggplot heat map
-ggplot(changing_df, aes(x=col(changing_df) ,
-                        y= rownames(changing_df))) +
-  geom_tile (aes(fill=counts))
+#heatmp showing means of genes of interest
+genes_of_interest_means <- means_of_changing_genes[selectedGenes[selectedGenes %in% rownames(means_of_changing_genes)],]
 
-  
+means_heatmap_goi<- pheatmap(genes_of_interest_means, 
+                         scale="row", 
+                         color = colorRampPalette(c("blue", "white", "red"), space = "Lab")(100),
+                         border_color = TRUE,
+                         treeheight_row = 100,
+                         cluster_rows=TRUE, 
+                         cluster_cols=T,
+                         cutree_rows = 4,
+                         cutree_cols = 5,
+                         clustering_distance_rows = "euclidean", 
+                         clustering_method = "complete",
+                         show_rownames = T)
 
 #shows dendrogram divison of row (genes)
 plot(p$tree_row)
