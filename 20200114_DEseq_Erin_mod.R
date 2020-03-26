@@ -227,7 +227,7 @@ resultsNames(dds)
 #genes of interest:
 selectedGenes = c('BUB1B','AURKB','BUB1','SKA1','SKA2','SKA3','SGO1','PPP2R5C',
                   'PPP2R5B','PPP2R2A','PPP2R2A','PPP2R5D','PPP2R5A','PPP2R5E',
-                  'PPP1CA','PPP1CC','PPP1CB','NDC80')
+                  'PPP1CA','PPP1CC','PPP1CB','HEC1','NUF2','SPC24','SPC25')
 
 #Gene associated with MEK pathway
 Mek_genes=c('MAP2K1', 'MAP2K2','MAP2K3','MAP2K4','MAP2K5','MAP2K6','MAP2K7',
@@ -978,13 +978,35 @@ ggplot (pc_PPP1CB,aes(x=sample,y=count)) +
   scale_y_log10() + 
   ggtitle("PPP1CB expression")
 
-#NDC80
+##NDC80 complex---- next 4 genes
+#NDC80 
 plotCounts(dds, gene=which(rownames(normalized_genecounts)=="NDC80"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 pc_NDC80<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="NDC80"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
 ggplot (pc_NDC80,aes(x=sample,y=count)) +
   geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
   scale_y_log10() + 
   ggtitle("NDC80 expression")
+#NUF2 
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="NUF2"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_NDC80<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="NUF2"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_NDC80,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
+  scale_y_log10() + 
+  ggtitle("NUF2 expression")
+#SPC24 
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SPC24"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_NDC80<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SPC24"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_NDC80,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
+  scale_y_log10() + 
+  ggtitle("SPC24 expression")
+#SPC25 
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SPC25"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_NDC80<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SPC25"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_NDC80,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
+  scale_y_log10() + 
+  ggtitle("SPC25 expression")
 
 #SKA1
 plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SKA1"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
@@ -1018,7 +1040,7 @@ ggplot (pc_SGO1,aes(x=sample,y=count)) +
   scale_y_log10() + 
   ggtitle("SGO1 expression")
 
-
+nrom
 ############# VOLCANO PLOTS:###################
 # Volcano plots are nice ways of displaying the fold change against the p-value.
 # resultsNames(dds)
@@ -1435,6 +1457,8 @@ rdl_all <- assay(rlog(dds, blind=FALSE))
 changing_lrt_rdl <- subset(rdl_all, rownames(rdl_all) %in% rownames(changing_genes))
 dim(changing_lrt_rdl)
 head(changing_lrt_rdl)
+#save changing genes
+write.csv(changing_lrt_rdl, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\changing_lrt_rdl.csv" )
 
 # Make sure it is in matrix form:
 class(changing_lrt_rdl)
@@ -1473,6 +1497,9 @@ T53D4=(changing_lrt_rdl_df$T53D4_1_5+changing_lrt_rdl_df$T53D4_2_5+changing_lrt_
 means_of_changing_genes<-data.frame(ARPE19,T53D4,RasV12,MekDD,Aktmyr)
 rownames(means_of_changing_genes)<-rownames(changing_lrt_rdl_df) 
 head(means_of_changing_genes)
+# save means of changing genes
+write.csv(means_of_changing_genes, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\means_of_changing_genes.csv" )
+
 
 
 #heatmap of means of reps per sample
@@ -1493,14 +1520,16 @@ means_heatmap<- pheatmap(means_of_changing_genes,
 genes_of_interest <- changing_lrt_rdl[selectedGenes[selectedGenes %in% rownames(changing_lrt_rdl)],]
 genes_of_interest
 class(genes_of_interest)
+# save genes of interest per sample
+write.csv(genes_of_interest, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\genes_of_interest.csv" )
 
 goi<- pheatmap(genes_of_interest, 
-              scale="none", 
+              scale="row", 
               color = colorRampPalette(c("blue", "white", "red"), space = "Lab")(100),
               border_color = TRUE,
               treeheight_row = 100,
               cluster_rows=TRUE, 
-              cluster_cols=T,
+              cluster_cols=F,
               cutree_rows = 4,
               cutree_cols = 5,
               clustering_distance_rows = "euclidean", 
@@ -1510,6 +1539,8 @@ goi<- pheatmap(genes_of_interest,
 
 #heatmp showing means of genes of interest
 genes_of_interest_means <- means_of_changing_genes[selectedGenes[selectedGenes %in% rownames(means_of_changing_genes)],]
+# save means of genes of interest
+write.csv(genes_of_interest_means, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\genes_of_interest_means,csv" )
 
 means_heatmap_goi<- pheatmap(genes_of_interest_means, 
                          scale="row", 
@@ -1517,7 +1548,7 @@ means_heatmap_goi<- pheatmap(genes_of_interest_means,
                          border_color = TRUE,
                          treeheight_row = 100,
                          cluster_rows=TRUE, 
-                         cluster_cols=T,
+                         cluster_cols=F,
                          cutree_rows = 4,
                          cutree_cols = 5,
                          clustering_distance_rows = "euclidean", 
@@ -1528,16 +1559,16 @@ means_heatmap_goi<- pheatmap(genes_of_interest_means,
 #therfore we will use the normalized_genecounts data frame to make a heatmap showing all our gois
 ncounts_goi <- normalized_genecounts[selectedGenes[selectedGenes %in% rownames(normalized_genecounts)],]
 ncounts_goi_no_genecol<-ncounts_goi
-#remove gene col from df
-ncounts_goi_no_genecol$Gene=NULL
+# #remove gene col from df
+# ncounts_goi_no_genecol$Gene=NULL
 
-ncounts_heatmap_goi<- pheatmap(ncounts_goi_no_genecol, 
-                             scale="column", 
+ncounts_heatmap_goi<- pheatmap(log10(ncounts_goi_no_genecol), 
+                             scale="none", 
                              color = colorRampPalette(c("blue", "white", "red"), space = "Lab")(100),
                              border_color = TRUE,
                              treeheight_row = 100,
                              cluster_rows=TRUE, 
-                             cluster_cols=T,
+                             cluster_cols=F,
                              cutree_rows = 8,
                              cutree_cols = 5,
                              clustering_distance_rows = "euclidean", 
@@ -1559,12 +1590,12 @@ RasV12_ncounts=(ncounts_goi_no_genecol$RasV12_1_4+ncounts_goi_no_genecol$RasV12_
 #finding mean for T53D4
 T53D4_ncounts=(ncounts_goi_no_genecol$T53D4_1_5+ncounts_goi_no_genecol$T53D4_2_5+ncounts_goi_no_genecol$T53D4_3_5)/3
 #new dataframe with all the means of the different samples
-means_of_changing_genes_ncounts<-data.frame(ARPE19_ncounts,T53D4_ncounts,RasV12_ncounts,MekDD_ncounts,Aktmyr_ncounts)
-rownames(means_of_changing_genes_ncounts)<-rownames(ncounts_goi_no_genecol) 
-head(means_of_changing_genes_ncounts)
+means_goi_ncounts<-data.frame(ARPE19_ncounts,T53D4_ncounts,RasV12_ncounts,MekDD_ncounts,Aktmyr_ncounts)
+rownames(means_goi_ncounts)<-rownames(ncounts_goi_no_genecol) 
+head(means_goi_ncounts)
 
-ncounts_means_heatmap_goi<- pheatmap(means_of_changing_genes_ncounts, 
-                               scale="row", 
+ncounts_means_heatmap_goi<- pheatmap(log10(means_of_changing_genes_ncounts), 
+                               scale="none", 
                                color = colorRampPalette(c("blue", "white", "red"), space = "Lab")(100),
                                border_color = TRUE,
                                treeheight_row = 100,
@@ -1577,24 +1608,13 @@ ncounts_means_heatmap_goi<- pheatmap(means_of_changing_genes_ncounts,
                                show_rownames = T)
 
 
-
-#shows dendrogram divison of row (genes)
-plot(p$tree_row)
-#shows dendrogram divisions of columns (samples)
-plot(p$tree_col)
-plot(p$gtable)
-
-#identify genes in clusters
-rownames(changing_lrt_rdl) 
-colnames(changing_lrt_rdl) 
-rownames(changing_lrt_rdl[p$tree_row[["order"]],])
-
+##CLUSTER IDENTIFICATION
 #cut rows into the best groupings, where k = .. determins the number of divions
-cutree(p$tree_row,k=7)
-gene_divisions <-sort(cutree(p$tree_row,k=7))
+cutree(means_heatmap$tree_row,k=7)
+gene_divisions <-sort(cutree(means_heatmap$tree_row,k=7))
 getwd()
 #save as list that can be used for go terms
-write.csv(gene_divisions, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\gene_divisions7.csv" )
+write.csv(gene_divisions, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\ gene_divisions_means.csv" )
 ##shows visually how the rows were divied
 plot(sort(cutree(p$tree_row,k=3)))
 #cut columns into the best groupings, where k = .. determins the number of divions
