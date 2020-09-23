@@ -20,7 +20,7 @@
 
 #Install Bioconductor R version 3.5 or less
 #source("https://bioconductor.org/biocLite.R")
-biocLite("DESeq2")
+#biocLite("DESeq2")
 
 #OR
 
@@ -61,7 +61,7 @@ library(corrplot)
 library(RColorBrewer)
 library(pheatmap)
 library(ggplot2)
-library(d3heatmap)
+#library(d3heatmap)
 
 #################################################
 
@@ -142,14 +142,26 @@ ctsnames = rownames(cts)
 
 # figure out filter,values,and attributes at http://www.ensembl.org/biomart/martview
 gene_names = getBM(mart = ensembl, filter='ensembl_gene_id', value=ctsnames, attributes=c('external_gene_name', 'ensembl_gene_id'))
-dim(gene_names) # 20002     2
-length(ctsnames) # 20003
+rownames(gene_names) <- gene_names$ensembl_gene_id # set rownames to ensembl_gene_id
+### added: common_names
+common_names = intersect(ctsnames,rownames(gene_names))
+###
+
+## reduce both sets to only the common names
+gene_names = gene_names[common_names,]
+cts = cts[common_names,]
+######
+
+ctsnames = rownames(cts)
+dim(gene_names) # 19988     2
+length(ctsnames) # 19988
 ctsnames = ctsnames[ ctsnames %in%  gene_names$ensembl_gene_id] # only one gene not found- ENSG00000254462, and it's all 0s
-length(ctsnames) # 20002
-rownames(gene_names) <- gene_names$ensembl_gene_id
-gene_names = gene_names[ctsnames,]
-cts=cts[rownames(cts) != 'ENSG00000254462',]# take out the 0 count gene
-rownames(cts) <- gene_names$external_gene_name
+length(ctsnames) # 19988
+
+# took out the following:
+#cts=cts[rownames(cts) != 'ENSG00000254462',]# take out the 0 count gene
+
+rownames(cts) <- gene_names$external_gene_name 
 head(cts)
 saveRDS(cts,'cts.RDS')
 
