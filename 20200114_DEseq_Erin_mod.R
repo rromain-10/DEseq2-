@@ -151,6 +151,7 @@ gene_names = gene_names[ctsnames,]
 cts=cts[rownames(cts) != 'ENSG00000254462',]# take out the 0 count gene
 rownames(cts) <- gene_names$external_gene_name
 head(cts)
+saveRDS(cts,'cts.RDS')
 
 ########## dds ################
 coldata= coldata[!1:17%in%c(6,14),]
@@ -185,15 +186,18 @@ dim(dds)
 plotDispEsts(dds)
 head(dds)
 
+
 ########## size Factor scaling that was calculated (sizeFactor)########
 dds$sizeFactor
 head(counts(dds, normalized = TRUE))
 head(counts(dds, normalized = FALSE))
 normalized_genecounts <-counts(dds, normalized = TRUE)
+saveRDS(dds, "dds.RDS")
 ####### save normalized nomralized counts file to working directory for excel browsing ######
 #write.csv(normalized_genecounts, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\2020021_normalized_genecounts.csv")
 #assigning column named name "Genes"
 normalized_genecounts <-data.frame(Gene=rownames(normalized_genecounts),normalized_genecounts)
+
 
 
 #Take r-stabilized log transformations of all the normalized count data. This will help with the problem that the data is noisy and it will help with the problem that the data is spread across a wide range of values.
@@ -249,6 +253,7 @@ res_ARPE19_vs_Aktmyr <- results(dds,
                                 contrast=c("sample","ARPE19","Aktmyr"))
 
 summary(res_ARPE19_vs_Aktmyr)
+saveRDS(res_ARPE19_vs_Aktmyr , '../res/res_ARPE19_vs_Aktmyr')
 
 # resLFC_ARPE19_vs_Aktmyr <- lfcShrink(dds,
 #                                      coef="sample_ARPE19_vs_Aktmyr", type='apeglm')
@@ -292,6 +297,7 @@ res_RasV12_vs_Aktmyr <- results(dds,
                                 contrast=c("sample","RasV12","Aktmyr"))
 
 summary(res_RasV12_vs_Aktmyr)
+saveRDS(res_RasV12_vs_Aktmyr , '../res/res_RasV12_vs_Aktmyr')
 
 # resLFC_RasV12_vs_Aktmyr <- lfcShrink(dds,
 #                                      coef="sample_RasV12_vs_Aktmyr", type='apeglm')
@@ -336,6 +342,7 @@ res_MekDD_vs_Aktmyr <- results(dds,
                                 contrast=c("sample","MekDD","Aktmyr"))
 
 summary(res_MekDD_vs_Aktmyr)
+saveRDS(res_MekDD_vs_Aktmyr , '../res/res_MekDD_vs_Aktmyr')
 
 # resLFC_MekDD_vs_Aktmyr <- lfcShrink(dds,
 #                                      coef="sample_MekDD_vs_Aktmyr", type='apeglm')
@@ -382,6 +389,7 @@ res_T53D4_vs_Aktmyr <- results(dds,
                                contrast=c("sample","T53D4","Aktmyr"))
 
 summary(res_T53D4_vs_Aktmyr)
+saveRDS(res_T53D4_vs_Aktmyr , '../res/res_T53D4_vs_Aktmyr')
 
 # resLFC_T53D4_vs_Aktmyr <- lfcShrink(dds,
 #                                     coef="sample_T53D4_vs_Aktmyr", type='apeglm')
@@ -427,6 +435,8 @@ res_T53D4_vs_MekDD <- results(dds,
                                contrast=c("sample","T53D4","MekDD"))
 
 summary(res_T53D4_vs_MekDD)
+#save res for rshiny code
+saveRDS(res_T53D4_vs_MekDD , '../res/res_T53D4_vs_MekDD.RDS')
 
 # resLFC_T53D4_vs_MekDD <- lfcShrink(dds,
 #                                     coef="sample_T53D4_vs_MekDD", type='apeglm')
@@ -468,6 +478,7 @@ res_Aktmyr_vs_MekDD <- results(dds,
                               contrast=c("sample","Aktmyr","MekDD"))
 
 summary(res_Aktmyr_vs_MekDD)
+saveRDS(res_Aktmyr_vs_MekDD , '../res/res_Aktmyr_vs_MekDD')
 
 ##Aktmyr vs MekDD plots##
 par(mfrow=c(1,1))
@@ -493,6 +504,7 @@ res_RasV12_vs_MekDD <- results(dds,
                                lfc = 0.01,
                                contrast=c("sample","RasV12","MekDD"))
 summary(res_RasV12_vs_MekDD)
+saveRDS(res_RasV12_vs_MekDD , '../res/res_RasV12_vs_MekDD')
 
 ##RasV12 vs MekDD plots##
 par(mfrow=c(1,1))
@@ -518,6 +530,7 @@ res_ARPE19_vs_MekDD <- results(dds,
                                contrast=c("sample","ARPE19","MekDD"))
 
 summary(res_ARPE19_vs_MekDD)
+saveRDS(res_ARPE19_vs_MekDD , '../res/res_ARPE19_vs_MekDD')
 
 ##ARPE19 vs MekDD plots##
 par(mfrow=c(1,1))
@@ -543,6 +556,7 @@ res_ARPE19_vs_T53D4 <- results(dds,
                                lfc = 0.01,
                                contrast=c("sample","ARPE19","T53D4"))
 summary(res_ARPE19_vs_T53D4)
+saveRDS(res_ARPE19_vs_T53D4 , '../res/res_ARPE19_vs_T53D4')
 
 ##ARPE19 vs T53D4 plots##
 par(mfrow=c(1,1))
@@ -575,6 +589,8 @@ res_MekDD_vs_T53D4 <- results(dds,
                               lfc = 0.01,
                               contrast=c("sample","MekDD","T53D4"))
 summary(res_MekDD_vs_T53D4)
+#save for rshiny code
+saveRDS(res_MekDD_vs_T53D4 , '../res/res_MekDD_vs_T53D4')
 
 ##MekDD vs T53D4 plots##
 par(mfrow=c(1,1))
@@ -599,6 +615,8 @@ res_RasV12_vs_T53D4 <- results(dds,
                               lfc = 0.01,
                               contrast=c("sample","RasV12","T53D4"))
 summary(res_RasV12_vs_T53D4)
+#save for rshiny code
+saveRDS(res_RasV12_vs_T53D4 , '../res/res_RasV12_vs_T53D4')
 
 ##RasV12 vs T53D4 plots##
 par(mfrow=c(1,1))
@@ -623,6 +641,8 @@ res_Aktmyr_vs_T53D4 <- results(dds,
                                lfc = 0.01,
                                contrast=c("sample","Aktmyr","T53D4"))
 summary(res_Aktmyr_vs_T53D4)
+#save for rshiny code
+saveRDS(res_Aktmyr_vs_T53D4 , '../res/res_Aktmyr_vs_T53D4')
 
 ##Aktmyr vs T53D4 plots##
 par(mfrow=c(1,1))
@@ -648,6 +668,8 @@ res_T53D4_vs_ARPE19 <- results(dds,
                                lfc = 0.01,
                                contrast=c("sample","T53D4","ARPE19"))
 summary(res_T53D4_vs_ARPE19)
+#save for rshiny code
+saveRDS(res_T53D4_vs_ARPE19 , '../res/res_T53D4_vs_ARPE19')
 
 ##T53D4 vs ARPE19 plots##
 par(mfrow=c(1,1))
@@ -672,6 +694,8 @@ res_RasV12_vs_ARPE19 <- results(dds,
                                lfc = 0.01,
                                contrast=c("sample","RasV12","ARPE19"))
 summary(res_RasV12_vs_ARPE19)
+#save for rshiny code
+saveRDS(res_RasV12_vs_ARPE19 , '../res/res_RasV12_vs_ARPE19')
 
 ##RasV12 vs ARPE19 plots##
 par(mfrow=c(1,1))
@@ -696,6 +720,8 @@ res_MekDD_vs_ARPE19 <- results(dds,
                                 lfc = 0.01,
                                 contrast=c("sample","MekDD","ARPE19"))
 summary(res_MekDD_vs_ARPE19)
+#save for rshiny code
+saveRDS(res_MekDD_vs_ARPE19 , '../res/res_MekDD_vs_ARPE19')
 
 ##MekDD vs ARPE19 plots##
 par(mfrow=c(1,1))
@@ -720,6 +746,8 @@ res_Aktmyr_vs_ARPE19 <- results(dds,
                                lfc = 0.01,
                                contrast=c("sample","Aktmyr","ARPE19"))
 summary(res_Aktmyr_vs_ARPE19)
+#save for rshiny code
+saveRDS(res_Aktmyr_vs_ARPE19 , '../res/res_Aktmyr_vs_ARPE19')
 
 ##Aktmyr vs ARPE19 plots##
 par(mfrow=c(1,1))
@@ -746,6 +774,8 @@ res_ARPE19_vs_RasV12 <- results(dds,
                                lfc = 0.01,
                                contrast=c("sample","ARPE19","RasV12"))
 summary(res_ARPE19_vs_RasV12)
+#save for rshiny code
+saveRDS(res_ARPE19_vs_RasV12 , '../res/res_ARPE19_vs_RasV12')
 
 ##ARPE19 vs RasV12 plots##
 par(mfrow=c(1,1))
@@ -771,6 +801,8 @@ res_T53D4_vs_RasV12 <- results(dds,
                                 lfc = 0.01,
                                 contrast=c("sample","T53D4","RasV12"))
 summary(res_T53D4_vs_RasV12)
+#save for rshiny code
+saveRDS(res_T53D4_vs_RasV12 , '../res/res_T53D4_vs_RasV12')
 
 ##T53D4 vs RasV12 plots##
 par(mfrow=c(1,1))
@@ -796,6 +828,8 @@ res_MekDD_vs_RasV12 <- results(dds,
                                lfc = 0.01,
                                contrast=c("sample","MekDD","RasV12"))
 summary(res_MekDD_vs_RasV12)
+#save for rshiny code
+saveRDS(res_MekDD_vs_RasV12 , '../res/res_MekDD_vs_RasV12')
 
 ##MekDD vs RasV12 plots##
 par(mfrow=c(1,1))
@@ -821,6 +855,9 @@ res_Aktmyr_vs_RasV12 <- results(dds,
                                lfc = 0.01,
                                contrast=c("sample","Aktmyr","RasV12"))
 summary(res_Aktmyr_vs_RasV12)
+#save for rshiny code
+saveRDS(res_Aktmyr_vs_RasV12 , '../res/res_Aktmyr_vs_RasV12')
+
 
 
 ##Aktmyr vs RasV12 plots##
@@ -1561,6 +1598,9 @@ ncounts_goi <- normalized_genecounts[selectedGenes[selectedGenes %in% rownames(n
 ncounts_goi_no_genecol<-ncounts_goi
 # #remove gene col from df
 # ncounts_goi_no_genecol$Gene=NULL
+#save ncounts_goi_no_genecol
+write.csv(ncounts_goi_no_genecol, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\ncounts_goi_no_genecol.csv" )
+
 
 ncounts_heatmap_goi<- pheatmap(log10(ncounts_goi_no_genecol), 
                              scale="none", 
