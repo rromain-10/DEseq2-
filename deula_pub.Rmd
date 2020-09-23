@@ -1,0 +1,1433 @@
+---
+title: "deluca_pub"
+author: "Romario Romain"
+date: "9/15/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r install packages}
+#Install bioconductor R version 3.6 or greater
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install(version = "3.11")
+
+## When prompted to install (a/s) all or some of the dependent packages, move your cursor down to the console and type "a" for all
+
+# Install DESeq2:
+if (!requireNamespace("BiocManager", quietly = TRUE))
+        install.packages("BiocManager")
+ BiocManager::install("DESeq2")
+ BiocManager::install("biomaRt")
+ BiocManager::install("ensembldb")
+ BiocManager::install("GenomicFeatures")
+ BiocManager::install("apeglm")
+
+# install corrplot:
+install.packages("corrplot")
+
+#Install pretty heatmap - pheatmap: https://cran.r-project.org/web/packages/pheatmap/index.html
+install.packages("pheatmap")
+
+#Install RColorBrewer: https://cran.r-project.org/web/packages/RColorBrewer/index.html
+install.packages("RColorBrewer")
+
+#Install heatmaply: https://cran.r-project.org/web/packages/heatmaply/vignettes/heatmaply.html
+install.packages('pheatmaply')
+
+#Install d3heatmap: https://pbil.univ-lyon1.fr/CRAN/web/packages/d3heatmap/d3heatmap.pdf
+install.packages('d3heatmap')
+```
+
+```{r load packges}
+
+# Do this every time.
+# Load packages:
+library(DESeq2)
+library(corrplot)
+library(RColorBrewer)
+library(pheatmap)
+library(ggplot2)
+library(BiocManager)
+library(GenomicFeatures)
+library(ensembldb)
+library(biomaRt)
+```
+
+```{r read in data}
+#Must be in your code repository directory, and the counts and metadata file must be in that directory:
+getwd()
+
+# import the counts data
+countsData <- read.table(file = "20200116_robs_counts.txt", header = TRUE, row.names = 1, skip = 2) 
+head(countsData)
+dim(countsData)
+class(countsData)
+
+# Read in the metadata
+metadata <- read.table(file = "RR_ARPE_Deluca_Collab_manifest.txt", header = FALSE) # import the data
+metadata
+colnames(metadata) <- c("fasta1", "fasta2", "names", "rep","sample")
+metadata
+
+# Organize the countsData file.
+# Notice that the countsData file doesn't have any column headers:
+head(countsData)
+
+# The last names will be names for each sample. We can pull those names from metadata1:
+as.vector(metadata$names)
+as.vector(metadata$sample)
+
+# Name countsData columns headers:
+colnames(countsData) <- c("chr", "start", "stop", "strand", "length", as.vector(metadata$names))
+colnames(countsData)
+head(countsData)
+
+################### COUNT MATRIX INPUT ###################
+# In this section we will prepare our input data for analysis.
+# In the instruction for DESeq2, it states: "We read in a count matrix, which we will name cts, and the sample information table, which we will name coldata."
+
+# generate a table called "cts" out of the countsData table.
+# Subset the countsData 
+head(countsData)
+dim(countsData)
+head(countsData[,6:22])
+# Save just the subset as an object called cts:
+cts <- as.matrix(countsData[,6:22])
+head(cts)
+
+# Next we need to make an information called coltable. We can make this out of the metadata table.
+class(metadata)
+# Reorganize the metadata table so the names1 column are now row headers
+metadata
+rownames(metadata)<- metadata$names
+metadata
+coldata <- metadata[,c("sample", "rep", "names")]
+coldata
+coldata$sample <- as.factor(coldata$sample)
+coldata$names <- as.factor(coldata$names)
+coldata$rep <- as.factor(coldata$rep)
+rownames(coldata) <- metadata$names
+coldata$sample
+coldata$names
+colnames(cts)
+
+
+# One thing we need to explicitly check. The rownames of coldata need to exactly match the colnames of cts.
+#Check that the names match  --> Should be TRUE
+all(rownames(coldata) == colnames(cts))
+
+
+#using ensembl
+ensembl = useDataset("hsapiens_gene_ensembl",mart=useMart("ENSEMBL_MART_ENSEMBL"))
+ctsnames = rownames(cts)
+
+
+####### figure here out
+# figure out filter,values,and attributes at http://www.ensembl.org/biomart/martview
+gene_names = getBM(mart = ensembl, filter='ensembl_gene_id', value=ctsnames, attributes=c('external_gene_name', 'ensembl_gene_id'))
+rownames(gene_names) <- gene_names$ensembl_gene_id
+#added comman names
+common_names = intersect (ctsnames, row.names(gene_names))
+
+#reduce set
+gene_names = gene_names[common_names,]
+cts = cts[common_names,]
+dim(gene_names) # 19988     2
+length(ctsnames) # 19988
+dim(cts)
+
+#ctsnames = ctsnames[ ctsnames %in%  gene_names$ensembl_gene_id] # only one gene not found- ENSG00000254462, and it's all 0s
+length(ctsnames) # 19988
+rownames(cts) <- gene_names$external_gene_name
+head(cts)
+### save cts for app ###
+#saveRDS(cts,'cts.RDS')
+```
+
+```{r}
+########## dds ################
+coldata= coldata[!1:17%in%c(6,14),]
+cts= cts[,!1:17%in%c(6,14)]
+
+dds <- DESeqDataSetFromMatrix(countData = cts,
+                              colData = coldata,
+                              design = ~ sample)
+                             
+################# PRE-FILTERING -- FILTER FOR PRESENT GENES: ################# 
+# Not necessary, but helps keep things fast. 
+keep <- rowSums(counts(dds)) >=1
+dds <- dds[keep,]
+
+# How many did we exclude?
+dim(dds)
+str(dds)
+coldata
+
+################### NOTE ON FACTOR LEVELS ###################
+# Organize the categories based on what makes sense:
+dds$names<- factor(dds$names)
+dds$names
+
+
+# PERFORM DESEQ2 analysis:
+####### This is where the magic happens! ########### 
+# This will transform dds into a specialized object with many more fields filled in.
+dds<- DESeq(dds)
+class(dds)
+str(dds)
+dim(dds)
+plotDispEsts(dds)
+head(dds)
+
+
+########## size Factor scaling that was calculated (sizeFactor)########
+dds$sizeFactor
+head(counts(dds, normalized = TRUE))
+head(counts(dds, normalized = FALSE))
+normalized_genecounts <-counts(dds, normalized = TRUE)
+### save for app ###
+#saveRDS(dds, "dds.RDS")
+####### save normalized nomralized counts file to working directory for excel browsing ######
+#write.csv(normalized_genecounts, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\20200923_normalized_genecounts.csv")
+#assigning column named name "Genes"
+normalized_genecounts <-data.frame(Gene=rownames(normalized_genecounts),normalized_genecounts)
+```
+```{r Sample distance matrix (shows sampkle similarity)}
+#Take r-stabilized log transformations of all the normalized count data. This will help with the problem that the data is noisy and it will help with the problem that the data is spread across a wide range of values.
+rld <- rlog(dds, blind=FALSE)  #Take the r-stabilized log transformed data:
+
+# Calculate the distances between each sample
+sampleDists <- dist(t(assay(rld))) # calculate distance matrices:
+sampleDistMatrix <- as.matrix(sampleDists) #convert from data.frame -> matrix
+rownames(sampleDistMatrix) <- colnames(rld) # Add some labels
+colnames(sampleDistMatrix) <- NULL
+colors <- colorRampPalette( rev(brewer.pal(9, "Blues")) )(255) #Pick some pretty colors
+
+# Draw the heatmap
+par(mfrow=c(1,1))
+dist_matrix<- pheatmap(sampleDistMatrix,
+                        clustering_distance_rows=sampleDists,
+                        clustering_distance_cols=sampleDists,
+                        col=colors, width = 4, height = 4,
+                        cluster_rows = TRUE) # Plot the heatmap
+dist_matrix
+
+```
+############## DIFFERENTIAL EXPRESSION ANALYSIS #####################
+# calculate the statistically significant differences between resultNames(dds) but other comparisons can be made but not without application of the shinkage function
+
+```{r essential genelist}
+#genes of interest:
+selectedGenes = c('BUB1B','AURKB','BUB1','SKA1','SKA2','SKA3','SGO1','PPP2R5C',
+                  'PPP2R5B','PPP2R2A','PPP2R2A','PPP2R5D','PPP2R5A','PPP2R5E',
+                  'PPP1CA','PPP1CC','PPP1CB','HEC1','NUF2','SPC24','SPC25')
+
+#Gene associated with MEK pathway
+Mek_genes=c('MAP2K1', 'MAP2K2','MAP2K3','MAP2K4','MAP2K5','MAP2K6','MAP2K7',
+             'PTPN11', 'GBR2','SOS1')
+
+#Gens associated with the RAS pathway
+Ras_genes=c('KRAS','NRAS','BRAF','HRAS','RAF1')
+
+#Gene associated with AKT pathway
+Akt_genes =c('AKT1','AKT2','AKT3','AKT8','PDK1','PDK2','MTOR')
+
+#Genes assocaited with T53D4
+T53D4_genes=c('CDK4', 'TP53')
+```
+
+```{r AKTMYR comparsion MAplots}
+#ARPE19 vs Aktmyr#
+res_ARPE19_vs_Aktmyr <- results(dds,
+                                lfc = 0.01,
+                                contrast=c("sample","ARPE19","Aktmyr"))
+
+summary(res_ARPE19_vs_Aktmyr)
+#### saved for app #####
+#saveRDS(res_ARPE19_vs_Aktmyr , '../res/res_ARPE19_vs_Aktmyr')
+
+
+##ARPE19 vs Aktmyr plots##
+par(mfrow=c(1,1))
+plotMA(res_ARPE19_vs_Aktmyr, main="ARPE19 vs Aktmyr ", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized ARPE19 / Aktmyr)",
+       xlab = "means of normalized counts",
+       cex.main= 5,
+       cex= 0.5,
+       alpha= 0.5)
+### added selected genes ###
+# with(res_ARPE19_vs_Aktmyr [selectedGenes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange, selectedGenes, pos=2, col="dodgerblue")})
+# with(res_ARPE19_vs_Aktmyr [Akt_genes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange, Akt_genes, pos=2, col="dodgerblue")})
+```
+
+```{r AKTMYR comparsion MAplots}
+#RasV12 vs Aktmyr#
+res_RasV12_vs_Aktmyr <- results(dds,
+                                lfc = 0.01,
+                                contrast=c("sample","RasV12","Aktmyr"))
+
+summary(res_RasV12_vs_Aktmyr)
+### save for app ###
+#saveRDS(res_RasV12_vs_Aktmyr , '../res/res_RasV12_vs_Aktmyr')
+
+
+##RasV12 vs Aktmyr plots##
+par(mfrow=c(1,1))
+plotMA(res_RasV12_vs_Aktmyr, main="RasV12 vs Aktmyr", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized RasV12 / Aktmyr)",
+       xlab = "means of normalized counts",
+       cex.main= 5,
+       cex= 0.5,
+       alpha= 0.5)
+### added selected genes ###
+# with(res_RasV12_vs_Aktmyr [selectedGenes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange,
+#             selectedGenes, pos=2, col="dodgerblue")})
+# with(res_RasV12_vs_Aktmyr [Akt_genes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange, Akt_genes, pos=2, col="dodgerblue")})
+```
+```{r AKTMYR comparsion MAplots}
+#MekDD vs Aktmyr
+res_MekDD_vs_Aktmyr <- results(dds,
+                                lfc = 0.01,
+                                contrast=c("sample","MekDD","Aktmyr"))
+
+summary(res_MekDD_vs_Aktmyr)
+### save for app ###
+#saveRDS(res_MekDD_vs_Aktmyr , '../res/res_MekDD_vs_Aktmyr')
+
+##MekDD vs Aktmyr plots##
+par(mfrow=c(1,1))
+plotMA(res_MekDD_vs_Aktmyr, main="MekDD vs Aktmyr", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized MekDD / Aktmyr)",
+       xlab = "means of normalized counts",
+       cex=0.5,
+       cex.main=5,
+       alpha= 0.5)
+### added selected genes ###
+# with(res_MekDD_vs_Aktmyr [selectedGenes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange,
+#             selectedGenes, pos=2, col="dodgerblue")})
+# with(res_MekDD_vs_Aktmyr [Akt_genes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange, Akt_genes, pos=2, col="dodgerblue")})
+```
+
+```{r AKTMYR comparsion MAplots}
+#T53D4 vs Aktmyr
+res_T53D4_vs_Aktmyr <- results(dds,
+                               lfc = 0.01,
+                               contrast=c("sample","T53D4","Aktmyr"))
+
+summary(res_T53D4_vs_Aktmyr)
+### save for app ###
+#saveRDS(res_T53D4_vs_Aktmyr , '../res/res_T53D4_vs_Aktmyr')
+
+##T53D4 vs Aktmyr plots##
+par(mfrow=c(1,1))
+plotMA(res_T53D4_vs_Aktmyr, main="T53D4 vs Aktmyr", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized T53D4 / Aktmyr)",
+       xlab = "means of normalized counts",
+       cex.main= 5,
+       cex= 0.5,
+       alpha= 0.5)
+### added selected genes ###
+# with(res_T53D4_vs_Aktmyr [selectedGenes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange,
+#             selectedGenes, pos=2, col="dodgerblue")})
+# with(res_T53D4_vs_Aktmyr [Akt_genes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange, Akt_genes, pos=2, col="dodgerblue")})
+```
+
+```{r MEKDD comparison MAplots}
+#Aktmyr vs MekDD
+res_Aktmyr_vs_MekDD <- results(dds,
+                              lfc = 0.01,
+                              contrast=c("sample","Aktmyr","MekDD"))
+
+summary(res_Aktmyr_vs_MekDD)
+### save for app ###
+#saveRDS(res_Aktmyr_vs_MekDD , '../res/res_Aktmyr_vs_MekDD')
+
+##Aktmyr vs MekDD plots##
+par(mfrow=c(1,1))
+plotMA(res_Aktmyr_vs_MekDD, main="Aktmyr vs MekDD", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized Aktmyr / MekDD)",
+       xlab = "means of normalized counts",
+       cex.main= 5,
+       cex= 0.5,
+       alpha= 0.5)
+# with(res_Aktmyr_vs_MekDD [selectedGenes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange,
+#             selectedGenes, pos=2, col="dodgerblue")})
+# with(res_Aktmyr_vs_MekDD [Mek_genes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange, Mek_genes, pos=2, col="dodgerblue")})
+```
+
+```{r MEKDD comparison MAplots}
+#RasV12 vs MekDD
+res_RasV12_vs_MekDD <- results(dds,
+                               lfc = 0.01,
+                               contrast=c("sample","RasV12","MekDD"))
+summary(res_RasV12_vs_MekDD)
+### save for app ###
+#saveRDS(res_RasV12_vs_MekDD , '../res/res_RasV12_vs_MekDD')
+
+##RasV12 vs MekDD plots##
+par(mfrow=c(1,1))
+plotMA(res_RasV12_vs_MekDD, main="RasV12 vs MekDD", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized RasV12 / MekDD)",
+       xlab = "means of normalized counts",
+       cex.main= 5,
+       cex= 0.5,
+       alpha= 0.5)
+# with(res_RasV12_vs_MekDD [selectedGenes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange,
+#             selectedGenes, pos=2, col="dodgerblue")})
+# with(res_RasV12_vs_MekDD [Mek_genes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange, Mek_genes, pos=2, col="dodgerblue")})
+``` 
+
+```{r MEKDD comparison MAplots}
+#ARPE19 vs MekDD
+res_ARPE19_vs_MekDD <- results(dds,
+                               lfc = 0.01,
+                               contrast=c("sample","ARPE19","MekDD"))
+
+summary(res_ARPE19_vs_MekDD)
+### save for app ###
+#saveRDS(res_ARPE19_vs_MekDD , '../res/res_ARPE19_vs_MekDD')
+
+##ARPE19 vs MekDD plots##
+par(mfrow=c(1,1))
+plotMA(res_ARPE19_vs_MekDD, main="ARPE19 vs MekDD", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized ARPE19 / MekDD)",
+       xlab = "means of normalized counts",
+       cex.main= 5,
+       cex= 0.5,
+       alpha= 0.5)
+# with(res_ARPE19_vs_MekDD [selectedGenes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange,
+#             selectedGenes, pos=2, col="dodgerblue")})
+# with(res_ARPE19_vs_MekDD [Mek_genes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange, Mek_genes, pos=2, col="dodgerblue")})
+```
+```{r}
+#T53D4 vs MekDD
+res_T53D4_vs_MekDD <- results(dds,
+                               lfc = 0.01,
+                               contrast=c("sample","T53D4","MekDD"))
+
+summary(res_T53D4_vs_MekDD)
+### save for app ###
+#saveRDS(res_T53D4_vs_MekDD , '../res/res_T53D4_vs_MekDD')
+
+##T53D4 vs MekDD plots## 
+par(mfrow=c(1,1))
+plotMA(res_T53D4_vs_MekDD, main="T53D4 vs MekDD", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized T53D4 / MekDD)",
+       xlab = "means of normalized counts",
+       cex.main= 5,
+       cex= 0.5,
+       alpha= 0.5)
+# with(res_T53D4_vs_MekDD [selectedGenes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange,
+#             selectedGenes, pos=2, col="dodgerblue")})
+# with(res_T53D4_vs_MekDD [Mek_genes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange, Ras_genes, pos=2, col="dodgerblue")})
+```
+
+
+```{r T53D4 comparison MAplots}
+#ARPE19 vs T53D4
+res_ARPE19_vs_T53D4 <- results(dds,
+                               lfc = 0.01,
+                               contrast=c("sample","ARPE19","T53D4"))
+summary(res_ARPE19_vs_T53D4)
+### save for app ###
+#saveRDS(res_ARPE19_vs_T53D4 , '../res/res_ARPE19_vs_T53D4')
+
+##ARPE19 vs T53D4 plots##
+par(mfrow=c(1,1))
+plotMA(res_ARPE19_vs_T53D4, main="ARPE19 vs T53D4", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized ARPE19 / T53D4)",
+       xlab = "means of normalized counts",
+       cex.main= 5,
+       cex= 0.5,
+       alpha=0.5)
+# with(res_ARPE19_vs_T53D4 [selectedGenes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange,
+#             selectedGenes, pos=2, col="dodgerblue")})
+# with(res_ARPE19_vs_T53D4 [T53D4_genes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange, T53D4_genes, pos=2, col="dodgerblue")})
+```
+
+```{r T53D4 comparison MAplots}
+#MekDD vs T53D4
+res_MekDD_vs_T53D4 <- results(dds,
+                              lfc = 0.01,
+                              contrast=c("sample","MekDD","T53D4"))
+summary(res_MekDD_vs_T53D4)
+### save for app ###
+#saveRDS(res_MekDD_vs_T53D4 , '../res/res_MekDD_vs_T53D4')
+
+##MekDD vs T53D4 plots##
+par(mfrow=c(1,1))
+plotMA(res_T53D4_vs_MekDD, main="MekDD vs T53D4", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized MekDD / T53D4)",
+       xlab = "means of normalized counts",
+       cex.main= 5,
+       cex= 0.5,
+       alpha= 0.5)
+# with(res_T53D4_vs_MekDD [selectedGenes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange,
+#             selectedGenes, pos=2, col="dodgerblue")})
+# with(res_T53D4_vs_MekDD [T53D4_genes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange, T53D4_genes, pos=2, col="dodgerblue")})
+```
+
+```{r T53D4 comparison MAplots}
+#RasV12 vs T53D4
+res_RasV12_vs_T53D4 <- results(dds,
+                              lfc = 0.01,
+                              contrast=c("sample","RasV12","T53D4"))
+summary(res_RasV12_vs_T53D4)
+### save for app ###
+#saveRDS(res_RasV12_vs_T53D4 , '../res/res_RasV12_vs_T53D4')
+
+##RasV12 vs T53D4 plots##
+par(mfrow=c(1,1))
+plotMA(res_RasV12_vs_T53D4, main="RasV12 vs T53D4", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized RasV12 / T53D4)",
+       xlab = "means of normalized counts",
+       cex.main= 5,
+       cex= 0.5,
+       alpha= 0.5)
+# with(res_RasV12_vs_T53D4 [selectedGenes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange,
+#             selectedGenes, pos=2, col="dodgerblue")})
+# with(res_RasV12_vs_T53D4 [T53D4_genes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange, T53D4_genes, pos=2, col="dodgerblue")})
+```
+
+```{r T53D4 comparison MAplots}
+#Aktmyr vs T53D4
+res_Aktmyr_vs_T53D4 <- results(dds,
+                               lfc = 0.01,
+                               contrast=c("sample","Aktmyr","T53D4"))
+summary(res_Aktmyr_vs_T53D4)
+### save for app ###
+#saveRDS(res_Aktmyr_vs_T53D4 , '../res/res_Aktmyr_vs_T53D4')
+
+##Aktmyr vs T53D4 plots##
+par(mfrow=c(1,1))
+plotMA(res_Aktmyr_vs_T53D4, main="Aktmyr vs T53D4", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized Aktmyr / T53D4)",
+       xlab = "means of normalized counts",
+       cex.main= 5,
+       cex= 0.5,
+       alpha= 0.5)
+# with(res_Aktmyr_vs_T53D4 [selectedGenes, ],
+#                    { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#                             lwd=2)
+#                      text(baseMean,log2FoldChange,
+#                           selectedGenes, pos=2, col="dodgerblue")})
+# with(res_Aktmyr_vs_T53D4 [T53D4_genes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange, T53D4_genes, pos=2, col="dodgerblue")})
+```
+
+```{r ARPE19 comparsion MAplots}
+#T53D4 vs ARPE19
+res_T53D4_vs_ARPE19 <- results(dds,
+                               lfc = 0.01,
+                               contrast=c("sample","T53D4","ARPE19"))
+summary(res_T53D4_vs_ARPE19)
+### save for app ###
+#saveRDS(res_T53D4_vs_ARPE19 , '../res/res_T53D4_vs_ARPE19')
+
+##T53D4 vs ARPE19 plots##
+par(mfrow=c(1,1))
+plotMA(res_T53D4_vs_ARPE19, main="T53D4 vs ARPE19", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized T53D4 / ARPE19)",
+       xlab = "means of normalized counts",
+       cex.main= 5,
+       cex= 0.5,
+       alpha= 0.5)
+# with(res_T53D4_vs_ARPE19 [selectedGenes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange,
+#             selectedGenes, pos=2, col="dodgerblue")})
+# with(res_T53D4_vs_ARPE19 [T53D4_genes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange, T53D4_genes, pos=2, col="dodgerblue")})
+```
+```{r ARPE19 comparsion MAplots}
+#RasV12 vs ARPE19
+res_RasV12_vs_ARPE19 <- results(dds,
+                               lfc = 0.01,
+                               contrast=c("sample","RasV12","ARPE19"))
+summary(res_RasV12_vs_ARPE19)
+### save for app ###
+#saveRDS(res_RasV12_vs_ARPE19 , '../res/res_RasV12_vs_ARPE19')
+
+##RasV12 vs ARPE19 plots##
+par(mfrow=c(1,1))
+plotMA(res_RasV12_vs_ARPE19, main="RasV12 vs ARPE19", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized RasV12 / ARPE19)",
+       xlab = "means of normalized counts",
+       cex.main= 5,
+       cex=0.5,
+       alpha= 0.5)
+# with(res_RasV12_vs_ARPE19 [selectedGenes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange,
+#             selectedGenes, pos=2, col="dodgerblue")})
+# with(res_RasV12_vs_ARPE19 [Ras_genes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange, Ras_genes, pos=2, col="dodgerblue")})
+```
+
+```{r ARPE19 comparsion MAplots}
+#MekDD vs ARPE19
+res_MekDD_vs_ARPE19 <- results(dds,
+                                lfc = 0.01,
+                                contrast=c("sample","MekDD","ARPE19"))
+summary(res_MekDD_vs_ARPE19)
+### save for app ###
+#saveRDS(res_MekDD_vs_ARPE19 , '../res/res_MekDD_vs_ARPE19')
+
+##MekDD vs ARPE19 plots##
+par(mfrow=c(1,1))
+plotMA(res_MekDD_vs_ARPE19, main="MekDD vs ARPE19", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized MekDD / ARPE19)",
+       xlab = "means of normalized counts",
+       cex.main= 5,
+       cex= 0.5,
+       alpha=0.5)
+# with(res_MekDD_vs_ARPE19 [selectedGenes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange,
+#             selectedGenes, pos=2, col="dodgerblue")})
+# with(res_RasV12_vs_ARPE19 [Mek_genes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange, Mek_genes, pos=2, col="dodgerblue")})
+```
+
+```{r ARPE19 comparsion MAplots}
+#Aktmyr vs ARPE19
+res_Aktmyr_vs_ARPE19 <- results(dds,
+                               lfc = 0.01,
+                               contrast=c("sample","Aktmyr","ARPE19"))
+summary(res_Aktmyr_vs_ARPE19)
+### save for app ###
+#saveRDS(res_Aktmyr_vs_ARPE19 , '../res/res_Aktmyr_vs_ARPE19')
+
+##Aktmyr vs ARPE19 plots##
+par(mfrow=c(1,1))
+plotMA(res_Aktmyr_vs_ARPE19, main="Aktmyr vs ARPE19", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized Aktmyr / ARPE19)",
+       xlab = "means of normalized counts",
+       cex.main= 5,
+       cex=0.5,
+       alpha=0.5)
+# with(res_Aktmyr_vs_ARPE19 [selectedGenes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange,
+#             selectedGenes, pos=2, col="dodgerblue")})
+# with(res_Aktmyr_vs_ARPE19 [Akt_genes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange,
+#             Akt_genes, pos=2, col="dodgerblue")})
+```
+
+```{r RasV12 comparison MAplots}
+#ARPE19 vs RasV12
+res_ARPE19_vs_RasV12 <- results(dds,
+                               lfc = 0.01,
+                               contrast=c("sample","ARPE19","RasV12"))
+summary(res_ARPE19_vs_RasV12)
+### save for app ###
+#saveRDS(res_ARPE19_vs_RasV12 , '../res/res_ARPE19_vs_RasV12')
+
+##ARPE19 vs RasV12 plots##
+par(mfrow=c(1,1))
+plotMA(res_ARPE19_vs_RasV12, main="ARPE19 vs RasV12", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized ARPE19 / RasV12)",
+       xlab = "means of normalized counts",
+       cex.main= 5,
+       cex= 0.5,
+       alpha= 0.5)
+# with(res_ARPE19_vs_RasV12 [selectedGenes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#              lwd=2)
+#        text(baseMean,log2FoldChange,
+#             selectedGenes, pos=2, col="dodgerblue")})
+# with(res_ARPE19_vs_RasV12 [Ras_genes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange,
+#             Ras_genes, pos=2, col="dodgerblue")})
+```
+
+```{r RasV12 comparison MAplots}
+#T53D4 vs RasV12
+res_T53D4_vs_RasV12 <- results(dds,
+                                lfc = 0.01,
+                                contrast=c("sample","T53D4","RasV12"))
+summary(res_T53D4_vs_RasV12)
+### save for app ###
+#saveRDS(res_T53D4_vs_RasV12 , '../res/res_T53D4_vs_RasV12')
+
+##T53D4 vs RasV12 plots##
+par(mfrow=c(1,1))
+plotMA(res_T53D4_vs_RasV12, main="T53D4 vs RasV12", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized T53D4 / RasV12)",
+       xlab = "means of normalized counts",
+       cex.main= 5,
+       cex= 0.5,
+       alpha= 0.5)
+# with(res_T53D4_vs_RasV12 [selectedGenes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange,
+#             selectedGenes, pos=2, col="dodgerblue")})
+# with(res_T53D4_vs_RasV12 [Ras_genes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange,
+#             Ras_genes, pos=2, col="dodgerblue")})
+```
+
+```{r RasV12 comparison MAplots}
+#MekDD vs RasV12
+res_MekDD_vs_RasV12 <- results(dds,
+                               lfc = 0.01,
+                               contrast=c("sample","MekDD","RasV12"))
+summary(res_MekDD_vs_RasV12)
+### save for app ###
+#saveRDS(res_MekDD_vs_RasV12 , '../res/res_MekDD_vs_RasV12')
+
+##MekDD vs RasV12 plots##
+par(mfrow=c(1,1))
+plotMA(res_MekDD_vs_RasV12, main="MekDD vs RasV12", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized MekDD / RasV12)",
+       xlab = "means of normalized counts",
+       cex.main= 5,
+       cex=0.5,
+       alpha= 0.5)
+# with(res_MekDD_vs_RasV12 [selectedGenes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange,
+#             selectedGenes, pos=2, col="dodgerblue")})
+# with(res_T53D4_vs_RasV12 [Ras_genes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange,
+#             Ras_genes, pos=2, col="dodgerblue")})
+```
+
+```{r RasV12 comparison MAplots}
+#Aktmyr vs RasV12
+res_Aktmyr_vs_RasV12 <- results(dds,
+                               lfc = 0.01,
+                               contrast=c("sample","Aktmyr","RasV12"))
+summary(res_Aktmyr_vs_RasV12)
+### save for app ###
+#saveRDS(res_Aktmyr_vs_RasV12 , '../res/res_Aktmyr_vs_RasV12')
+
+##Aktmyr vs RasV12 plots##
+par(mfrow=c(1,1))
+plotMA(res_Aktmyr_vs_RasV12, main="Aktmyr vs RasV12", ylim = c(-20,20),
+       ylab = "log fold change (ratio of normalized Aktmyr / RasV12)",
+       xlab = "means of normalized counts",
+       cex.main= 5,
+       cex= 0.5,
+       alpha=0.5)
+# with(res_Aktmyr_vs_RasV12 [selectedGenes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange,
+#             selectedGenes, pos=2, col="dodgerblue")})
+# with(res_T53D4_vs_RasV12 [Ras_genes, ],
+#      { points(baseMean,log2FoldChange, col= "dodgerblue", cex=1,
+#               lwd=2)
+#        text(baseMean,log2FoldChange,
+#             Ras_genes, pos=2, col="dodgerblue")})
+```
+
+```{r Reorder plot }
+#Reorder samples to match experimental design
+dds$sample <- factor(dds$sample, levels=c("ARPE19", "T53D4", "RasV12", "Aktmyr", "MekDD"))
+dds$sample
+```
+
+```{r plotCount for HRAS}
+#HRAS
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="HRAS"),intgroup = c("sample"), cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_HRAS1<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="HRAS"),intgroup = c("sample"), cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_HRAS1,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample, alpha=0.9))+ geom_jitter() +
+  scale_y_log10() + stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +
+  ggtitle("HRAS expression")
+```
+
+```{r plotCount for AKT1}
+#AKT1
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="AKT1"),intgroup = c("sample"), cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_AKT1<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="AKT1"),intgroup = c("sample"), cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_AKT1,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample, alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +
+  geom_jitter()+scale_y_log10() + 
+  ggtitle("AKT1 expression")
+```
+
+```{r BUB1B}
+#BUB1B
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="BUB1B"),intgroup = c("sample"), cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_BUB1B<- plotCounts(dds, gene=which(rownames(normalized_genecounts)=="BUB1B"),intgroup = c("sample"), cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_BUB1B,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
+  scale_y_log10() + 
+  ggtitle("BUB1B expression")
+```
+
+```{r AURKB}
+#AURKB
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="AURKB"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_AURKB<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="AURKB"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_AURKB,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
+  scale_y_log10() + 
+  ggtitle("AURKB expression")
+```
+
+```{r PPP2R5C}
+#PPP2R5C
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R5C"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_PPP2R5C<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R5C"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_PPP2R5C,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
+  scale_y_log10() + 
+  ggtitle("PPP2R5C expression")
+```
+
+```{r PPP2R5B}
+#PPP2R5B
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R5B"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_PPP2R5B<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R5B"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_PPP2R5B,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
+  scale_y_log10() + 
+  ggtitle("PPP2R5B expression")
+```
+
+```{r PPP2R5A}
+#PPP2R5A
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R5A"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_PPP2R5A<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R5A"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_PPP2R5A,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
+  scale_y_log10() + 
+  ggtitle("PPP2R5A expression")
+```
+
+```{r PPP2R2A}
+#PPP2R2A
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R2A"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_PPP2R2A<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R2A"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_PPP2R2A,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample, alpha=0.9))+geom_jitter() +
+  scale_y_log10() + 
+  ggtitle("PPP2R2A expression")
+```
+
+```{r PPP2R2A}
+#PPP2R2A
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R2A"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_PPP2R2A<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R2A"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_PPP2R2A,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample, alpha=0.9))+geom_jitter() +
+  scale_y_log10() + 
+  ggtitle("PPP2R2A expression")
+```
+
+```{r PPP2R2B}
+#PPP2R2B
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R2B"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData =T)
+pc_PPP2R2B<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R2B"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_PPP2R2B,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
+  scale_y_log10() + 
+  ggtitle("PPP2R2B expression")
+```
+
+```{r PPP2R2C}
+#PPP2R2C
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R2C"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_PPP2R2C<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R2C"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_PPP2R2C,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
+  scale_y_log10() + 
+  ggtitle("PPP2R2C expression")
+```
+
+```{r PPP2R5E}
+#PPP2R5E
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R5E"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_PPP2R5E<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP2R5E"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_PPP2R5E,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
+  scale_y_log10() + 
+  ggtitle("PPP2R5E expression")
+```
+
+```{r PPP1CA}
+#PPP1CA
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP1CA"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_PPP1CA<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP1CA"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_PPP1CA,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
+  scale_y_log10() + 
+  ggtitle("PPP1CA expression")
+```
+
+```{r PPP1CC}
+#PPP1CC
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP1CC"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_PPP1CC<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP1CC"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_PPP1CC,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
+  scale_y_log10() + 
+  ggtitle("PPP1CC expression")
+```
+
+```{r PPP1CB}
+#PPP1CB
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP1CB"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_PPP1CB<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="PPP1CB"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_PPP1CB,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
+  scale_y_log10() + 
+  ggtitle("PPP1CB expression")
+```
+
+##NDC80 complex---- next 4 genes
+```{r NDC80 }
+#NDC80 
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="NDC80"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_NDC80<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="NDC80"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_NDC80,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
+  scale_y_log10() + 
+  ggtitle("NDC80 expression")
+```
+
+```{r NUF2 }
+#NUF2 
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="NUF2"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_NDC80<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="NUF2"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_NDC80,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
+  scale_y_log10() + 
+  ggtitle("NUF2 expression")
+```
+
+```{r SPC24 }
+#SPC24 
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SPC24"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_NDC80<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SPC24"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_NDC80,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
+  scale_y_log10() + 
+  ggtitle("SPC24 expression")
+```
+
+```{r SPC25 }
+
+#SPC25 
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SPC25"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_NDC80<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SPC25"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_NDC80,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
+  scale_y_log10() + 
+  ggtitle("SPC25 expression")
+
+```
+
+```{r SKA1}
+#SKA1
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SKA1"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_SKA1<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SKA1"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_SKA1,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
+  scale_y_log10() + 
+  ggtitle("SKA1 expression")
+```
+
+```{r SKA2}
+#SKA2
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SKA2"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_SKA2<- plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SKA2"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_SKA2,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
+  scale_y_log10() + 
+  ggtitle("SKA2 expression")
+```
+
+```{r SKA3}
+#SKA3
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SKA3"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_SKA3<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SKA3"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_SKA3,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
+  scale_y_log10() + 
+  ggtitle("SKA3 expression")
+```
+
+```{r SGO1}
+#SGO1
+plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SGO1"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+pc_SGO1<-plotCounts(dds, gene=which(rownames(normalized_genecounts)=="SGO1"),intgroup = c("sample"),cex.main=2, cex=1.5, xlab= "Sample", returnData = T)
+ggplot (pc_SGO1,aes(x=sample,y=count)) +
+  geom_boxplot(aes(fill=sample,alpha=0.9))+ stat_summary( geom="point", shape=20, size=5, color="red", fill="red") +geom_jitter() +
+  scale_y_log10() + 
+  ggtitle("SGO1 expression")
+```
+
+############## MAKE HIERARCHICALLY CLUSTERED HEATMAPS OF ALL CHANGING GENES #####################
+
+# Let's loosen our restrictions on significance to all genes with any log fold change and adjusted p-values less than 0.1 (both are default)
+# Get ARPE19 vs Aktmyr differentially expressed genes:
+
+########## vs  Aktmyr ##########
+
+```{r AKTmyr comparison DE genes}
+
+# Get ARPE19 vs Aktmyr differentially expressed genes:
+res_ARPE19_vs_Aktmyr <- results(dds,
+                                lfc = 0.01,
+                                contrast=c("sample","ARPE19","Aktmyr"))
+
+#Subset each results table for just the differentially expressed genes:
+ARPE19vsAktmyr<- subset(res_ARPE19_vs_Aktmyr , padj < 0.1)
+dim(subset(res_ARPE19_vs_Aktmyr , padj < 0.1))
+
+# Get MekDD vs Aktmyr differentially expressed genes:
+res_MekDD_vs_Aktmyr <- results(dds,
+                                lfc = 0.01,
+                                contrast=c("sample","MekDD","Aktmyr"))
+
+MekDDvsAktmyr<- subset(res_MekDD_vs_Aktmyr , padj < 0.1)
+dim(subset(res_MekDD_vs_Aktmyr , padj < 0.1))
+
+# Get RasV12 vs Aktmyr differentially expressed genes:
+res_RasV12_vs_Aktmyr <- results(dds,
+                               lfc = 0.01,
+                               contrast=c("sample","RasV12","Aktmyr"))
+
+RasV12vsAktmyr <- subset(res_RasV12_vs_Aktmyr , padj < 0.1)
+dim(subset(res_RasV12_vs_Aktmyr , padj < 0.1))
+
+# Get T53D4 vs Aktmyr differentially expressed genes:
+res_T53D4_vs_Aktmyr <- results(dds,
+                                lfc = 0.01,
+                                contrast=c("sample","T53D4","Aktmyr"))
+
+T53D4vsAktmyr <- subset(res_T53D4_vs_Aktmyr , padj < 0.1)
+dim(subset(res_T53D4_vs_Aktmyr , padj < 0.1))
+
+```
+
+
+```{r RasV12 DE genes}
+########## vs  RasV12 ##########
+# Get MekDD vs RasV12 differentially expressed genes:
+res_MekDD_vs_RasV12 <- results(dds,
+                               lfc = 0.01,
+                               contrast=c("sample","MekDD","RasV12"))
+
+MekDDvsRasV12<- subset(res_MekDD_vs_RasV12 , padj < 0.1)
+dim(subset(res_MekDD_vs_RasV12 , padj < 0.1))
+
+# Get Aktmyr vs RasV12 differentially expressed genes:
+res_Aktmyr_vs_RasV12 <- results(dds,
+                                lfc = 0.01,
+                                contrast=c("sample","Aktmyr","RasV12"))
+
+AktmyrvsRasV12<- subset(res_Aktmyr_vs_RasV12 , padj < 0.1)
+dim(subset(res_Aktmyr_vs_RasV12 , padj < 0.1))
+
+# Get T53D4 vs RasV12 differentially expressed genes:
+res_T53D4_vs_RasV12 <- results(dds,
+                                lfc = 0.01,
+                                contrast=c("sample","T53D4","RasV12"))
+
+T53D4vsRasV12<- subset(res_T53D4_vs_RasV12 , padj < 0.1)
+dim(subset(res_T53D4_vs_RasV12 , padj < 0.1))
+
+# Get ARPE19 vs RasV12 differentially expressed genes:
+res_ARPE19_vs_RasV12 <- results(dds,
+                               lfc = 0.01,
+                               contrast=c("sample","ARPE19","RasV12"))
+
+ARPE19vsRasV12<- subset(res_ARPE19_vs_RasV12 , padj < 0.1)
+dim(subset(res_ARPE19_vs_RasV12 , padj < 0.1))
+
+# Get ARPE19 vs RasV12 differentially expressed genes:
+res_ARPE19_vs_RasV12 <- results(dds,
+                                lfc = 0.01,
+                                contrast=c("sample","ARPE19","RasV12"))
+
+ARPE19vsRasV12<- subset(res_ARPE19_vs_RasV12 , padj < 0.1)
+dim(subset(res_ARPE19_vs_RasV12 , padj < 0.1))
+
+```
+
+```{r T53D4 DE genes}
+########## vs  T53D4 ##########
+# Get RasV12 vs T53D4 differentially expressed genes:
+res_RasV12_vs_T53D4 <- results(dds,
+                               lfc = 0.01,
+                               contrast=c("sample","RasV12","T53D4"))
+
+RasV12vsT53D4<- subset(res_RasV12_vs_T53D4 , padj < 0.1)
+dim(subset(res_RasV12_vs_T53D4 , padj < 0.1))
+
+# Get MekDD vs T53D4 differentially expressed genes:
+res_MekDD_vs_T53D4 <- results(dds,
+                               lfc = 0.01,
+                               contrast=c("sample","MekDD","T53D4"))
+
+MekDDvsT53D4<- subset(res_MekDD_vs_T53D4 , padj < 0.1)
+dim(subset(res_MekDD_vs_T53D4 , padj < 0.1))
+
+# Get Aktmyr vs T53D4 differentially expressed genes:
+res_Aktmyr_vs_T53D4 <- results(dds,
+                              lfc = 0.01,
+                              contrast=c("sample","Aktmyr","T53D4"))
+
+AktmyrvsT53D4<- subset(res_Aktmyr_vs_T53D4 , padj < 0.1)
+dim(subset(res_Aktmyr_vs_T53D4 , padj < 0.1))
+
+# Get ARPE19 vs T53D4 differentially expressed genes:
+res_ARPE19_vs_T53D4 <- results(dds,
+                               lfc = 0.01,
+                               contrast=c("sample","ARPE19","T53D4"))
+
+ARPE19vsT53D4<- subset(res_ARPE19_vs_T53D4 , padj < 0.1)
+dim(subset(res_ARPE19_vs_T53D4 , padj < 0.1))
+```
+
+```{r MekDD DE genes}
+########## vs  MekDD ##########
+# Get T53D4 vs MekDD differentially expressed genes:
+res_T53D4_vs_MekDD <- results(dds,
+                               lfc = 0.01,
+                               contrast=c("sample","T53D4","MekDD"))
+
+T53D4vsMekDD<- subset(res_T53D4_vs_MekDD , padj < 0.1)
+dim(subset(res_T53D4_vs_MekDD , padj < 0.1))
+
+# Get RasV12 vs MekDD differentially expressed genes:
+res_RasV12_vs_MekDD <- results(dds,
+                              lfc = 0.01,
+                              contrast=c("sample","RasV12","MekDD"))
+
+RasV12vsMekDD<- subset(res_RasV12_vs_MekDD , padj < 0.1)
+dim(subset(res_RasV12_vs_MekDD , padj < 0.1))
+
+# Get Aktmyr vs MekDD differentially expressed genes:
+res_Aktmyr_vs_MekDD <- results(dds,
+                               lfc = 0.01,
+                               contrast=c("sample","Aktmyr","MekDD"))
+
+AktmyrvsMekDD<- subset(res_Aktmyr_vs_MekDD , padj < 0.1)
+dim(subset(res_Aktmyr_vs_MekDD , padj < 0.1))
+
+# Get ARPE19 vs MekDD differentially expressed genes:
+res_ARPE19_vs_MekDD <- results(dds,
+                               lfc = 0.01,
+                               contrast=c("sample","ARPE19","MekDD"))
+
+ARPE19vsMekDD<- subset(res_ARPE19_vs_MekDD , padj < 0.1)
+dim(subset(res_ARPE19_vs_MekDD , padj < 0.1))
+```
+
+```{r ARPE19 DE genes}
+########## vs  ARPE19 ##########
+# Get MekDD vs ARPE19 differentially expressed genes:
+res_MekDD_vs_ARPE19<- results(dds,
+                              lfc = 0.01,
+                              contrast=c("sample","MekDD","ARPE19"))
+
+MekDDvsARPE19<- subset(res_MekDD_vs_ARPE19 , padj < 0.1)
+dim(subset(res_MekDD_vs_ARPE19 , padj < 0.1))
+
+# Get T53D4 vs ARPE19 differentially expressed genes:
+res_T53D4_vs_ARPE19<- results(dds,
+                              lfc = 0.01,
+                              contrast=c("sample","T53D4","ARPE19"))
+
+T53D4vsARPE19<- subset(res_T53D4_vs_ARPE19 , padj < 0.1)
+dim(subset(res_T53D4_vs_ARPE19 , padj < 0.1))
+
+# Get Aktmyr vs ARPE19 differentially expressed genes:
+res_Aktmyr_vs_ARPE19<- results(dds,
+                              lfc = 0.01,
+                              contrast=c("sample","Aktmyr","ARPE19"))
+
+AktmyrvsARPE19<- subset(res_Aktmyr_vs_ARPE19 , padj < 0.1)
+dim(subset(res_Aktmyr_vs_ARPE19 , padj < 0.1))
+
+# Get RasV12 vs ARPE19 differentially expressed genes:
+res_RasV12_vs_ARPE19<- results(dds,
+                               lfc = 0.01,
+                               contrast=c("sample","RasV12","ARPE19"))
+
+RasV12vsARPE19<- subset(res_RasV12_vs_ARPE19 , padj < 0.1)
+dim(subset(res_RasV12_vs_ARPE19 , padj < 0.1))
+
+```
+
+```{r capture all sig chaning genes}
+#Determine how many genes were captured and merge them:
+changing_genes<- rbind(ARPE19vsAktmyr, MekDDvsAktmyr, RasV12vsAktmyr, T53D4vsAktmyr,
+                       ARPE19vsMekDD, RasV12vsMekDD,T53D4vsMekDD,AktmyrvsMekDD,
+                       ARPE19vsT53D4, RasV12vsT53D4, MekDDvsT53D4, AktmyrvsT53D4,
+                       ARPE19vsRasV12, T53D4vsRasV12, MekDDvsRasV12, AktmyrvsRasV12,
+                       RasV12vsARPE19, T53D4vsARPE19, MekDDvsARPE19, AktmyrvsARPE19) 
+#save LogFold of changing genes
+#write.csv(changing_genes, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\changing_genes.csv" )
+dim(changing_genes)
+length(unique(rownames(changing_genes)))
+
+# Get all r-stabilized log values of all the data:
+rdl_all <- assay(rlog(dds, blind=FALSE))
+
+#Subset just the changing genes:
+changing_lrt_rdl <- subset(rdl_all, rownames(rdl_all) %in% rownames(changing_genes))
+dim(changing_lrt_rdl)
+head(changing_lrt_rdl)
+### save changing genes for app ###
+#write.csv(changing_lrt_rdl, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\20200923_changing_lrt_rdl.csv" )
+
+# Make sure it is in matrix form:
+class(changing_lrt_rdl)
+```
+
+#### Heatmaps ####
+
+```{r Heatmap of ALL sig changing genes }
+# Draw a heat map
+# Scale by row, listed below as scale = "row". This is really important. It sets the mean of every row to 0 and the standard deviation of every row to 1:
+p <- pheatmap(changing_lrt_rdl, 
+              scale="row", 
+              color = colorRampPalette(c("blue", "white", "red"), space = "Lab")(100),
+              border_color = TRUE,
+              cluster_rows=TRUE, 
+              cluster_cols=TRUE, 
+              cutree_rows = 7,
+              cutree_cols = 4,
+              treeheight_row = 100,
+              clustering_distance_rows = "euclidean", 
+              clustering_method = "complete",
+              show_rownames = FALSE,
+              returnData=F)
+p
+```
+
+```{r}
+#matrix for mean of counts per rep for rach sample
+changing_lrt_rdl_df<- as.data.frame(changing_lrt_rdl)
+#finding mean for MekDD reps
+MekDD=(changing_lrt_rdl_df$MekDD_1_1 + changing_lrt_rdl_df$MekDD_3_1 + changing_lrt_rdl_df$MekDD_2_1)/3
+#finding mean for Akt reps
+Aktmyr=(changing_lrt_rdl_df$Aktmyr_1_2+changing_lrt_rdl_df$Aktmyr_2_2+changing_lrt_rdl_df$Aktmyr_3_2)/3
+#finding mean for ARPE19 reps
+ARPE19=(changing_lrt_rdl_df$ARPE19_1_3+changing_lrt_rdl_df$ARPE19_2_3+changing_lrt_rdl_df$ARPE19_3_3)/3
+#finding mean for RasV12
+RasV12=(changing_lrt_rdl_df$RasV12_1_4+changing_lrt_rdl_df$RasV12_2_4+changing_lrt_rdl_df$RasV12_2_4)/3
+#finding mean for T53D4
+T53D4=(changing_lrt_rdl_df$T53D4_1_5+changing_lrt_rdl_df$T53D4_2_5+changing_lrt_rdl_df$T53D4_3_5)/3
+#new dataframe with all the means of the different samples
+means_of_changing_genes<-data.frame(ARPE19,T53D4,RasV12,MekDD,Aktmyr)
+rownames(means_of_changing_genes)<-rownames(changing_lrt_rdl_df) 
+head(means_of_changing_genes)
+### save means of changing genes ###
+#write.csv(means_of_changing_genes, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\20200923_means_of_changing_genes.csv" )
+```
+
+```{r}
+#heatmap of means of reps per sample
+means_heatmap<- pheatmap(means_of_changing_genes, 
+                         scale="row", 
+                         color = colorRampPalette(c("blue", "white", "red"), space = "Lab")(100),
+                         border_color = T,
+                         treeheight_row = 100,
+                         cluster_rows=TRUE, 
+                         cluster_cols=F,
+                         cutree_rows = 7,
+                         cutree_cols = 5,
+                         clustering_distance_rows = "euclidean", 
+                         clustering_method = "complete",
+                         show_rownames = F)
+
+means_heatmap
+```
+
+```{r heatmap for genes of interest}
+#new matrix for genes of interest per sample
+genes_of_interest <- changing_lrt_rdl[selectedGenes[selectedGenes %in% rownames(changing_lrt_rdl)],]
+genes_of_interest
+class(genes_of_interest)
+### save genes of interest per sample for app ###
+#write.csv(genes_of_interest, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\20200923_means_of_changing_genes.csv" )
+
+goi<- pheatmap(genes_of_interest, 
+              scale="row", 
+              color = colorRampPalette(c("blue", "white", "red"), space = "Lab")(100),
+              border_color = TRUE,
+              treeheight_row = 100,
+              cluster_rows=TRUE, 
+              cluster_cols=F,
+              cutree_rows = 4,
+              cutree_cols = 5,
+              clustering_distance_rows = "euclidean", 
+              clustering_method = "complete",
+              show_rownames = T) 
+goi
+```
+```{r}
+#heatmp showing means of genes of interest
+genes_of_interest_means <- means_of_changing_genes[selectedGenes[selectedGenes %in% rownames(means_of_changing_genes)],]
+### save means of genes of interest ###
+#write.csv(genes_of_interest_means, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\20200923_genes_of_interest_means.csv" )
+
+means_heatmap_goi<- pheatmap(genes_of_interest_means, 
+                         scale="row", 
+                         color = colorRampPalette(c("blue", "white", "red"), space = "Lab")(100),
+                         border_color = TRUE,
+                         treeheight_row = 100,
+                         cluster_rows=TRUE, 
+                         cluster_cols=F,
+                         cutree_rows = 4,
+                         cutree_cols = 5,
+                         clustering_distance_rows = "euclidean", 
+                         clustering_method = "complete",
+                         show_rownames = T)
+means_heatmap_goi
+```
+
+```{r}
+
+means_of_changing_genes<-data.frame(read.csv('20200923_means_of_changing_genes.csv'),
+                    row.names= T
+                    )
+heatmaply(x = sqrt(means_of_changing_genes),
+           color = viridis, # the default
+           Colv = NULL,
+           hclust_method = "average", k_row = NA
+           )
+```
+#### CLUSTER IDENTIFICATION ####
+
+```{r}
+#cut rows into the best groupings, where k = .. determins the number of divions
+cutree(means_heatmap$tree_row,k=7)
+gene_divisions <-sort(cutree(means_heatmap$tree_row,k=7))
+getwd()
+### save for app ###
+write.csv(gene_divisions, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\20200923_gene_divisions_means.csv" )
+
+```
+
+#all the genes of interest didnt show up in our any of the changing genes heatmaps
+#therfore we will use the normalized_genecounts data frame to make a heatmap showing all our gois
+
+```{r}
+ncounts_goi <- normalized_genecounts[selectedGenes[selectedGenes %in% rownames(normalized_genecounts)],]
+ncounts_goi_no_genecol<-ncounts_goi
+### save ncounts_goi_no_genecol ###
+write.csv(ncounts_goi_no_genecol, "/Users/romarioromain/OneDrive - Colostate/RR_ARPE_DELUCA_COLLAB/DEseq/DEseq2\\20200923_ncounts_goi_no_genecol.csv" )
+```
+
